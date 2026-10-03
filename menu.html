@@ -1,0 +1,1887 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>ZONE-431 | Journal</title>
+
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="menu.css">
+</head>
+
+<body>
+
+<div class="home">
+
+    <!-- =====================================================
+         BARRE DE NAVIGATION
+         ===================================================== -->
+
+    <header class="topbar">
+
+        <a href="accueil.html" class="logo">
+            ZONE<span>-431</span>
+        </a>
+
+        <nav>
+
+            <a href="accueil.html">
+                ACCUEIL
+            </a>
+
+            <a href="menu.html" class="active">
+                LA ZONE
+            </a>
+
+            <a href="département.html">
+                DÉPARTEMENTS
+            </a>
+
+            <a href="documents.html">
+                DOCUMENTS
+            </a>
+
+            <a href="contact.html">
+                CONTACT
+            </a>
+
+            <a href="zone staff.html"
+               onclick="openStaffAccess(event)">
+                ZONE STAFF
+            </a>
+
+        </nav>
+
+    </header>
+
+
+    <!-- =====================================================
+         HERO
+         ===================================================== -->
+
+    <section class="hero">
+
+        <div class="hero-content">
+
+            <p class="hero-classification">
+                SCP FOUNDATION // SITE-431
+            </p>
+
+            <h1>
+                JOURNAL DE LA
+                <span>ZONE-431</span>
+            </h1>
+
+            <p class="hero-description">
+                Retrouvez ici les dernières informations,
+                annonces et mises à jour concernant
+                la Zone-431.
+            </p>
+
+            <a href="#updates" class="discover">
+                CONSULTER LES MISES À JOUR
+                <span>↓</span>
+            </a>
+
+        </div>
+
+
+        <div class="hero-side">
+
+            <span>
+                431
+            </span>
+
+            <small>
+                LOG
+            </small>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         INTRODUCTION
+         ===================================================== -->
+
+    <section class="section presentation">
+
+        <div class="section-header">
+
+            <span class="section-number">
+                01
+            </span>
+
+            <div>
+
+                <p>
+                    COMMUNICATION INTERNE
+                </p>
+
+                <h2>
+                    JOURNAL DE LA ZONE
+                </h2>
+
+            </div>
+
+        </div>
+
+
+        <div class="presentation-content">
+
+            <div class="presentation-line"></div>
+
+            <div class="presentation-text">
+
+                <p class="large-text">
+                    Bienvenue dans le journal de la
+                    <strong>Zone-431</strong>.
+                </p>
+
+                <p>
+                    Cette section rassemble les principales
+                    annonces, réformes, informations et
+                    mises à jour concernant l'évolution
+                    de la Zone-431.
+                </p>
+
+                <p>
+                    Les informations sont présentées de la
+                    plus récente à la plus ancienne.
+                </p>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         MISES À JOUR
+         ===================================================== -->
+
+    <section class="section news" id="updates">
+
+        <div class="section-header">
+
+            <span class="section-number">
+                02
+            </span>
+
+            <div>
+
+                <p>
+                    ARCHIVES
+                </p>
+
+                <h2>
+                    MISES À JOUR
+                </h2>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             ACCÈS ADMIN
+             ================================================= -->
+
+        <div class="journal-admin-access">
+
+            <div class="journal-admin-access-info">
+
+                <span>
+                    ZONE-431 // ADMINISTRATION
+                </span>
+
+                <p>
+                    Gestion des publications du journal.
+                </p>
+
+            </div>
+
+
+            <button
+                type="button"
+                class="journal-admin-button"
+                onclick="openJournalAdmin()">
+
+                ACCÈS ADMIN
+
+                <b>
+                    →
+                </b>
+
+            </button>
+
+        </div>
+
+
+        <!-- =================================================
+             LISTE UNIQUE DU JOURNAL
+             ================================================= -->
+
+        <div
+            class="news-list"
+            id="dynamicNewsList">
+
+            <div class="journal-loading">
+                CHARGEMENT DES MISES À JOUR...
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         FIN DU JOURNAL
+         ===================================================== -->
+
+    <section class="quick-access">
+
+        <p>
+            ZONE-431 // ARCHIVES
+        </p>
+
+        <h2>
+            FIN DU JOURNAL
+        </h2>
+
+        <div class="quick-links">
+
+            <a href="accueil.html">
+                <span>01</span>
+                RETOUR À L'ACCUEIL
+                <b>→</b>
+            </a>
+
+            <a href="département.html">
+                <span>02</span>
+                DÉPARTEMENTS
+                <b>→</b>
+            </a>
+
+            <a href="documents.html">
+                <span>03</span>
+                DOCUMENTS
+                <b>→</b>
+            </a>
+
+            <a href="contact.html">
+                <span>04</span>
+                CONTACT
+                <b>→</b>
+            </a>
+
+            <a href="zone staff.html"
+               onclick="openStaffAccess(event)">
+                <span>05</span>
+                ZONE STAFF
+                <b>→</b>
+            </a>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         FOOTER
+         ===================================================== -->
+
+    <footer>
+
+        <div class="footer-logo">
+            ZONE<span>-431</span>
+        </div>
+
+        <div class="footer-info">
+
+            <p>
+                SCP FOUNDATION // SITE-431
+            </p>
+
+            <p>
+                DOCUMENT CLASSIFIÉ — ACCÈS RESTREINT
+            </p>
+
+        </div>
+
+        <div class="footer-right">
+            431
+        </div>
+
+    </footer>
+
+</div>
+
+
+<!-- =========================================================
+     SUPABASE
+     ========================================================= -->
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+
+<!-- =========================================================
+     STAFF ACCESS
+     ========================================================= -->
+
+<script src="staff-access.js"></script>
+
+
+<!-- =========================================================
+     FENÊTRE ACCÈS ADMIN
+     ========================================================= -->
+
+<div
+    id="journalAdminModal"
+    class="journal-admin-modal hidden">
+
+    <div
+        class="journal-admin-background"
+        onclick="closeJournalAdmin()">
+    </div>
+
+
+    <div class="journal-admin-box">
+
+        <button
+            type="button"
+            class="journal-admin-close"
+            onclick="closeJournalAdmin()">
+            ×
+        </button>
+
+
+        <span class="journal-admin-label">
+            ZONE-431 // JOURNAL
+        </span>
+
+
+        <h2>
+            ACCÈS ADMIN
+        </h2>
+
+
+        <p>
+            Cette interface est réservée à
+            l'administration de la Zone-431.
+        </p>
+
+
+        <div
+            id="journalAdminStatus"
+            class="journal-admin-status">
+
+            VÉRIFICATION DE LA SESSION...
+
+        </div>
+
+
+        <div
+            id="journalAdminError"
+            class="journal-admin-error">
+        </div>
+
+
+        <div class="journal-admin-buttons">
+
+            <button
+                type="button"
+                onclick="closeJournalAdmin()">
+
+                ANNULER
+
+            </button>
+
+
+            <button
+                type="button"
+                class="journal-admin-submit"
+                onclick="verifyJournalAdmin()">
+
+                AUTHENTIFIER
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =========================================================
+     FORMULAIRE DE PUBLICATION
+     ========================================================= -->
+
+<div
+    id="publishModal"
+    class="journal-publish-modal hidden">
+
+    <div
+        class="journal-publish-background"
+        onclick="closePublishModal()">
+    </div>
+
+
+    <div class="journal-publish-box">
+
+        <button
+            type="button"
+            class="journal-publish-close"
+            onclick="closePublishModal()">
+            ×
+        </button>
+
+
+        <span class="journal-admin-label">
+            ADMINISTRATION // JOURNAL
+        </span>
+
+
+        <h2>
+            NOUVELLE MISE À JOUR
+        </h2>
+
+
+        <form
+            id="journalPublishForm"
+            onsubmit="saveJournalUpdate(event)">
+
+
+            <label>
+                DATE DE PUBLICATION
+            </label>
+
+
+            <div class="journal-date-inputs">
+
+                <input
+                    type="number"
+                    id="updateDay"
+                    placeholder="JJ"
+                    min="1"
+                    max="31"
+                    required>
+
+                <span>/</span>
+
+                <input
+                    type="number"
+                    id="updateMonth"
+                    placeholder="MM"
+                    min="1"
+                    max="12"
+                    required>
+
+                <span>/</span>
+
+                <input
+                    type="number"
+                    id="updateYear"
+                    placeholder="AAAA"
+                    min="2020"
+                    max="2100"
+                    required>
+
+            </div>
+
+
+            <label for="updateCategory">
+                CATÉGORIE
+            </label>
+
+            <input
+                type="text"
+                id="updateCategory"
+                placeholder="Ex : MISE À JOUR"
+                required>
+
+
+            <label for="updateTitle">
+                TITRE
+            </label>
+
+            <input
+                type="text"
+                id="updateTitle"
+                placeholder="Titre de la mise à jour"
+                required>
+
+
+            <label for="updateDescription">
+                DESCRIPTION
+            </label>
+
+            <textarea
+                id="updateDescription"
+                placeholder="Décrivez la mise à jour..."
+                required></textarea>
+
+
+            <div class="journal-publish-actions">
+
+                <button
+                    type="button"
+                    onclick="closePublishModal()">
+
+                    ANNULER
+
+                </button>
+
+
+                <button
+                    type="submit"
+                    class="journal-save-button">
+
+                    PUBLIER
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<!-- =========================================================
+     JAVASCRIPT JOURNAL + SUPABASE
+     ========================================================= -->
+
+<script>
+
+/* =========================================================
+   CONFIGURATION
+   ========================================================= */
+
+const JOURNAL_SUPABASE_URL =
+    'https://pvtrlplsplyigvxiykce.supabase.co';
+
+const JOURNAL_SUPABASE_KEY =
+    'sb_publishable_iwAj_zFrWEsMcqUKNINwJw_Po3QAwDG';
+
+
+/* =========================================================
+   CLIENT PRINCIPAL
+   ========================================================= */
+
+const journalSupabase =
+    window.supabase.createClient(
+        JOURNAL_SUPABASE_URL,
+        JOURNAL_SUPABASE_KEY
+    );
+
+
+/* =========================================================
+   CLIENT PUBLIC POUR LES LECTURES
+   ========================================================= */
+
+const journalPublicSupabase =
+    window.supabase.createClient(
+        JOURNAL_SUPABASE_URL,
+        JOURNAL_SUPABASE_KEY,
+        {
+            auth: {
+                persistSession: false,
+                autoRefreshToken: false,
+                detectSessionInUrl: false
+            }
+        }
+    );
+
+
+/* =========================================================
+   VARIABLES
+   ========================================================= */
+
+let journalAdminAuthenticated = false;
+
+
+/* =========================================================
+   ANCIENNES MISES À JOUR
+   =========================================================
+
+   Les anciennes publications sont maintenant stockées
+   en JavaScript afin de pouvoir les mélanger avec les
+   publications Supabase et les trier toutes ensemble.
+   ========================================================= */
+
+const legacyUpdates = [
+
+    {
+        date: "2026-08-23",
+        category: "RÉFORME",
+        title: "Réorganisation du personnel du staff",
+        description:
+            "Une réorganisation interne du staff a été annoncée. " +
+            "L'administration et la modération sont actuellement " +
+            "en cours de restructuration."
+    },
+
+    {
+        date: "2026-08-04",
+        category: "SIGNALEMENT",
+        title: "Annonce de signalement",
+        description:
+            "Le staff rappelle aux membres de signaler tout " +
+            "comportement problématique auprès de l'équipe " +
+            "de modération."
+    },
+
+    {
+        date: "2026-07-25",
+        category: "ADDONS",
+        title: "L'arrivée des Addons !",
+        description:
+            "La structure du Département Administratif est terminée. " +
+            "Les bugs des emotes ont été corrigés et de nouveaux " +
+            "scripts complexes arrivent sur la map.\n\n" +
+            "Des casiers d'armes permettent désormais au personnel " +
+            "autorisé de récupérer certains équipements."
+    },
+
+    {
+        date: "2026-07-23",
+        category: "MISE À JOUR",
+        title: "Premiers scripts sur la map",
+        description:
+            "Les premiers scripts ont été introduits sur la map custom.\n\n" +
+            "De nouvelles emotes sont disponibles : /sit, /sleep, " +
+            "/salut1, /repos et /stop.\n\n" +
+            "Un système de rôles à mentions a également été ajouté."
+    },
+
+    {
+        date: "2026-07-13",
+        category: "RECRUTEMENT",
+        title: "Rejoignez-nous !",
+        description:
+            "Les recrutements sont toujours ouverts dans plusieurs départements.\n\n" +
+            "Le Département Médical recherche notamment un ou une " +
+            "directrice médicale.\n\n" +
+            "La construction de la map custom continue également."
+    },
+
+    {
+        date: "2026-06-22",
+        category: "RECRUTEMENT",
+        title: "Rejoignez-nous !",
+        description:
+            "La Zone-431 recherche des membres dans l'ensemble de ses départements.\n\n" +
+            "Le Département Médical recherche un directeur ou une directrice.\n\n" +
+            "Les Forces d'Interventions Mobiles recherchent également " +
+            "de nouvelles recrues."
+    },
+
+    {
+        date: "2026-06-14",
+        category: "INFORMATION",
+        title: "Absence temporaire",
+        description:
+            "Une absence temporaire de A-01 a été annoncée auprès " +
+            "de la communauté."
+    },
+
+    {
+        date: "2026-06-12",
+        category: "INFORMATION",
+        title: "Préparation de nouvelles fonctionnalités",
+        description:
+            "L'équipe d'animation, de build et de modération travaille " +
+            "sur plusieurs nouveautés concernant le serveur, Discord " +
+            "et la map custom."
+    },
+
+    {
+        date: "2026-05-24",
+        category: "RÉFORME",
+        title: "Formation des directeurs",
+        description:
+            "Une formation obligatoire destinée aux directeurs de " +
+            "département a été mise en place auprès de la modération " +
+            "et de l'administration HRP."
+    },
+
+    {
+        date: "2026-05-19",
+        category: "ANNONCE GÉNÉRALE",
+        title: "Fin de la période de développement",
+        description:
+            "La période durant laquelle les nouveaux membres étaient " +
+            "placés sous le rôle « Serveur en développement » a pris fin.\n\n" +
+            "Les serveurs visibles par le public sont désormais accessibles " +
+            "et les permissions ainsi que les tickets ont été rétablis."
+    }
+
+];
+
+
+/* =========================================================
+   OUVRIR LA FENÊTRE ADMIN
+   ========================================================= */
+
+async function openJournalAdmin() {
+
+    const modal =
+        document.getElementById("journalAdminModal");
+
+    const status =
+        document.getElementById("journalAdminStatus");
+
+    const error =
+        document.getElementById("journalAdminError");
+
+
+    if (!modal) {
+
+        console.error(
+            "ERREUR : journalAdminModal introuvable."
+        );
+
+        return;
+    }
+
+
+    modal.classList.remove("hidden");
+
+
+    if (status) {
+
+        status.textContent =
+            "VÉRIFICATION DE LA SESSION...";
+
+    }
+
+
+    if (error) {
+
+        error.textContent = "";
+
+    }
+
+
+    journalAdminAuthenticated = false;
+
+
+    await verifyJournalAdmin();
+
+}
+
+
+/* =========================================================
+   FERMER LA FENÊTRE ADMIN
+   ========================================================= */
+
+function closeJournalAdmin() {
+
+    const modal =
+        document.getElementById("journalAdminModal");
+
+
+    if (modal) {
+
+        modal.classList.add("hidden");
+
+    }
+
+    /*
+        IMPORTANT :
+
+        On ne remet PAS journalAdminAuthenticated
+        à false ici.
+
+        Sinon :
+
+        verifyJournalAdmin()
+        ↓
+        true
+        ↓
+        closeJournalAdmin()
+        ↓
+        false
+        ↓
+        openPublishModal()
+        ↓
+        REFUS
+
+        Ce bug est corrigé.
+    */
+
+}
+
+
+/* =========================================================
+   VÉRIFICATION ADMINISTRATEUR
+   ========================================================= */
+
+async function verifyJournalAdmin() {
+
+    const status =
+        document.getElementById("journalAdminStatus");
+
+    const error =
+        document.getElementById("journalAdminError");
+
+
+    if (status) {
+
+        status.textContent =
+            "VÉRIFICATION DE LA SESSION...";
+
+    }
+
+
+    if (error) {
+
+        error.textContent = "";
+
+    }
+
+
+    try {
+
+        /* -------------------------------------------------
+           RÉCUPÉRATION DE LA SESSION
+           ------------------------------------------------- */
+
+        const {
+            data: sessionData,
+            error: sessionError
+        } =
+            await journalSupabase.auth.getSession();
+
+
+        if (sessionError) {
+
+            console.error(
+                "ERREUR SESSION :",
+                sessionError
+            );
+
+            journalAdminAuthenticated = false;
+
+
+            if (status) {
+
+                status.textContent =
+                    "ERREUR DE SESSION";
+
+            }
+
+
+            if (error) {
+
+                error.textContent =
+                    "Impossible de vérifier votre session.";
+
+            }
+
+            return;
+        }
+
+
+        const session =
+            sessionData?.session;
+
+
+        /* -------------------------------------------------
+           PAS DE SESSION
+           ------------------------------------------------- */
+
+        if (!session) {
+
+            journalAdminAuthenticated = false;
+
+
+            if (status) {
+
+                status.textContent =
+                    "AUCUNE SESSION STAFF";
+
+            }
+
+
+            if (error) {
+
+                error.textContent =
+                    "Connectez-vous d'abord à la Zone Staff.";
+
+            }
+
+
+            console.warn(
+                "JOURNAL : aucune session Supabase."
+            );
+
+            return;
+        }
+
+
+        console.log(
+            "JOURNAL — SESSION :",
+            session.user.id
+        );
+
+
+        /* -------------------------------------------------
+           VÉRIFICATION DU RÔLE CÔTÉ SERVEUR
+           ------------------------------------------------- */
+
+        const {
+            data: role,
+            error: roleError
+        } =
+            await journalSupabase.rpc(
+                "current_staff_role"
+            );
+
+
+        if (roleError) {
+
+            console.error(
+                "ERREUR RÔLE :",
+                roleError
+            );
+
+            journalAdminAuthenticated = false;
+
+
+            if (status) {
+
+                status.textContent =
+                    "ERREUR DE VÉRIFICATION";
+
+            }
+
+
+            if (error) {
+
+                error.textContent =
+                    roleError.message;
+
+            }
+
+            return;
+        }
+
+
+        console.log(
+            "JOURNAL — RÔLE SERVEUR :",
+            role
+        );
+
+
+        /* -------------------------------------------------
+           SEUL ADMINISTRATEUR
+           ------------------------------------------------- */
+
+        if (role !== "ADMINISTRATEUR") {
+
+            journalAdminAuthenticated = false;
+
+
+            if (status) {
+
+                status.textContent =
+                    "ACCÈS REFUSÉ";
+
+            }
+
+
+            if (error) {
+
+                error.textContent =
+                    "Votre rôle ne permet pas de publier dans le journal.";
+
+            }
+
+
+            console.warn(
+                "JOURNAL : accès refusé pour le rôle",
+                role
+            );
+
+            return;
+        }
+
+
+        /* -------------------------------------------------
+           ADMINISTRATEUR CONFIRMÉ
+           ------------------------------------------------- */
+
+        journalAdminAuthenticated = true;
+
+
+        if (status) {
+
+            status.textContent =
+                "ADMINISTRATEUR — ACCÈS AUTORISÉ";
+
+        }
+
+
+        console.log(
+            "JOURNAL : ADMINISTRATEUR AUTHENTIFIÉ"
+        );
+
+
+        closeJournalAdmin();
+
+
+        openPublishModal();
+
+    }
+
+
+    catch (err) {
+
+        console.error(
+            "ERREUR VÉRIFICATION ADMIN :",
+            err
+        );
+
+
+        journalAdminAuthenticated = false;
+
+
+        if (status) {
+
+            status.textContent =
+                "ERREUR";
+
+        }
+
+
+        if (error) {
+
+            error.textContent =
+                err.message ||
+                "Erreur inconnue.";
+
+        }
+
+    }
+
+}
+
+
+/* =========================================================
+   OUVRIR LE FORMULAIRE DE PUBLICATION
+   ========================================================= */
+
+function openPublishModal() {
+
+    const modal =
+        document.getElementById("publishModal");
+
+
+    if (!modal) {
+
+        console.error(
+            "ERREUR : publishModal introuvable."
+        );
+
+        return;
+    }
+
+
+    if (!journalAdminAuthenticated) {
+
+        console.warn(
+            "Tentative d'ouverture du formulaire sans authentification."
+        );
+
+        return;
+    }
+
+
+    modal.classList.remove("hidden");
+
+}
+
+
+/* =========================================================
+   FERMER LE FORMULAIRE
+   ========================================================= */
+
+function closePublishModal() {
+
+    const modal =
+        document.getElementById("publishModal");
+
+
+    if (modal) {
+
+        modal.classList.add("hidden");
+
+    }
+
+}
+
+
+/* =========================================================
+   CHARGER LES PUBLICATIONS
+   ========================================================= */
+
+async function loadJournalUpdates() {
+
+    const list =
+        document.getElementById(
+            "dynamicNewsList"
+        );
+
+
+    if (!list) {
+
+        return;
+
+    }
+
+
+    list.innerHTML = `
+        <div class="journal-loading">
+            CHARGEMENT DES MISES À JOUR...
+        </div>
+    `;
+
+
+    try {
+
+        /* -------------------------------------------------
+           RÉCUPÉRATION DES PUBLICATIONS SUPABASE
+           ------------------------------------------------- */
+
+        const result =
+            await journalPublicSupabase
+
+                .from("journal_updates")
+
+                .select("*")
+
+                .order(
+                    "publication_date",
+                    {
+                        ascending: false
+                    }
+                );
+
+
+        const data =
+            result.data;
+
+        const error =
+            result.error;
+
+
+        if (error) {
+
+            console.error(
+                "ERREUR SUPABASE :",
+                error
+            );
+
+
+            list.innerHTML = `
+
+                <div class="journal-loading">
+
+                    IMPOSSIBLE DE CHARGER
+                    LES MISES À JOUR.
+
+                    <br><br>
+
+                    ${escapeHTML(error.message)}
+
+                </div>
+
+            `;
+
+            return;
+        }
+
+
+        /* -------------------------------------------------
+           COMBINAISON :
+
+           ANCIENNES MAJ
+           +
+           NOUVELLES MAJ SUPABASE
+           ------------------------------------------------- */
+
+        const supabaseUpdates =
+            (data || []).map(function(update) {
+
+                return {
+
+                    date:
+                        update.publication_date,
+
+                    category:
+                        update.category || "",
+
+                    title:
+                        update.title || "",
+
+                    description:
+                        update.description || "",
+
+                    source:
+                        "supabase"
+
+                };
+
+            });
+
+
+        const allUpdates = [
+
+            ...legacyUpdates.map(function(update) {
+
+                return {
+
+                    ...update,
+
+                    source:
+                        "legacy"
+
+                };
+
+            }),
+
+            ...supabaseUpdates
+
+        ];
+
+
+        /* -------------------------------------------------
+           TRI GLOBAL PAR DATE
+
+           PLUS RÉCENT
+           ↓
+           PLUS ANCIEN
+           ------------------------------------------------- */
+
+        allUpdates.sort(function(a, b) {
+
+            const dateA =
+                new Date(a.date + "T00:00:00");
+
+            const dateB =
+                new Date(b.date + "T00:00:00");
+
+            return dateB - dateA;
+
+        });
+
+
+        /* -------------------------------------------------
+           AUCUNE PUBLICATION
+           ------------------------------------------------- */
+
+        if (allUpdates.length === 0) {
+
+            list.innerHTML = `
+
+                <div class="journal-loading">
+
+                    AUCUNE NOUVELLE
+                    MISE À JOUR.
+
+                </div>
+
+            `;
+
+            return;
+        }
+
+
+        /* -------------------------------------------------
+           AFFICHAGE
+           ------------------------------------------------- */
+
+        list.innerHTML = "";
+
+
+        allUpdates.forEach(function(update) {
+
+            const article =
+                document.createElement(
+                    "article"
+                );
+
+
+            article.className =
+                "news-item";
+
+
+            const date =
+                formatJournalDate(
+                    update.date
+                );
+
+
+            const description =
+                escapeHTML(
+                    update.description || ""
+                ).replace(
+                    /\n/g,
+                    "<br><br>"
+                );
+
+
+            article.innerHTML = `
+
+                <span class="news-date">
+                    ${escapeHTML(date)}
+                </span>
+
+
+                <div>
+
+                    <span class="news-category">
+                        ${escapeHTML(
+                            update.category || ""
+                        )}
+                    </span>
+
+
+                    <h3>
+                        ${escapeHTML(
+                            update.title || ""
+                        )}
+                    </h3>
+
+
+                    <p class="update-description">
+                        ${description}
+                    </p>
+
+                </div>
+
+
+                <span class="news-arrow">
+                    →
+                </span>
+
+            `;
+
+
+            list.appendChild(article);
+
+        });
+
+    }
+
+
+    catch (error) {
+
+        console.error(
+            "ERREUR DE CONNEXION SUPABASE :",
+            error
+        );
+
+
+        list.innerHTML = `
+
+            <div class="journal-loading">
+
+                ERREUR DE CONNEXION
+                À SUPABASE.
+
+            </div>
+
+        `;
+
+    }
+
+}
+
+
+/* =========================================================
+   FORMATAGE DATE
+   ========================================================= */
+
+function formatJournalDate(date) {
+
+    if (!date) {
+
+        return "";
+
+    }
+
+
+    const parts =
+        String(date).split("-");
+
+
+    if (parts.length === 3) {
+
+        return (
+
+            parts[2] +
+            "." +
+            parts[1] +
+            "." +
+            parts[0].slice(-2)
+
+        );
+
+    }
+
+
+    return String(date);
+
+}
+
+
+/* =========================================================
+   PROTECTION HTML
+   ========================================================= */
+
+function escapeHTML(value) {
+
+    return String(value)
+
+        .replaceAll(
+            "&",
+            "&amp;"
+        )
+
+        .replaceAll(
+            "<",
+            "&lt;"
+        )
+
+        .replaceAll(
+            ">",
+            "&gt;"
+        )
+
+        .replaceAll(
+            '"',
+            "&quot;"
+        )
+
+        .replaceAll(
+            "'",
+            "&#039;"
+        );
+
+}
+
+
+/* =========================================================
+   PUBLIER UNE MISE À JOUR
+   ========================================================= */
+
+async function saveJournalUpdate(event) {
+
+    event.preventDefault();
+
+
+    /* -------------------------------------------------
+       PREMIÈRE SÉCURITÉ LOCALE
+       ------------------------------------------------- */
+
+    if (!journalAdminAuthenticated) {
+
+        alert(
+            "ACCÈS REFUSÉ.\n\nVous devez être ADMINISTRATEUR."
+        );
+
+        return;
+    }
+
+
+    const day =
+        document.getElementById(
+            "updateDay"
+        ).value;
+
+
+    const month =
+        document.getElementById(
+            "updateMonth"
+        ).value;
+
+
+    const year =
+        document.getElementById(
+            "updateYear"
+        ).value;
+
+
+    const category =
+        document.getElementById(
+            "updateCategory"
+        ).value.trim();
+
+
+    const title =
+        document.getElementById(
+            "updateTitle"
+        ).value.trim();
+
+
+    const description =
+        document.getElementById(
+            "updateDescription"
+        ).value.trim();
+
+
+    /* -------------------------------------------------
+       VÉRIFICATION DES CHAMPS
+       ------------------------------------------------- */
+
+    if (
+        !day ||
+        !month ||
+        !year ||
+        !category ||
+        !title ||
+        !description
+    ) {
+
+        alert(
+            "Veuillez remplir tous les champs."
+        );
+
+        return;
+    }
+
+
+    try {
+
+        /* -------------------------------------------------
+           VÉRIFICATION DE LA SESSION
+           ------------------------------------------------- */
+
+        const {
+            data: sessionData,
+            error: sessionError
+        } =
+            await journalSupabase.auth.getSession();
+
+
+        if (sessionError) {
+
+            console.error(
+                "ERREUR SESSION :",
+                sessionError
+            );
+
+            alert(
+                "Votre session n'a pas pu être vérifiée."
+            );
+
+            return;
+        }
+
+
+        const session =
+            sessionData?.session;
+
+
+        if (!session) {
+
+            alert(
+                "SESSION STAFF ABSENTE.\n\nVeuillez vous reconnecter."
+            );
+
+            journalAdminAuthenticated = false;
+
+            return;
+        }
+
+
+        /* -------------------------------------------------
+           NOUVELLE VÉRIFICATION DU RÔLE
+           ------------------------------------------------- */
+
+        const {
+            data: role,
+            error: roleError
+        } =
+            await journalSupabase.rpc(
+                "current_staff_role"
+            );
+
+
+        if (roleError) {
+
+            console.error(
+                "ERREUR VÉRIFICATION RÔLE :",
+                roleError
+            );
+
+            alert(
+                "Impossible de vérifier vos permissions.\n\n" +
+                roleError.message
+            );
+
+            return;
+        }
+
+
+        console.log(
+            "PUBLICATION — RÔLE SERVEUR :",
+            role
+        );
+
+
+        if (role !== "ADMINISTRATEUR") {
+
+            console.warn(
+                "Tentative de publication refusée. Rôle :",
+                role
+            );
+
+            journalAdminAuthenticated = false;
+
+            alert(
+                "ACCÈS REFUSÉ.\n\n" +
+                "Seul ADMINISTRATEUR peut publier une mise à jour."
+            );
+
+            return;
+        }
+
+
+        /* -------------------------------------------------
+           VALIDATION DE LA DATE
+           ------------------------------------------------- */
+
+        const numericDay =
+            Number(day);
+
+        const numericMonth =
+            Number(month);
+
+        const numericYear =
+            Number(year);
+
+
+        const testDate =
+            new Date(
+                numericYear,
+                numericMonth - 1,
+                numericDay
+            );
+
+
+        if (
+            testDate.getFullYear() !== numericYear ||
+            testDate.getMonth() !== numericMonth - 1 ||
+            testDate.getDate() !== numericDay
+        ) {
+
+            alert(
+                "La date indiquée est invalide."
+            );
+
+            return;
+        }
+
+
+        /* -------------------------------------------------
+           CRÉATION DE LA DATE
+           ------------------------------------------------- */
+
+        const publicationDate =
+
+            `${numericYear}-${String(numericMonth)
+                .padStart(2, "0")}-${String(numericDay)
+                .padStart(2, "0")}`;
+
+
+        console.log(
+            "Publication en cours..."
+        );
+
+
+        console.log({
+
+            publicationDate,
+            category,
+            title,
+            description
+
+        });
+
+
+        /* -------------------------------------------------
+           INSERTION SUPABASE
+
+           La RLS vérifie également côté serveur
+           que le rôle est ADMINISTRATEUR.
+           ------------------------------------------------- */
+
+        const result =
+            await journalSupabase
+
+                .from("journal_updates")
+
+                .insert({
+
+                    publication_date:
+                        publicationDate,
+
+                    category:
+                        category,
+
+                    title:
+                        title,
+
+                    description:
+                        description
+
+                });
+
+
+        const error =
+            result.error;
+
+
+        if (error) {
+
+            console.error(
+                "ERREUR SUPABASE :",
+                error
+            );
+
+
+            alert(
+
+                "ERREUR LORS DE LA PUBLICATION.\n\n" +
+                error.message
+
+            );
+
+            return;
+        }
+
+
+        /* -------------------------------------------------
+           SUCCÈS
+           ------------------------------------------------- */
+
+        console.log(
+            "MISE À JOUR PUBLIÉE !"
+        );
+
+
+        alert(
+            "MISE À JOUR PUBLIÉE AVEC SUCCÈS !"
+        );
+
+
+        /* -------------------------------------------------
+           RÉINITIALISATION
+           ------------------------------------------------- */
+
+        const form =
+            document.getElementById(
+                "journalPublishForm"
+            );
+
+
+        if (form) {
+
+            form.reset();
+
+        }
+
+
+        closePublishModal();
+
+
+        /* -------------------------------------------------
+           RECHARGEMENT
+
+           La nouvelle publication sera automatiquement
+           replacée au bon endroit grâce au tri global.
+           ------------------------------------------------- */
+
+        await loadJournalUpdates();
+
+    }
+
+
+    catch (error) {
+
+        console.error(
+            "ERREUR DE PUBLICATION :",
+            error
+        );
+
+
+        alert(
+
+            "IMPOSSIBLE DE CONTACTER SUPABASE.\n\n" +
+            error.message
+
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   INITIALISATION
+   ========================================================= */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function() {
+
+        console.log(
+            "ZONE-431 JOURNAL — INITIALISATION"
+        );
+
+
+        loadJournalUpdates();
+
+    }
+);
+
+
+/* =========================================================
+   SURVEILLANCE SESSION
+   ========================================================= */
+
+journalSupabase.auth.onAuthStateChange(
+    function(event, session) {
+
+        console.log(
+            "JOURNAL — CHANGEMENT SESSION :",
+            event
+        );
+
+
+        if (!session) {
+
+            journalAdminAuthenticated = false;
+
+        }
+
+    }
+);
+
+</script>
+
+
+</body>
+
+</html>

@@ -1,0 +1,2137 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>ZONE-431 | Documents</title>
+
+    <link rel="stylesheet" href="style.css">
+
+
+    <!-- =====================================================
+         ZONE-431 — CSS FENÊTRE STAFF
+         ===================================================== -->
+
+    <style>
+
+        .staff-access-modal {
+
+            position: fixed;
+            inset: 0;
+
+            z-index: 999999;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            width: 100%;
+            height: 100%;
+
+            padding: 20px;
+            box-sizing: border-box;
+
+            background: rgba(0, 0, 0, 0.85);
+
+            backdrop-filter: blur(8px);
+
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+
+            transition:
+                opacity 0.25s ease,
+                visibility 0.25s ease;
+
+        }
+
+
+        .staff-access-modal.active {
+
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+
+        }
+
+
+        .staff-access-box {
+
+            position: relative;
+
+            width: 100%;
+            max-width: 440px;
+
+            padding: 40px;
+
+            box-sizing: border-box;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    #171717,
+                    #090909
+                );
+
+            border: 1px solid #3a0000;
+
+            box-shadow:
+                0 20px 70px rgba(0, 0, 0, 0.9),
+                0 0 35px rgba(130, 0, 0, 0.12);
+
+            transform:
+                translateY(15px)
+                scale(0.98);
+
+            transition:
+                transform 0.25s ease;
+
+        }
+
+
+        .staff-access-modal.active
+        .staff-access-box {
+
+            transform:
+                translateY(0)
+                scale(1);
+
+        }
+
+
+        .staff-access-box::before {
+
+            content: "";
+
+            position: absolute;
+
+            top: 0;
+            left: 0;
+
+            width: 100%;
+            height: 2px;
+
+            background: #a00000;
+
+            box-shadow:
+                0 0 12px
+                rgba(160, 0, 0, 0.4);
+
+        }
+
+
+        .staff-access-label {
+
+            display: block;
+
+            margin-bottom: 8px;
+
+            color: #777;
+
+            font-size: 10px;
+
+            font-weight: 700;
+
+            letter-spacing: 4px;
+
+        }
+
+
+        .staff-access-box h2 {
+
+            margin: 0;
+
+            color: #fff;
+
+            font-size: 27px;
+
+            font-weight: 700;
+
+            letter-spacing: 3px;
+
+        }
+
+
+        .staff-access-description {
+
+            margin:
+                18px 0 25px;
+
+            color: #777;
+
+            font-size: 12px;
+
+            line-height: 1.7;
+
+        }
+
+
+        .staff-access-input {
+
+            display: block;
+
+            width: 100%;
+
+            padding: 14px;
+
+            box-sizing: border-box;
+
+            border: 1px solid #333;
+
+            border-radius: 0;
+
+            outline: none;
+
+            background: #0b0b0b;
+
+            color: #fff;
+
+            font-family: inherit;
+
+            font-size: 13px;
+
+            letter-spacing: 2px;
+
+            transition:
+                border-color 0.2s ease,
+                box-shadow 0.2s ease;
+
+        }
+
+
+        .staff-access-input::placeholder {
+
+            color: #555;
+
+        }
+
+
+        .staff-access-input:focus {
+
+            border-color: #8d0000;
+
+            box-shadow:
+                0 0 15px
+                rgba(140, 0, 0, 0.15);
+
+        }
+
+
+        .staff-access-message {
+
+            min-height: 18px;
+
+            margin-top: 10px;
+
+            color: #777;
+
+            font-size: 10px;
+
+            letter-spacing: 1px;
+
+        }
+
+
+        .staff-access-message.error {
+
+            color: #d00000;
+
+        }
+
+
+        .staff-access-message.success {
+
+            color: #5aaa5a;
+
+        }
+
+
+        .staff-access-submit {
+
+            display: block;
+
+            width: 100%;
+
+            margin-top: 18px;
+
+            padding: 13px;
+
+            box-sizing: border-box;
+
+            border: 1px solid #900000;
+
+            border-radius: 0;
+
+            outline: none;
+
+            background: #650000;
+
+            color: #fff;
+
+            cursor: pointer;
+
+            font-family: inherit;
+
+            font-size: 10px;
+
+            font-weight: 700;
+
+            letter-spacing: 2px;
+
+            transition:
+                background 0.2s ease,
+                border-color 0.2s ease,
+                box-shadow 0.2s ease;
+
+        }
+
+
+        .staff-access-submit:hover {
+
+            background: #a00000;
+
+            border-color: #c00000;
+
+            box-shadow:
+                0 0 20px
+                rgba(160, 0, 0, 0.25);
+
+        }
+
+
+        .staff-access-close {
+
+            position: absolute;
+
+            top: 12px;
+            right: 15px;
+
+            width: 28px;
+            height: 28px;
+
+            padding: 0;
+            margin: 0;
+
+            border: none;
+            outline: none;
+
+            background: transparent;
+
+            color: #555;
+
+            cursor: pointer;
+
+            font-family: Arial, sans-serif;
+
+            font-size: 22px;
+
+            font-weight: 400;
+
+            line-height: 28px;
+
+            text-align: center;
+
+            transition:
+                color 0.2s ease,
+                transform 0.2s ease;
+
+        }
+
+
+        .staff-access-close:hover {
+
+            color: #d00000;
+
+            transform: scale(1.1);
+
+        }
+
+
+        @media (max-width: 600px) {
+
+            .staff-access-box {
+
+                max-width: none;
+
+                padding: 32px 25px;
+
+            }
+
+
+            .staff-access-box h2 {
+
+                font-size: 23px;
+
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<div class="home">
+
+
+    <!-- =====================================================
+         BARRE DE NAVIGATION
+         ===================================================== -->
+
+    <header class="topbar">
+
+        <a href="accueil.html" class="logo">
+
+            ZONE<span>-431</span>
+
+        </a>
+
+
+        <nav>
+
+            <a href="accueil.html">
+                ACCUEIL
+            </a>
+
+            <a href="menu.html">
+                LA ZONE
+            </a>
+
+            <a href="département.html">
+                DÉPARTEMENTS
+            </a>
+
+            <a href="documents.html" class="active">
+                DOCUMENTS
+            </a>
+
+            <a href="contact.html">
+                CONTACT
+            </a>
+
+            <a
+                href="zone staff.html"
+                onclick="openStaffAccess(event)"
+            >
+                ZONE STAFF
+            </a>
+
+        </nav>
+
+    </header>
+
+
+    <!-- =====================================================
+         EN-TÊTE
+         ===================================================== -->
+
+    <section class="page-header">
+
+        <span>
+            SCP FOUNDATION // SITE-431
+        </span>
+
+        <h1>
+            DOCUMENTS
+        </h1>
+
+        <p>
+            Règlements, protocoles et informations officielles
+            applicables au sein de la Zone-431.
+        </p>
+
+    </section>
+
+
+    <!-- =====================================================
+         ACCÈS RAPIDE DOCUMENTS
+         ===================================================== -->
+
+    <section class="documents-access">
+
+        <p>
+            DOCUMENTATION
+        </p>
+
+        <h2>
+            ACCÈS RAPIDE
+        </h2>
+
+        <div class="quick-links">
+
+            <a href="#reglement-commu">
+
+                <span>01</span>
+
+                RÈGLEMENT COMMUNAUTAIRE
+
+                <b>→</b>
+
+            </a>
+
+            <a href="#reglement-rp">
+
+                <span>02</span>
+
+                RÈGLEMENT RP / IG
+
+                <b>→</b>
+
+            </a>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         RÈGLEMENT COMMUNAUTAIRE
+         ===================================================== -->
+
+    <section
+        class="documents-section"
+        id="reglement-commu"
+    >
+
+        <div class="section-header">
+
+            <span class="section-number">
+                01
+            </span>
+
+            <div>
+
+                <p>
+                    ADMINISTRATION ZONE-431
+                </p>
+
+                <h2>
+                    RÈGLEMENT COMMUNAUTAIRE
+                </h2>
+
+            </div>
+
+        </div>
+
+
+        <div class="rules-list">
+
+
+            <article class="rule-card">
+
+                <span class="rule-number">01</span>
+
+                <div class="rule-content">
+
+                    <span class="rule-code">
+                        ARTICLE 01
+                    </span>
+
+                    <h3>
+                        Respect des membres
+                    </h3>
+
+                    <p>
+                        Ne pas insulter, harceler ou provoquer
+                        les autres membres.
+                    </p>
+
+                </div>
+
+            </article>
+
+
+            <article class="rule-card">
+
+                <span class="rule-number">02</span>
+
+                <div class="rule-content">
+
+                    <span class="rule-code">
+                        ARTICLE 02
+                    </span>
+
+                    <h3>
+                        Respect et discrimination
+                    </h3>
+
+                    <p>
+                        Respecter tous les membres, sans discrimination
+                        liée à l’origine, la religion, le genre,
+                        l’orientation sexuelle ou les opinions.
+                    </p>
+
+                </div>
+
+            </article>
+
+
+            <article class="rule-card">
+
+                <span class="rule-number">03</span>
+
+                <div class="rule-content">
+
+                    <span class="rule-code">
+                        ARTICLE 03
+                    </span>
+
+                    <h3>
+                        Spam et flood
+                    </h3>
+
+                    <p>
+                        Aucune forme de spam : messages répétés,
+                        flood ou mentions abusives.
+                    </p>
+
+                </div>
+
+            </article>
+
+
+            <article class="rule-card">
+
+                <span class="rule-number">04</span>
+
+                <div class="rule-content">
+
+                    <span class="rule-code">
+                        ARTICLE 04
+                    </span>
+
+                    <h3>
+                        Contenus interdits
+                    </h3>
+
+                    <p>
+                        Ne pas publier de contenu NSFW, choquant,
+                        violent ou illégal.
+                    </p>
+
+                </div>
+
+            </article>
+
+
+            <article class="rule-card">
+
+                <span class="rule-number">05</span>
+
+                <div class="rule-content">
+
+                    <span class="rule-code">
+                        ARTICLE 05
+                    </span>
+
+                    <h3>
+                        Informations personnelles
+                    </h3>
+
+                    <p>
+                        Il est interdit de partager des informations
+                        personnelles, qu’elles concernent les siennes
+                        ou celles d’autrui.
+                    </p>
+
+                </div>
+
+            </article>
+
+
+            <article class="rule-card">
+
+                <span class="rule-number">06</span>
+
+                <div class="rule-content">
+
+                    <span class="rule-code">
+                        ARTICLE 06
+                    </span>
+
+                    <h3>
+                        Utilisation des salons
+                    </h3>
+
+                    <p>
+                        Utiliser les salons dans leur but prévu
+                        et éviter le hors-sujet.
+                    </p>
+
+                </div>
+
+            </article>
+
+
+            <article class="rule-card">
+
+                <span class="rule-number">07</span>
+
+                <div class="rule-content">
+
+                    <span class="rule-code">
+                        ARTICLE 07
+                    </span>
+
+                    <h3>
+                        Publicité
+                    </h3>
+
+                    <p>
+                        La publicité ou l’auto-promotion sont interdites
+                        sans l’accord préalable de l’équipe.
+                    </p>
+
+                </div>
+
+            </article>
+
+
+            <article class="rule-card">
+
+                <span class="rule-number">08</span>
+
+                <div class="rule-content">
+
+                    <span class="rule-code">
+                        ARTICLE 08
+                    </span>
+
+                    <h3>
+                        Respect du staff
+                    </h3>
+
+                    <p>
+                        Respecter les modérateurs ainsi que
+                        leurs décisions.
+                    </p>
+
+                </div>
+
+            </article>
+
+
+            <article class="rule-card">
+
+                <span class="rule-number">09</span>
+
+                <div class="rule-content">
+
+                    <span class="rule-code">
+                        ARTICLE 09
+                    </span>
+
+                    <h3>
+                        Contournement des sanctions
+                    </h3>
+
+                    <p>
+                        Il est interdit de contourner une sanction
+                        telle qu’un bannissement ou un mute
+                        avec d’autres comptes.
+                    </p>
+
+                </div>
+
+            </article>
+
+
+            <article class="rule-card">
+
+                <span class="rule-number">10</span>
+
+                <div class="rule-content">
+
+                    <span class="rule-code">
+                        ARTICLE 10
+                    </span>
+
+                    <h3>
+                        Pseudos et profils
+                    </h3>
+
+                    <p>
+                        Ne pas utiliser de pseudos ou d’images de profil
+                        offensants ou inappropriés.
+                    </p>
+
+                </div>
+
+            </article>
+
+
+            <article class="rule-card">
+
+                <span class="rule-number">11</span>
+
+                <div class="rule-content">
+
+                    <span class="rule-code">
+                        ARTICLE 11
+                    </span>
+
+                    <h3>
+                        Règles Discord
+                    </h3>
+
+                    <p>
+                        Suivre les Conditions d’Utilisation et les
+                        Règles de la Communauté Discord.
+                    </p>
+
+                </div>
+
+            </article>
+
+
+            <article class="rule-card">
+
+                <span class="rule-number">12</span>
+
+                <div class="rule-content">
+
+                    <span class="rule-code">
+                        ARTICLE 12
+                    </span>
+
+                    <h3>
+                        Discussions sensibles
+                    </h3>
+
+                    <p>
+                        Les discussions politiques ou religieuses sensibles
+                        doivent rester respectueuses et argumentées,
+                        ou être évitées si elles créent des tensions.
+                    </p>
+
+                </div>
+
+            </article>
+
+
+            <article class="rule-card">
+
+                <span class="rule-number">13</span>
+
+                <div class="rule-content">
+
+                    <span class="rule-code">
+                        ARTICLE 13
+                    </span>
+
+                    <h3>
+                        Commandes des bots
+                    </h3>
+
+                    <p>
+                        L’usage des commandes bots doit respecter
+                        les canaux dédiés.
+                    </p>
+
+                </div>
+
+            </article>
+
+
+            <article class="rule-card">
+
+                <span class="rule-number">14</span>
+
+                <div class="rule-content">
+
+                    <span class="rule-code">
+                        ARTICLE 14
+                    </span>
+
+                    <h3>
+                        Liens et sécurité
+                    </h3>
+
+                    <p>
+                        Tout contenu ou lien partagé doit être sûr
+                        et vérifié. Les virus, tentatives de phishing
+                        et contenus dangereux sont interdits.
+                    </p>
+
+                </div>
+
+            </article>
+
+
+            <article class="rule-card">
+
+                <span class="rule-number">15</span>
+
+                <div class="rule-content">
+
+                    <span class="rule-code">
+                        ARTICLE 15
+                    </span>
+
+                    <h3>
+                        Conflits entre membres
+                    </h3>
+
+                    <p>
+                        En cas de problème avec un membre, prévenir
+                        un modérateur plutôt que régler le conflit
+                        en public.
+                    </p>
+
+                </div>
+
+            </article>
+
+
+            <article class="rule-card">
+
+                <span class="rule-number">16</span>
+
+                <div class="rule-content">
+
+                    <span class="rule-code">
+                        ARTICLE 16
+                    </span>
+
+                    <h3>
+                        Décisions du staff
+                    </h3>
+
+                    <p>
+                        Les décisions du staff sont finales,
+                        mais peuvent être discutées en privé.
+                    </p>
+
+                </div>
+
+            </article>
+
+
+            <article class="rule-card important">
+
+                <span class="rule-number">17</span>
+
+                <div class="rule-content">
+
+                    <span class="rule-code">
+                        ARTICLE 17
+                    </span>
+
+                    <h3>
+                        Contenus sexuels et terrorisme
+                    </h3>
+
+                    <p>
+                        Il est interdit d’inciter à du contenu NSFW,
+                        sexuel, à l’exhibition du caractère féminin
+                        ou masculin, ainsi qu’à l’apologie du terrorisme.
+                    </p>
+
+                </div>
+
+            </article>
+
+
+            <article class="rule-card">
+
+                <span class="rule-number">18</span>
+
+                <div class="rule-content">
+
+                    <span class="rule-code">
+                        ARTICLE 18
+                    </span>
+
+                    <h3>
+                        Groupes dérivés
+                    </h3>
+
+                    <p>
+                        Il est interdit de créer des groupes dérivés
+                        de la Zone-431 sans l’autorisation du staff
+                        et de l’administration.
+                    </p>
+
+                </div>
+
+            </article>
+
+
+            <article class="rule-card important">
+
+                <span class="rule-number">19</span>
+
+                <div class="rule-content">
+
+                    <span class="rule-code">
+                        ARTICLE 19
+                    </span>
+
+                    <h3>
+                        Provocation et menaces
+                    </h3>
+
+                    <p>
+                        La provocation, l’insulte ou tout autre fait
+                        dénigrant, y compris les menaces en messages privés,
+                        sont strictement interdits. Tout fait remonté
+                        à l’administration pourra entraîner une sanction.
+                    </p>
+
+                </div>
+
+            </article>
+
+
+            <article class="rule-card important">
+
+                <span class="rule-number">20</span>
+
+                <div class="rule-content">
+
+                    <span class="rule-code">
+                        ARTICLE 20
+                    </span>
+
+                    <h3>
+                        Utilisation de @everyone
+                    </h3>
+
+                    <p>
+                        L’utilisation du ping @everyone est strictement
+                        interdite pour tous les membres et membres du staff,
+                        à l’exception des administrateurs HRP.
+                        L’administration se réserve le droit de bannir
+                        définitivement toute mention abusive de @everyone,
+                        quel que soit le grade du membre.
+                    </p>
+
+                </div>
+
+            </article>
+
+
+            <article class="rule-card">
+
+                <span class="rule-number">21</span>
+
+                <div class="rule-content">
+
+                    <span class="rule-code">
+                        ARTICLE 21
+                    </span>
+
+                    <h3>
+                        Bruits parasites en vocal
+                    </h3>
+
+                    <p>
+                        Le staff se réserve le droit de mettre en silencieux
+                        tout membre présentant des bruits parasites ou
+                        diffusant des contenus externes dans n’importe quel
+                        salon vocal de l’ensemble des serveurs.
+                    </p>
+
+                </div>
+
+            </article>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         RÈGLEMENT RP / IG
+         ===================================================== -->
+
+    <section
+        class="documents-section"
+        id="reglement-rp"
+    >
+
+        <div class="section-header">
+
+            <span class="section-number">
+                02
+            </span>
+
+            <div>
+
+                <p>
+                    ADMINISTRATION ZONE-431
+                </p>
+
+                <h2>
+                    RÈGLEMENT RP / IG
+                </h2>
+
+            </div>
+
+        </div>
+
+
+        <div class="rules-list">
+
+
+            <!-- =================================================
+                 I. PERSONNAGE RP
+                 ================================================= -->
+
+            <div class="rules-category">
+
+                <span>I</span>
+
+                <h3>
+                    PERSONNAGE RP
+                </h3>
+
+            </div>
+
+
+            <article class="rule-card">
+
+                <span class="rule-number">01</span>
+
+                <div class="rule-content">
+
+                    <span class="rule-code">
+                        PERSONNAGES OFFICIELS
+                    </span>
+
+                    <h3>
+                        Personnages officiels
+                    </h3>
+
+                    <p>
+                        Il est interdit d’intégrer dans un évènement RP
+                        un personnage « jetable ». Seuls les personnages
+                        enregistrés dans la liste du personnel
+                        (officiel ou WL) sont utilisables.
+                    </p>
+
+                </div>
+
+            </article>
+
+
+            <article class="rule-card">
+
+                <span class="rule-number">02</span>
+
+                <div class="rule-content">
+
+                    <span class="rule-code">
+                        ACTES INSENSÉS
+                    </span>
+
+                    <h3>
+                        Actes insensés
+                    </h3>
+
+                    <p>
+                        Les personnages non officiels qui réalisent
+                        des actes insensés dans les rapports ou la trame
+                        doivent être signalés au staff.
+                    </p>
+
+                </div>
+
+            </article>
+
+
+            <article class="rule-card">
+
+                <span class="rule-number">03</span>
+
+                <div class="rule-content">
+
+                    <span class="rule-code">
+                        LIENS INTERDITS
+                    </span>
+
+                    <h3>
+                        Liens entre personnages
+                    </h3>
+
+                    <p>
+                        Il est interdit de posséder des personnages
+                        ayant des liens amicaux ou familiaux entre eux.
+                    </p>
+
+                </div>
+
+            </article>
+
+
+            <article class="rule-card">
+
+                <span class="rule-number">04</span>
+
+                <div class="rule-content">
+
+                    <span class="rule-code">
+                        LANGAGE
+                    </span>
+
+                    <h3>
+                        Langue française
+                    </h3>
+
+                    <p>
+                        Seul le français est autorisé,
+                        sauf nécessité RP.
+                    </p>
+
+                </div>
+
+            </article>
+
+
+            <article class="rule-card">
+
+                <span class="rule-number">05</span>
+
+                <div class="rule-content">
+
+                    <span class="rule-code">
+                        INTERVENTION D'ÉQUIPE
+                    </span>
+
+                    <h3>
+                        Équipes d’évènement
+                    </h3>
+
+                    <p>
+                        Il est interdit d’intervenir en tant qu’équipe
+                        d’évènement (FIM, GdI, autres) sans autorisation
+                        explicite d’un manager ou supérieur.
+                    </p>
+
+                </div>
+
+            </article>
+
+
+            <article class="rule-card">
+
+                <span class="rule-number">06</span>
+
+                <div class="rule-content">
+
+                    <span class="rule-code">
+                        NLR
+                    </span>
+
+                    <h3>
+                        New Life Rule
+                    </h3>
+
+                    <p>
+                        Le NLR est interdit : il est interdit de jouer
+                        un nouveau personnage avec les connaissances
+                        d’un précédent personnage.
+                    </p>
+
+                </div>
+
+            </article>
+
+
+            <!-- =================================================
+                 II. IMMERSION RP
+                 ================================================= -->
+
+            <div class="rules-category">
+
+                <span>II</span>
+
+                <h3>
+                    IMMERSION RP
+                </h3>
+
+            </div>
+
+
+            <article class="rule-card">
+
+                <span class="rule-number">07</span>
+
+                <div class="rule-content">
+
+                    <span class="rule-code">
+                        FAIL RP
+                    </span>
+
+                    <h3>
+                        Fail RP
+                    </h3>
+
+                    <p>
+                        Le fait de ne pas respecter le Lore
+                        ou le Roleplay en général est interdit.
+                    </p>
+
+                </div>
+
+            </article>
+
+
+            <article class="rule-card">
+
+                <span class="rule-number">08</span>
+
+                <div class="rule-content">
+
+                    <span class="rule-code">
+                        TROLL RP
+                    </span>
+
+                    <h3>
+                        Troll RP
+                    </h3>
+
+                    <p>
+                        Faire des actions dans le but de gêner
+                        le RP ou son immersion est interdit.
+                    </p>
+
+                </div>
+
+            </article>
+
+
+            <article class="rule-card">
+
+                <span class="rule-number">09</span>
+
+                <div class="rule-content">
+
+                    <span class="rule-code">
+                        CHICKENRUN
+                    </span>
+
+                    <h3>
+                        ChickenRun
+                    </h3>
+
+                    <p>
+                        Esquiver les balles ou les coups de façon
+                        irréaliste, comme dans un jeu vidéo,
+                        est interdit.
+                    </p>
+
+                </div>
+
+            </article>
+
+
+            <article class="rule-card">
+
+                <span class="rule-number">10</span>
+
+                <div class="rule-content">
+
+                    <span class="rule-code">
+                        BUNNYHOP
+                    </span>
+
+                    <h3>
+                        BunnyHop
+                    </h3>
+
+                    <p>
+                        Sauter inutilement ou sauter sur la tête
+                        des joueurs est interdit.
+                    </p>
+
+                </div>
+
+            </article>
+
+
+            <article class="rule-card">
+
+                <span class="rule-number">11</span>
+
+                <div class="rule-content">
+
+                    <span class="rule-code">
+                        SOUNDBOARD
+                    </span>
+
+                    <h3>
+                        Soundboard et modificateurs de voix
+                    </h3>
+
+                    <p>
+                        Utiliser des sons pour gêner le RP est interdit.
+                        Dans un cadre RP, vous ne serez pas sanctionné
+                        pour des sons normaux.
+                    </p>
+
+                </div>
+
+            </article>
+
+
+            <!-- =================================================
+                 III. INFORMATIONS RP
+                 ================================================= -->
+
+            <div class="rules-category">
+
+                <span>III</span>
+
+                <h3>
+                    INFORMATIONS RP
+                </h3>
+
+            </div>
+
+
+            <article class="rule-card">
+
+                <span class="rule-number">12</span>
+
+                <div class="rule-content">
+
+                    <span class="rule-code">
+                        MIXTING
+                    </span>
+
+                    <h3>
+                        Mixting
+                    </h3>
+
+                    <p>
+                        Mélanger RP et HRP est interdit.
+                        Exemple : parler à un scientifique de son clavier.
+                    </p>
+
+                </div>
+
+            </article>
+
+
+            <article class="rule-card">
+
+                <span class="rule-number">13</span>
+
+                <div class="rule-content">
+
+                    <span class="rule-code">
+                        METAGAMING
+                    </span>
+
+                    <h3>
+                        Metagaming
+                    </h3>
+
+                    <p>
+                        Connaître une information que votre personnage
+                        ne devrait pas connaître, par exemple via HRP,
+                        est interdit.
+                    </p>
+
+                </div>
+
+            </article>
+
+
+            <!-- =================================================
+                 IV. KILL RP
+                 ================================================= -->
+
+            <div class="rules-category">
+
+                <span>IV</span>
+
+                <h3>
+                    KILL RP
+                </h3>
+
+            </div>
+
+
+            <article class="rule-card">
+
+                <span class="rule-number">14</span>
+
+                <div class="rule-content">
+
+                    <span class="rule-code">
+                        FREEKILL
+                    </span>
+
+                    <h3>
+                        Freekill
+                    </h3>
+
+                    <p>
+                        Tuer un personnage sans raison RP est interdit.
+                    </p>
+
+                </div>
+
+            </article>
+
+
+            <article class="rule-card">
+
+                <span class="rule-number">15</span>
+
+                <div class="rule-content">
+
+                    <span class="rule-code">
+                        FREESHOOT
+                    </span>
+
+                    <h3>
+                        Freeshoot
+                    </h3>
+
+                    <p>
+                        Tirer sur quelqu’un avec une arme à feu
+                        de façon HRP est interdit.
+                    </p>
+
+                </div>
+
+            </article>
+
+
+            <article class="rule-card">
+
+                <span class="rule-number">16</span>
+
+                <div class="rule-content">
+
+                    <span class="rule-code">
+                        FREEPUNCH
+                    </span>
+
+                    <h3>
+                        Freepunch
+                    </h3>
+
+                    <p>
+                        Frapper quelqu’un de façon HRP est interdit.
+                    </p>
+
+                </div>
+
+            </article>
+
+
+            <article class="rule-card">
+
+                <span class="rule-number">17</span>
+
+                <div class="rule-content">
+
+                    <span class="rule-code">
+                        REVENGEKILL
+                    </span>
+
+                    <h3>
+                        RevengeKill
+                    </h3>
+
+                    <p>
+                        Tuer une personne qui vous a précédemment tué,
+                        RP ou non, est interdit.
+                    </p>
+
+                </div>
+
+            </article>
+
+
+            <!-- =================================================
+                 V. IMMUNITÉ RP
+                 ================================================= -->
+
+            <div class="rules-category">
+
+                <span>V</span>
+
+                <h3>
+                    IMMUNITÉ RP
+                </h3>
+
+            </div>
+
+
+            <article class="rule-card">
+
+                <span class="rule-number">18</span>
+
+                <div class="rule-content">
+
+                    <span class="rule-code">
+                        NO FEAR
+                    </span>
+
+                    <h3>
+                        No Fear
+                    </h3>
+
+                    <p>
+                        Ne pas ressentir la peur est interdit.
+                    </p>
+
+                </div>
+
+            </article>
+
+
+            <article class="rule-card">
+
+                <span class="rule-number">19</span>
+
+                <div class="rule-content">
+
+                    <span class="rule-code">
+                        NO PAIN
+                    </span>
+
+                    <h3>
+                        No Pain
+                    </h3>
+
+                    <p>
+                        Ne pas ressentir la douleur est interdit.
+                    </p>
+
+                </div>
+
+            </article>
+
+
+            <article class="rule-card">
+
+                <span class="rule-number">20</span>
+
+                <div class="rule-content">
+
+                    <span class="rule-code">
+                        POWERGAMING
+                    </span>
+
+                    <h3>
+                        Powergaming
+                    </h3>
+
+                    <p>
+                        Se sentir invincible ou immortel via des
+                        permissions est interdit.
+                    </p>
+
+                </div>
+
+            </article>
+
+
+            <article class="rule-card">
+
+                <span class="rule-number">21</span>
+
+                <div class="rule-content">
+
+                    <span class="rule-code">
+                        FORCE RP
+                    </span>
+
+                    <h3>
+                        Force RP
+                    </h3>
+
+                    <p>
+                        Forcer les actions RP des joueurs est interdit.
+                        Le « Freedetain » est une infraction
+                        de Force RP.
+                    </p>
+
+                </div>
+
+            </article>
+
+
+            <!-- =================================================
+                 VI. FAILLES DU JEU
+                 ================================================= -->
+
+            <div class="rules-category">
+
+                <span>VI</span>
+
+                <h3>
+                    FAILLES DU JEU
+                </h3>
+
+            </div>
+
+
+            <article class="rule-card">
+
+                <span class="rule-number">22</span>
+
+                <div class="rule-content">
+
+                    <span class="rule-code">
+                        GLITCH / USEBUG
+                    </span>
+
+                    <h3>
+                        Glitch / Usebug
+                    </h3>
+
+                    <p>
+                        Utiliser une faille de la map ou du jeu
+                        pour accéder à un lieu ou obtenir un avantage
+                        est interdit.
+                    </p>
+
+                </div>
+
+            </article>
+
+
+            <article class="rule-card">
+
+                <span class="rule-number">23</span>
+
+                <div class="rule-content">
+
+                    <span class="rule-code">
+                        RIOT ABUSE
+                    </span>
+
+                    <h3>
+                        Riot Abuse
+                    </h3>
+
+                    <p>
+                        Tenter de s’échapper de façon RP ou non
+                        est interdit.
+                    </p>
+
+                </div>
+
+            </article>
+
+
+            <article class="rule-card">
+
+                <span class="rule-number">24</span>
+
+                <div class="rule-content">
+
+                    <span class="rule-code">
+                        ANNOUNCE ABUSE
+                    </span>
+
+                    <h3>
+                        Announce Abuse
+                    </h3>
+
+                    <p>
+                        Faire des annonces avec le passe du jeu
+                        est interdit, sans exception.
+                    </p>
+
+                </div>
+
+            </article>
+
+
+            <article class="rule-card">
+
+                <span class="rule-number">25</span>
+
+                <div class="rule-content">
+
+                    <span class="rule-code">
+                        RESET ABUSE
+                    </span>
+
+                    <h3>
+                        Reset Abuse
+                    </h3>
+
+                    <p>
+                        Utiliser la mécanique de reset dans une scène RP
+                        est interdit.
+                    </p>
+
+                </div>
+
+            </article>
+
+
+            <article class="rule-card">
+
+                <span class="rule-number">26</span>
+
+                <div class="rule-content">
+
+                    <span class="rule-code">
+                        PAIEMENT D'ÉVÉNEMENTS
+                    </span>
+
+                    <h3>
+                        Paiement d’événements
+                    </h3>
+
+                    <p>
+                        Payer un événement, quel qu’il soit,
+                        est interdit, sans exception.
+                    </p>
+
+                </div>
+
+            </article>
+
+
+            <!-- =================================================
+                 VII. BONUS
+                 ================================================= -->
+
+            <div class="rules-category">
+
+                <span>VII</span>
+
+                <h3>
+                    BONUS / INFORMATIONS SUPPLÉMENTAIRES
+                </h3>
+
+            </div>
+
+
+            <article class="rule-card">
+
+                <span class="rule-number">27</span>
+
+                <div class="rule-content">
+
+                    <span class="rule-code">
+                        MENOTTAGE RP
+                    </span>
+
+                    <h3>
+                        Menottage RP
+                    </h3>
+
+                    <p>
+                        Pour que le menottage ne soit pas considéré
+                        comme un Force RP, le personnage doit s’être
+                        rendu ou être contre un mur, dos ou face.
+                    </p>
+
+                </div>
+
+            </article>
+
+
+            <article class="rule-card">
+
+                <span class="rule-number">28</span>
+
+                <div class="rule-content">
+
+                    <span class="rule-code">
+                        STAFF RP
+                    </span>
+
+                    <h3>
+                        Parler du staff RP
+                    </h3>
+
+                    <p>
+                        Utilisez « Dieu », « Papillon »
+                        ou « Haute Administration ».
+                    </p>
+
+                </div>
+
+            </article>
+
+
+            <article class="rule-card">
+
+                <span class="rule-number">29</span>
+
+                <div class="rule-content">
+
+                    <span class="rule-code">
+                        DÉCOR / CRASH RP
+                    </span>
+
+                    <h3>
+                        Décor / crash RP
+                    </h3>
+
+                    <p>
+                        Pour signaler un décor cassé ou un crash,
+                        utilisez : « J’ai eu un mal de tête ».
+                    </p>
+
+                </div>
+
+            </article>
+
+
+            <article class="rule-card">
+
+                <span class="rule-number">30</span>
+
+                <div class="rule-content">
+
+                    <span class="rule-code">
+                        DÉCONNEXION RP
+                    </span>
+
+                    <h3>
+                        Déconnexion RP
+                    </h3>
+
+                    <p>
+                        Pour se déconnecter, utilisez :
+                        « J’ai sommeil, je vais aller me reposer ».
+                    </p>
+
+                </div>
+
+            </article>
+
+
+            <article class="rule-card">
+
+                <span class="rule-number">31</span>
+
+                <div class="rule-content">
+
+                    <span class="rule-code">
+                        LAG / BUG RP
+                    </span>
+
+                    <h3>
+                        Lag / bug RP
+                    </h3>
+
+                    <p>
+                        Pour signaler un lag ou un bug étrange,
+                        utilisez : « J’ai mal aux yeux »
+                        ou « J’ai besoin de lunettes ».
+                    </p>
+
+                </div>
+
+            </article>
+
+
+            <!-- =================================================
+                 VIII. INFORMATIONS COMPLÉMENTAIRES
+                 ================================================= -->
+
+            <div class="rules-category">
+
+                <span>VIII</span>
+
+                <h3>
+                    INFORMATIONS COMPLÉMENTAIRES
+                </h3>
+
+            </div>
+
+
+            <article class="rule-card">
+
+                <span class="rule-number">32</span>
+
+                <div class="rule-content">
+
+                    <span class="rule-code">
+                        LIEU DE DÉCONNEXION
+                    </span>
+
+                    <h3>
+                        Lieu de déconnexion
+                    </h3>
+
+                    <p>
+                        Veuillez vous déconnecter dans des lieux isolés
+                        comme des toilettes, une cellule de Classe-D,
+                        une cellule d’isolement ou votre département
+                        d’origine afin de ne pas casser l’immersion
+                        des joueurs toujours présents.
+                    </p>
+
+                </div>
+
+            </article>
+
+
+            <article class="rule-card important">
+
+                <span class="rule-number">33</span>
+
+                <div class="rule-content">
+
+                    <span class="rule-code">
+                        ENREGISTREMENT VIDÉO
+                    </span>
+
+                    <h3>
+                        Règlement de record vidéo
+                    </h3>
+
+                    <p>
+                        Vous êtes autorisé à enregistrer une vidéo
+                        ou un live sans problème. Néanmoins, en salle
+                        de modération, d’animation ou en vocal avec du staff,
+                        vous êtes obligés de couper le son et l’image afin
+                        d’éviter les leaks éventuels et de préserver
+                        la vie privée de notre modération et animation.
+                        Si une vidéo contenant une partie de la salle
+                        de modération ou d’animation est retrouvée sur
+                        YouTube, nous effectuerons une demande de suppression
+                        de la vidéo ou de coupure de la scène.
+                    </p>
+
+                </div>
+
+            </article>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         ACCÈS RAPIDE
+         ===================================================== -->
+
+    <section class="quick-access">
+
+        <p>
+            PORTAIL ZONE-431
+        </p>
+
+        <h2>
+            ACCÈS RAPIDE
+        </h2>
+
+        <div class="quick-links">
+
+            <a href="menu.html">
+
+                <span>01</span>
+
+                LA ZONE
+
+                <b>→</b>
+
+            </a>
+
+            <a href="département.html">
+
+                <span>02</span>
+
+                DÉPARTEMENTS
+
+                <b>→</b>
+
+            </a>
+
+            <a href="documents.html">
+
+                <span>03</span>
+
+                DOCUMENTS
+
+                <b>→</b>
+
+            </a>
+
+            <a href="contact.html">
+
+                <span>04</span>
+
+                CONTACT
+
+                <b>→</b>
+
+            </a>
+
+            <a
+                href="zone staff.html"
+                onclick="openStaffAccess(event)"
+            >
+
+                <span>05</span>
+
+                ZONE STAFF
+
+                <b>→</b>
+
+            </a>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         FOOTER
+         ===================================================== -->
+
+    <footer>
+
+        <div class="footer-logo">
+
+            ZONE<span>-431</span>
+
+        </div>
+
+        <div class="footer-info">
+
+            <p>
+                SCP FOUNDATION // SITE-431
+            </p>
+
+            <p>
+                DOCUMENT CLASSIFIÉ — ACCÈS RESTREINT
+            </p>
+
+        </div>
+
+        <div class="footer-right">
+            431
+        </div>
+
+    </footer>
+
+
+</div>
+
+
+<!-- =====================================================
+     JAVASCRIPT
+     ===================================================== -->
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script src="staff-access.js"></script>
+
+
+</body>
+
+</html>

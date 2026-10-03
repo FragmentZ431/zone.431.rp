@@ -1,0 +1,614 @@
+/* =========================================================
+   ZONE-431 // STAFF ACCESS
+   ========================================================= */
+
+
+:root {
+
+    --access-black: #05070a;
+    --access-dark: #090d12;
+    --access-panel: #0e141b;
+
+    --access-grey: #687582;
+    --access-light: #c9d2da;
+    --access-white: #edf3f8;
+
+    --access-blue: #3d9cff;
+    --access-blue-light: #69b5ff;
+    --access-blue-dark: #1767a8;
+
+    --access-border: rgba(61, 156, 255, 0.28);
+    --access-border-strong: rgba(61, 156, 255, 0.6);
+
+    --access-error: #ff5555;
+    --access-success: #55c7ff;
+
+}
+
+
+/* =========================================================
+   MODAL
+   ========================================================= */
+
+.staff-access-modal {
+
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 99999;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 25px;
+
+    background:
+        radial-gradient(
+            circle at center,
+            rgba(61, 156, 255, 0.08),
+            rgba(3, 5, 8, 0.96) 60%
+        );
+
+    opacity: 0;
+    visibility: hidden;
+
+    pointer-events: none;
+
+    transition:
+        opacity 0.25s ease,
+        visibility 0.25s ease;
+
+}
+
+
+.staff-access-modal.active {
+
+    opacity: 1;
+
+    visibility: visible;
+
+    pointer-events: auto;
+
+}
+
+
+/* =========================================================
+   GRID
+   ========================================================= */
+
+.staff-access-grid {
+
+    position: absolute;
+
+    inset: 0;
+
+    pointer-events: none;
+
+    opacity: 0.25;
+
+    background-image:
+        linear-gradient(
+            rgba(61, 156, 255, 0.08) 1px,
+            transparent 1px
+        ),
+        linear-gradient(
+            90deg,
+            rgba(61, 156, 255, 0.08) 1px,
+            transparent 1px
+        );
+
+    background-size: 40px 40px;
+
+}
+
+
+/* =========================================================
+   SCANLINE
+   ========================================================= */
+
+.staff-access-scanline {
+
+    position: absolute;
+
+    left: 0;
+
+    top: 0;
+
+    width: 100%;
+
+    height: 1px;
+
+    background: var(--access-blue);
+
+    box-shadow:
+        0 0 15px rgba(61, 156, 255, 0.8);
+
+    pointer-events: none;
+
+    animation:
+        accessScanline 5s linear infinite;
+
+}
+
+
+@keyframes accessScanline {
+
+    0% {
+
+        transform:
+            translateY(-10px);
+
+        opacity: 0;
+
+    }
+
+    10% {
+        opacity: 1;
+    }
+
+    90% {
+        opacity: 1;
+    }
+
+    100% {
+
+        transform:
+            translateY(100vh);
+
+        opacity: 0;
+
+    }
+
+}
+
+
+/* =========================================================
+   BOX
+   ========================================================= */
+
+.staff-access-box {
+
+    position: relative;
+
+    width: min(500px, 100%);
+
+    padding: 0;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(61, 156, 255, 0.055),
+            transparent 50%
+        ),
+        var(--access-panel);
+
+    border: 1px solid var(--access-border);
+
+    box-shadow:
+        0 0 40px rgba(0, 0, 0, 0.65),
+        0 0 25px rgba(61, 156, 255, 0.08);
+
+    overflow: hidden;
+
+    transform:
+        translateY(12px)
+        scale(0.98);
+
+    transition:
+        transform 0.25s ease;
+
+}
+
+
+.staff-access-modal.active
+.staff-access-box {
+
+    transform:
+        translateY(0)
+        scale(1);
+
+}
+
+
+.staff-access-box::before {
+
+    content: "";
+
+    position: absolute;
+
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 2px;
+
+    background: var(--access-blue);
+
+    box-shadow:
+        0 0 15px rgba(61, 156, 255, 0.8);
+
+}
+
+
+/* =========================================================
+   TOP
+   ========================================================= */
+
+.staff-access-top {
+
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 13px 20px;
+
+    border-bottom: 1px solid var(--access-border);
+
+    color: var(--access-grey);
+
+    font-family:
+        "Arial Narrow",
+        Arial,
+        sans-serif;
+
+    font-size: 8px;
+
+    letter-spacing: 1.8px;
+
+}
+
+
+/* =========================================================
+   CLOSE
+   ========================================================= */
+
+.staff-access-close {
+
+    position: absolute;
+
+    top: 10px;
+    right: 12px;
+
+    z-index: 5;
+
+    width: 30px;
+    height: 30px;
+
+    border: 1px solid transparent;
+
+    background: transparent;
+
+    color: var(--access-grey);
+
+    font-size: 20px;
+
+    line-height: 1;
+
+    cursor: pointer;
+
+    transition:
+        color 0.2s ease,
+        border-color 0.2s ease;
+
+}
+
+
+.staff-access-close:hover {
+
+    color: var(--access-blue-light);
+
+    border-color: var(--access-border);
+
+}
+
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.staff-access-header {
+
+    padding: 35px 35px 30px;
+
+}
+
+
+.staff-access-code {
+
+    margin-bottom: 12px;
+
+    color: var(--access-blue);
+
+    font-size: 9px;
+
+    letter-spacing: 2px;
+
+}
+
+
+.staff-access-header h2 {
+
+    color: var(--access-white);
+
+    font-size: 34px;
+
+    letter-spacing: 4px;
+
+}
+
+
+.staff-access-header p {
+
+    max-width: 380px;
+
+    margin-top: 12px;
+
+    color: var(--access-grey);
+
+    font-size: 11px;
+
+    line-height: 1.6;
+
+}
+
+
+/* =========================================================
+   SEPARATOR
+   ========================================================= */
+
+.staff-access-separator {
+
+    height: 1px;
+
+    margin: 0 35px;
+
+    background: var(--access-border);
+
+}
+
+
+/* =========================================================
+   FORM
+   ========================================================= */
+
+.staff-access-form {
+
+    padding: 30px 35px 35px;
+
+}
+
+
+.staff-access-form label {
+
+    display: block;
+
+    margin-bottom: 10px;
+
+    color: var(--access-grey);
+
+    font-size: 9px;
+
+    letter-spacing: 1.8px;
+
+}
+
+
+.staff-access-input {
+
+    width: 100%;
+
+    height: 48px;
+
+    padding: 0 15px;
+
+    outline: none;
+
+    border: 1px solid var(--access-border);
+
+    background:
+        rgba(0, 0, 0, 0.35);
+
+    color: var(--access-white);
+
+    font-family:
+        "Arial Narrow",
+        Arial,
+        sans-serif;
+
+    font-size: 13px;
+
+    letter-spacing: 2px;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+
+}
+
+
+.staff-access-input::placeholder {
+
+    color: #45515d;
+
+}
+
+
+.staff-access-input:focus {
+
+    border-color:
+        var(--access-border-strong);
+
+    box-shadow:
+        0 0 15px rgba(61, 156, 255, 0.08);
+
+}
+
+
+/* =========================================================
+   MESSAGE
+   ========================================================= */
+
+.staff-access-message {
+
+    min-height: 18px;
+
+    margin-top: 12px;
+
+    color: var(--access-grey);
+
+    font-size: 9px;
+
+    letter-spacing: 1px;
+
+}
+
+
+.staff-access-message.error {
+
+    color: var(--access-error);
+
+}
+
+
+.staff-access-message.success {
+
+    color: var(--access-success);
+
+}
+
+
+.staff-access-message.loading {
+
+    color: var(--access-blue-light);
+
+}
+
+
+/* =========================================================
+   BUTTON
+   ========================================================= */
+
+.staff-access-submit {
+
+    width: 100%;
+
+    height: 48px;
+
+    margin-top: 5px;
+
+    border: 1px solid var(--access-border-strong);
+
+    background:
+        rgba(61, 156, 255, 0.08);
+
+    color: var(--access-blue-light);
+
+    font-family:
+        "Arial Narrow",
+        Arial,
+        sans-serif;
+
+    font-size: 10px;
+
+    font-weight: 700;
+
+    letter-spacing: 2px;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+
+}
+
+
+.staff-access-submit:hover:not(:disabled) {
+
+    background:
+        rgba(61, 156, 255, 0.15);
+
+    border-color:
+        var(--access-blue-light);
+
+    box-shadow:
+        0 0 18px rgba(61, 156, 255, 0.12);
+
+}
+
+
+.staff-access-submit:disabled {
+
+    opacity: 0.5;
+
+    cursor: wait;
+
+}
+
+
+/* =========================================================
+   FOOTER
+   ========================================================= */
+
+.staff-access-footer {
+
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 14px 20px;
+
+    border-top: 1px solid var(--access-border);
+
+    color: #4f5b66;
+
+    font-size: 7px;
+
+    letter-spacing: 1.5px;
+
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 600px) {
+
+    .staff-access-modal {
+
+        padding: 15px;
+
+    }
+
+
+    .staff-access-header,
+    .staff-access-form {
+
+        padding-left: 22px;
+        padding-right: 22px;
+
+    }
+
+
+    .staff-access-separator {
+
+        margin-left: 22px;
+        margin-right: 22px;
+
+    }
+
+
+    .staff-access-header h2 {
+
+        font-size: 28px;
+
+    }
+
+}

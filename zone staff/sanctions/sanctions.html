@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>SANCTIONS // ZONE-431</title>
+
+    <link rel="stylesheet" href="sanctions.css">
+</head>
+
+<body>
+
+    <!-- BACKGROUND -->
+    <div class="sanctions-grid"></div>
+    <div class="sanctions-scanline"></div>
+
+    <!-- INTERFACE -->
+    <div class="sanctions-interface">
+
+        <!-- TOPBAR -->
+        <header class="sanctions-topbar">
+
+            <div class="sanctions-brand">
+                <span class="sanctions-brand-main">SCP FOUNDATION</span>
+                <span class="sanctions-brand-sub">// SITE-431</span>
+            </div>
+
+            <div class="sanctions-status">
+                <span class="sanctions-status-indicator"></span>
+                <span>SYSTÈME OPÉRATIONNEL</span>
+            </div>
+
+        </header>
+
+        <!-- MAIN -->
+        <main class="sanctions-main">
+
+            <!-- HEADER -->
+            <section class="sanctions-header">
+
+                <div class="sanctions-header-content">
+                    <span class="sanctions-header-label">
+                        SCP FOUNDATION // SITE-431
+                    </span>
+
+                    <h1>REGISTRE DISCIPLINAIRE</h1>
+
+                    <p>
+                        Gestion et consultation des sanctions disciplinaires
+                        appliquées au personnel de la Zone-431.
+                    </p>
+                </div>
+
+                <div class="sanctions-header-line"></div>
+
+            </section>
+
+            <!-- ACCESS -->
+            <section class="sanctions-access">
+
+                <div id="accessStatus" class="sanctions-access-status">
+                    VÉRIFICATION DES AUTORISATIONS...
+                </div>
+
+                <button
+                    type="button"
+                    id="createSanctionButton"
+                    class="create-sanction-button hidden"
+                    onclick="openCreateSanction()"
+                >
+                    <span>+</span>
+                    NOUVELLE SANCTION
+                </button>
+
+            </section>
+
+            <!-- SEARCH -->
+            <section class="sanctions-search-section">
+
+                <div class="sanctions-section-title">
+                    <span class="sanctions-section-number">01</span>
+
+                    <div>
+                        <h2>RECHERCHE</h2>
+                        <span>FILTRAGE DU REGISTRE DISCIPLINAIRE</span>
+                    </div>
+                </div>
+
+                <div class="sanctions-search">
+
+                    <div class="sanctions-search-icon">
+                        SEARCH //
+                    </div>
+
+                    <input
+                        type="text"
+                        id="searchInput"
+                        placeholder="RECHERCHER PAR PSEUDO DISCORD..."
+                        autocomplete="off"
+                        oninput="searchSanctions()"
+                    >
+
+                    <button
+                        type="button"
+                        id="clearSearch"
+                        class="sanctions-search-clear"
+                        onclick="clearSanctionSearch()"
+                        aria-label="Effacer la recherche"
+                    >
+                        ×
+                    </button>
+
+                </div>
+
+            </section>
+
+            <!-- SANCTIONS -->
+            <section class="sanctions-registry">
+
+                <div class="sanctions-section-title">
+
+                    <span class="sanctions-section-number">02</span>
+
+                    <div>
+                        <h2>SANCTIONS ENREGISTRÉES</h2>
+                        <span>REGISTRE DISCIPLINAIRE // ACCÈS AUTORISÉ</span>
+                    </div>
+
+                    <span
+                        id="sanctionsCount"
+                        class="sanctions-count"
+                    >
+                        0
+                    </span>
+
+                </div>
+
+                <div
+                    id="sanctionsList"
+                    class="sanctions-list"
+                >
+
+                    <div class="sanctions-loading">
+                        <span class="sanctions-loading-line"></span>
+                        CHARGEMENT DU REGISTRE...
+                    </div>
+
+                </div>
+
+            </section>
+
+            <!-- EMPTY STATE -->
+            <section
+                id="sanctionsEmpty"
+                class="sanctions-empty hidden"
+            >
+                <div class="sanctions-empty-code">
+                    REGISTRY // 404
+                </div>
+
+                <h3>AUCUNE SANCTION TROUVÉE</h3>
+
+                <p>
+                    Aucun enregistrement ne correspond aux critères
+                    actuellement utilisés.
+                </p>
+            </section>
+
+            <!-- ERROR STATE -->
+            <section
+                id="sanctionsError"
+                class="sanctions-error hidden"
+            >
+                <div class="sanctions-error-code">
+                    SYSTEM // ERROR
+                </div>
+
+                <h3>ERREUR DE CHARGEMENT</h3>
+
+                <p id="sanctionsErrorMessage">
+                    Impossible de récupérer les données du registre.
+                </p>
+
+                <button
+                    type="button"
+                    onclick="loadSanctions()"
+                    class="sanctions-retry-button"
+                >
+                    RÉESSAYER
+                </button>
+            </section>
+
+            <!-- INFORMATION -->
+            <section class="sanctions-information">
+
+                <div class="sanctions-section-title">
+
+                    <span class="sanctions-section-number">03</span>
+
+                    <div>
+                        <h2>INFORMATIONS</h2>
+                        <span>PROTOCOLE DU REGISTRE</span>
+                    </div>
+
+                </div>
+
+                <div class="sanctions-information-grid">
+
+                    <article class="sanctions-information-card">
+                        <span class="sanctions-information-number">01</span>
+
+                        <h3>ACCÈS</h3>
+
+                        <p>
+                            La consultation du registre est réservée au
+                            personnel autorisé de la Zone-431.
+                        </p>
+                    </article>
+
+                    <article class="sanctions-information-card">
+                        <span class="sanctions-information-number">02</span>
+
+                        <h3>ADMINISTRATION</h3>
+
+                        <p>
+                            La création, modification et suppression des
+                            sanctions sont réservées aux administrateurs.
+                        </p>
+                    </article>
+
+                    <article class="sanctions-information-card">
+                        <span class="sanctions-information-number">03</span>
+
+                        <h3>CONFIDENTIALITÉ</h3>
+
+                        <p>
+                            Les informations présentes dans ce registre
+                            sont considérées comme internes à la Fondation.
+                        </p>
+                    </article>
+
+                    <article class="sanctions-information-card">
+                        <span class="sanctions-information-number">04</span>
+
+                        <h3>ARCHIVAGE</h3>
+
+                        <p>
+                            Chaque sanction enregistrée est conservée dans
+                            le registre disciplinaire de la Zone-431.
+                        </p>
+                    </article>
+
+                </div>
+
+            </section>
+
+            <!-- NAVIGATION -->
+            <section class="sanctions-navigation">
+
+                <a
+                    href="../../zone staff.html"
+                    class="sanctions-back-button"
+                >
+                    <span>←</span>
+                    RETOUR À LA ZONE STAFF
+                </a>
+
+            </section>
+
+        </main>
+
+        <!-- FOOTER -->
+        <footer class="sanctions-footer">
+
+            <div>
+                SCP FOUNDATION // SITE-431
+            </div>
+
+            <div>
+                REGISTRE DISCIPLINAIRE // SYSTÈME INTERNE
+            </div>
+
+        </footer>
+
+    </div>
+
+    <!-- SANCTION MODAL -->
+    <div
+        id="sanctionModal"
+        class="sanction-admin-modal hidden"
+        aria-hidden="true"
+    >
+
+        <div
+            class="sanction-admin-overlay"
+            onclick="closeSanctionModal()"
+        ></div>
+
+        <div
+            class="sanction-admin-box"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="sanctionModalTitle"
+        >
+
+            <button
+                type="button"
+                class="sanction-admin-close"
+                onclick="closeSanctionModal()"
+                aria-label="Fermer"
+            >
+                ×
+            </button>
+
+            <div class="sanction-admin-header">
+
+                <span class="sanction-admin-header-label">
+                    SCP FOUNDATION // ADMINISTRATION
+                </span>
+
+                <h2 id="sanctionModalTitle">
+                    NOUVELLE SANCTION
+                </h2>
+
+                <div class="sanction-admin-header-line"></div>
+
+            </div>
+
+            <form
+                id="sanctionForm"
+                onsubmit="saveSanction(event)"
+            >
+
+                <input
+                    type="hidden"
+                    id="sanctionId"
+                >
+
+                <div class="sanction-form-grid">
+
+                    <div class="sanction-form-group">
+
+                        <label for="pseudoIG">
+                            PSEUDO IG
+                        </label>
+
+                        <input
+                            type="text"
+                            id="pseudoIG"
+                            required
+                            maxlength="100"
+                            autocomplete="off"
+                            placeholder="Pseudo Roblox"
+                        >
+
+                    </div>
+
+                    <div class="sanction-form-group">
+
+                        <label for="pseudoDiscord">
+                            PSEUDO DISCORD
+                        </label>
+
+                        <input
+                            type="text"
+                            id="pseudoDiscord"
+                            required
+                            maxlength="100"
+                            autocomplete="off"
+                            placeholder="Pseudo Discord"
+                        >
+
+                    </div>
+
+                    <div class="sanction-form-group">
+
+                        <label for="sanctionType">
+                            TYPE DE SANCTION
+                        </label>
+
+                        <select
+                            id="sanctionType"
+                            required
+                        >
+                            <option value="">
+                                SÉLECTIONNER
+                            </option>
+
+                            <option value="AVERTISSEMENT">
+                                AVERTISSEMENT
+                            </option>
+
+                            <option value="BLÂME">
+                                BLÂME
+                            </option>
+
+                            <option value="SUSPENSION">
+                                SUSPENSION
+                            </option>
+
+                            <option value="EXCLUSION">
+                                EXCLUSION
+                            </option>
+
+                            <option value="BANNISSEMENT">
+                                BANNISSEMENT
+                            </option>
+
+                            <option value="AUTRE">
+                                AUTRE
+                            </option>
+                        </select>
+
+                    </div>
+
+                    <div class="sanction-form-group">
+
+                        <label for="sanctionDuree">
+                            DURÉE
+                        </label>
+
+                        <input
+                            type="text"
+                            id="sanctionDuree"
+                            maxlength="100"
+                            autocomplete="off"
+                            placeholder="Ex : 7 jours / Définitif"
+                        >
+
+                    </div>
+
+                    <div class="sanction-form-group sanction-form-full">
+
+                        <label for="sanctionMotif">
+                            MOTIF
+                        </label>
+
+                        <input
+                            type="text"
+                            id="sanctionMotif"
+                            required
+                            maxlength="255"
+                            autocomplete="off"
+                            placeholder="Motif de la sanction"
+                        >
+
+                    </div>
+
+                    <div class="sanction-form-group">
+
+                        <label for="sanctionStaff">
+                            RÉDACTEUR / STAFF
+                        </label>
+
+                        <input
+                            type="text"
+                            id="sanctionStaff"
+                            required
+                            maxlength="100"
+                            autocomplete="off"
+                            placeholder="Nom du membre du staff"
+                        >
+
+                    </div>
+
+                    <div class="sanction-form-group sanction-form-full">
+
+                        <label for="sanctionNotes">
+                            NOTES
+                        </label>
+
+                        <textarea
+                            id="sanctionNotes"
+                            rows="5"
+                            maxlength="2000"
+                            placeholder="Informations complémentaires..."
+                        ></textarea>
+
+                    </div>
+
+                </div>
+
+                <div class="sanction-admin-actions">
+
+                    <button
+                        type="button"
+                        class="sanction-cancel-button"
+                        onclick="closeSanctionModal()"
+                    >
+                        ANNULER
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="sanction-save-button"
+                    >
+                        ENREGISTRER
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+    <!-- SUPABASE -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- SCRIPT -->
+    <script src="sanctions.js"></script>
+
+</body>
+</html>

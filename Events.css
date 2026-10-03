@@ -1,0 +1,2223 @@
+/* =========================================================
+   ZONE-431 — RAPPORTS D'ÉVÉNEMENTS
+   FEUILLE CSS AUTONOME
+   ========================================================= */
+
+
+/* =========================================================
+   POLICE
+   ========================================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Blinker:wght@300;400;500;600;700&family=Rajdhani:wght@400;500;600;700&display=swap');
+
+
+/* =========================================================
+   VARIABLES
+   ========================================================= */
+
+:root {
+
+    --red: #a00000;
+    --red-light: #d00000;
+    --red-dark: #650000;
+
+    --black: #050505;
+    --black-2: #090909;
+    --black-3: #0d0d0d;
+
+    --grey-dark: #151515;
+    --grey: #242424;
+    --grey-light: #777;
+
+    --white: #ffffff;
+    --text: #bdbdbd;
+
+}
+
+
+/* =========================================================
+   RESET
+   ========================================================= */
+
+* {
+
+    box-sizing: border-box;
+
+    margin: 0;
+
+    padding: 0;
+
+}
+
+
+html {
+
+    scroll-behavior: smooth;
+
+}
+
+
+body {
+
+    min-height: 100vh;
+
+    background:
+        radial-gradient(
+            circle at 50% 0%,
+            rgba(120, 0, 0, 0.08),
+            transparent 45%
+        ),
+        #050505;
+
+    color: var(--text);
+
+    font-family: 'Blinker', sans-serif;
+
+}
+
+
+/* =========================================================
+   PAGE
+   ========================================================= */
+
+.events-page {
+
+    min-height: 100vh;
+
+    position: relative;
+
+    overflow-x: hidden;
+
+}
+
+
+/* =========================================================
+   EFFET GRILLE
+   ========================================================= */
+
+.events-page::before {
+
+    content: "";
+
+    position: fixed;
+
+    inset: 0;
+
+    pointer-events: none;
+
+    opacity: 0.035;
+
+    background-image:
+        linear-gradient(
+            rgba(255,255,255,0.5) 1px,
+            transparent 1px
+        ),
+        linear-gradient(
+            90deg,
+            rgba(255,255,255,0.5) 1px,
+            transparent 1px
+        );
+
+    background-size: 45px 45px;
+
+    z-index: 0;
+
+}
+
+
+/* =========================================================
+   BARRE DE NAVIGATION
+   ========================================================= */
+
+.topbar {
+
+    position: relative;
+
+    z-index: 20;
+
+    height: 78px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    padding: 0 6%;
+
+    background:
+        rgba(5,5,5,0.96);
+
+    border-bottom: 1px solid #202020;
+
+}
+
+
+/* =========================================================
+   LOGO
+   ========================================================= */
+
+.logo {
+
+    color: white;
+
+    text-decoration: none;
+
+    font-family: 'Rajdhani', sans-serif;
+
+    font-size: 27px;
+
+    font-weight: 700;
+
+    letter-spacing: 4px;
+
+}
+
+
+.logo span {
+
+    color: var(--red-light);
+
+}
+
+
+/* =========================================================
+   NAVIGATION
+   ========================================================= */
+
+.topbar nav {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 6px;
+
+}
+
+
+.topbar nav a {
+
+    position: relative;
+
+    padding: 12px 16px;
+
+    color: #777;
+
+    text-decoration: none;
+
+    font-family: 'Rajdhani', sans-serif;
+
+    font-size: 12px;
+
+    font-weight: 600;
+
+    letter-spacing: 2px;
+
+    transition: 0.3s ease;
+
+}
+
+
+.topbar nav a::after {
+
+    content: "";
+
+    position: absolute;
+
+    left: 16px;
+
+    right: 16px;
+
+    bottom: 5px;
+
+    height: 1px;
+
+    background: var(--red);
+
+    transform: scaleX(0);
+
+    transform-origin: center;
+
+    transition: 0.3s ease;
+
+}
+
+
+.topbar nav a:hover {
+
+    color: white;
+
+}
+
+
+.topbar nav a:hover::after {
+
+    transform: scaleX(1);
+
+}
+
+
+.topbar nav a.active {
+
+    color: white;
+
+}
+
+
+.topbar nav a.active::after {
+
+    transform: scaleX(1);
+
+}
+
+
+/* =========================================================
+   EN-TÊTE
+   ========================================================= */
+
+.page-header {
+
+    position: relative;
+
+    z-index: 1;
+
+    max-width: 1200px;
+
+    margin: auto;
+
+    padding: 110px 40px 80px;
+
+}
+
+
+.page-header::before {
+
+    content: "";
+
+    position: absolute;
+
+    left: 40px;
+
+    top: 90px;
+
+    width: 2px;
+
+    height: 100px;
+
+    background: linear-gradient(
+        to bottom,
+        var(--red),
+        transparent
+    );
+
+}
+
+
+.page-header span {
+
+    display: block;
+
+    margin-left: 25px;
+
+    margin-bottom: 18px;
+
+    color: #666;
+
+    font-size: 11px;
+
+    letter-spacing: 4px;
+
+}
+
+
+.page-header h1 {
+
+    margin-left: 25px;
+
+    color: white;
+
+    font-family: 'Rajdhani', sans-serif;
+
+    font-size: clamp(45px, 7vw, 82px);
+
+    line-height: 0.9;
+
+    font-weight: 700;
+
+    letter-spacing: 7px;
+
+}
+
+
+.page-header p {
+
+    max-width: 650px;
+
+    margin:
+
+        30px 0 0 25px;
+
+    color: #777;
+
+    font-size: 14px;
+
+    line-height: 1.8;
+
+}
+
+
+/* =========================================================
+   ACCÈS
+   ========================================================= */
+
+.access-section {
+
+    position: relative;
+
+    z-index: 2;
+
+    max-width: 900px;
+
+    margin: 0 auto 100px;
+
+    padding: 0 25px;
+
+}
+
+
+.access-box {
+
+    position: relative;
+
+    padding: 50px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #171717,
+            #080808
+        );
+
+    border: 1px solid #2e2e2e;
+
+    box-shadow:
+        0 0 60px rgba(0,0,0,0.7),
+        0 0 35px rgba(130,0,0,0.08);
+
+}
+
+
+.access-box::before {
+
+    content: "";
+
+    position: absolute;
+
+    top: 0;
+
+    left: 0;
+
+    width: 100%;
+
+    height: 2px;
+
+    background: var(--red);
+
+}
+
+
+.access-box::after {
+
+    content: "";
+
+    position: absolute;
+
+    bottom: 0;
+
+    right: 0;
+
+    width: 90px;
+
+    height: 1px;
+
+    background: var(--red);
+
+}
+
+
+/* =========================================================
+   LABEL
+   ========================================================= */
+
+.access-label,
+.section-label,
+.modal-label {
+
+    display: block;
+
+    color: #777;
+
+    font-size: 10px;
+
+    letter-spacing: 4px;
+
+}
+
+
+/* =========================================================
+   TITRES
+   ========================================================= */
+
+.access-box h2 {
+
+    margin: 12px 0;
+
+    color: white;
+
+    font-family: 'Rajdhani', sans-serif;
+
+    font-size: 32px;
+
+    letter-spacing: 3px;
+
+}
+
+
+.access-box p {
+
+    margin-bottom: 30px;
+
+    color: #777;
+
+    font-size: 13px;
+
+}
+
+
+/* =========================================================
+   BOUTONS ACCÈS
+   ========================================================= */
+
+.access-buttons {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, 1fr);
+
+    gap: 15px;
+
+}
+
+
+.access-button {
+
+    position: relative;
+
+    min-height: 70px;
+
+    padding: 0 22px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 18px;
+
+    border: 1px solid #333;
+
+    background:
+        linear-gradient(
+            135deg,
+            #151515,
+            #090909
+        );
+
+    color: #aaa;
+
+    cursor: pointer;
+
+    font-family: 'Rajdhani', sans-serif;
+
+    font-size: 14px;
+
+    font-weight: 700;
+
+    letter-spacing: 3px;
+
+    text-align: left;
+
+    transition: 0.3s ease;
+
+    overflow: hidden;
+
+}
+
+
+.access-button::before {
+
+    content: "";
+
+    position: absolute;
+
+    left: 0;
+
+    top: 0;
+
+    width: 3px;
+
+    height: 100%;
+
+    background: var(--red);
+
+    transform: scaleY(0);
+
+    transition: 0.3s ease;
+
+}
+
+
+.access-button span {
+
+    color: #555;
+
+    font-size: 11px;
+
+}
+
+
+.access-button b {
+
+    margin-left: auto;
+
+    color: #555;
+
+    font-size: 22px;
+
+    transition: 0.3s ease;
+
+}
+
+
+.access-button:hover {
+
+    color: white;
+
+    border-color: #600000;
+
+    background:
+        linear-gradient(
+            135deg,
+            #1a0b0b,
+            #090909
+        );
+
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 10px 30px rgba(0,0,0,0.5),
+        0 0 20px rgba(150,0,0,0.08);
+
+}
+
+
+.access-button:hover::before {
+
+    transform: scaleY(1);
+
+}
+
+
+.access-button:hover b {
+
+    color: var(--red-light);
+
+    transform: translateX(5px);
+
+}
+
+
+/* =========================================================
+   CONTENU
+   ========================================================= */
+
+.events-content {
+
+    position: relative;
+
+    z-index: 2;
+
+    max-width: 1250px;
+
+    margin: 0 auto;
+
+    padding: 0 35px 100px;
+
+}
+
+
+.hidden {
+
+    display: none !important;
+
+}
+
+
+/* =========================================================
+   HAUT DU CONTENU
+   ========================================================= */
+
+.events-top {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: flex-end;
+
+    gap: 30px;
+
+    margin-bottom: 35px;
+
+    padding-bottom: 25px;
+
+    border-bottom: 1px solid #222;
+
+}
+
+
+.events-top h2 {
+
+    margin-top: 8px;
+
+    color: white;
+
+    font-family: 'Rajdhani', sans-serif;
+
+    font-size: 38px;
+
+    letter-spacing: 4px;
+
+}
+
+
+.events-top p {
+
+    margin-top: 7px;
+
+    color: #666;
+
+    font-size: 12px;
+
+    letter-spacing: 1px;
+
+}
+
+
+/* =========================================================
+   BOUTON CRÉER
+   ========================================================= */
+
+.create-button {
+
+    position: relative;
+
+    padding: 15px 23px;
+
+    border: 1px solid #760000;
+
+    background:
+        linear-gradient(
+            135deg,
+            #720000,
+            #3d0000
+        );
+
+    color: white;
+
+    cursor: pointer;
+
+    font-family: 'Rajdhani', sans-serif;
+
+    font-size: 12px;
+
+    font-weight: 700;
+
+    letter-spacing: 2px;
+
+    transition: 0.3s ease;
+
+}
+
+
+.create-button:hover {
+
+    background:
+        linear-gradient(
+            135deg,
+            #a00000,
+            #5d0000
+        );
+
+    border-color: #c00000;
+
+    box-shadow:
+        0 0 25px rgba(170,0,0,0.25);
+
+    transform: translateY(-2px);
+
+}
+
+
+/* =========================================================
+   RECHERCHE
+   ========================================================= */
+
+.search-box {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 15px;
+
+    margin-bottom: 30px;
+
+    padding: 0 18px;
+
+    height: 58px;
+
+    background: #0b0b0b;
+
+    border: 1px solid #292929;
+
+    transition: 0.3s ease;
+
+}
+
+
+.search-box:focus-within {
+
+    border-color: #760000;
+
+    box-shadow:
+        0 0 20px rgba(130,0,0,0.08);
+
+}
+
+
+.search-box span {
+
+    color: #777;
+
+}
+
+
+.search-box input {
+
+    width: 100%;
+
+    height: 100%;
+
+    border: none;
+
+    outline: none;
+
+    background: transparent;
+
+    color: white;
+
+    font-family: inherit;
+
+    font-size: 13px;
+
+}
+
+
+.search-box input::placeholder {
+
+    color: #4f4f4f;
+
+}
+
+
+/* =========================================================
+   LISTE RAPPORTS
+   ========================================================= */
+
+.reports-list {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 22px;
+
+}
+
+
+/* =========================================================
+   CARTE RAPPORT
+   ========================================================= */
+
+.report-card {
+
+    position: relative;
+
+    overflow: hidden;
+
+    background:
+        linear-gradient(
+            145deg,
+            #151515,
+            #080808
+        );
+
+    border: 1px solid #292929;
+
+    box-shadow:
+        0 15px 40px rgba(0,0,0,0.3);
+
+    transition:
+        transform 0.3s ease,
+        border-color 0.3s ease,
+        box-shadow 0.3s ease;
+
+}
+
+
+.report-card::before {
+
+    content: "";
+
+    position: absolute;
+
+    left: 0;
+
+    top: 0;
+
+    width: 3px;
+
+    height: 100%;
+
+    background:
+        linear-gradient(
+            to bottom,
+            var(--red),
+            transparent
+        );
+
+}
+
+
+.report-card:hover {
+
+    transform: translateY(-4px);
+
+    border-color: #500000;
+
+    box-shadow:
+        0 20px 50px rgba(0,0,0,0.5),
+        0 0 25px rgba(120,0,0,0.06);
+
+}
+
+
+/* =========================================================
+   HEADER CARTE
+   ========================================================= */
+
+.report-header {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: flex-start;
+
+    gap: 20px;
+
+    padding: 27px 28px 22px;
+
+    border-bottom: 1px solid #242424;
+
+}
+
+
+.report-number {
+
+    display: block;
+
+    margin-bottom: 8px;
+
+    color: #666;
+
+    font-size: 9px;
+
+    letter-spacing: 3px;
+
+}
+
+
+.report-header h3 {
+
+    color: white;
+
+    font-family: 'Rajdhani', sans-serif;
+
+    font-size: 25px;
+
+    line-height: 1.1;
+
+    letter-spacing: 2px;
+
+}
+
+
+/* =========================================================
+   STATUT
+   ========================================================= */
+
+.report-status {
+
+    flex-shrink: 0;
+
+    padding: 7px 10px;
+
+    border: 1px solid #4d0000;
+
+    background: rgba(100,0,0,0.12);
+
+    color: #c00000;
+
+    font-size: 9px;
+
+    font-weight: 700;
+
+    letter-spacing: 2px;
+
+}
+
+
+/* =========================================================
+   INFORMATIONS
+   ========================================================= */
+
+.report-info {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    border-bottom: 1px solid #242424;
+
+}
+
+
+.report-info-item {
+
+    min-height: 75px;
+
+    padding: 18px;
+
+    border-right: 1px solid #222;
+
+}
+
+
+.report-info-item:last-child {
+
+    border-right: none;
+
+}
+
+
+.report-info-item span {
+
+    display: block;
+
+    margin-bottom: 7px;
+
+    color: #555;
+
+    font-size: 9px;
+
+    letter-spacing: 2px;
+
+}
+
+
+.report-info-item strong {
+
+    color: #bbb;
+
+    font-size: 12px;
+
+    font-weight: 500;
+
+}
+
+
+/* =========================================================
+   CORPS
+   ========================================================= */
+
+.report-body {
+
+    padding: 25px 28px;
+
+}
+
+
+.report-section {
+
+    margin-bottom: 22px;
+
+}
+
+
+.report-section:last-child {
+
+    margin-bottom: 0;
+
+}
+
+
+.report-section-title {
+
+    position: relative;
+
+    margin-bottom: 8px;
+
+    padding-left: 13px;
+
+    color: #888;
+
+    font-size: 10px;
+
+    font-weight: 700;
+
+    letter-spacing: 3px;
+
+}
+
+
+.report-section-title::before {
+
+    content: "";
+
+    position: absolute;
+
+    left: 0;
+
+    top: 2px;
+
+    width: 2px;
+
+    height: 12px;
+
+    background: var(--red);
+
+}
+
+
+.report-section p {
+
+    color: #777;
+
+    font-size: 12px;
+
+    line-height: 1.7;
+
+    white-space: pre-line;
+
+}
+
+
+/* =========================================================
+   INCIDENTS
+   ========================================================= */
+
+.report-incidents {
+
+    padding: 15px;
+
+    background:
+        rgba(100,0,0,0.05);
+
+    border: 1px solid #281010;
+
+}
+
+
+.report-incidents .report-section-title {
+
+    color: #9b5959;
+
+}
+
+
+/* =========================================================
+   COMMENTAIRES
+   ========================================================= */
+
+.report-comments {
+
+    padding-top: 18px;
+
+    border-top: 1px solid #202020;
+
+}
+
+
+/* =========================================================
+   ACTIONS ADMIN
+   ========================================================= */
+
+.report-actions {
+
+    display: flex;
+
+    gap: 10px;
+
+    padding: 16px 20px;
+
+    border-top: 1px solid #242424;
+
+    background: rgba(0,0,0,0.2);
+
+}
+
+
+.report-actions button {
+
+    flex: 1;
+
+    padding: 11px;
+
+    border: 1px solid #333;
+
+    background: #111;
+
+    color: #999;
+
+    cursor: pointer;
+
+    font-family: 'Rajdhani', sans-serif;
+
+    font-size: 10px;
+
+    font-weight: 700;
+
+    letter-spacing: 2px;
+
+    transition: 0.3s ease;
+
+}
+
+
+.report-actions button:hover {
+
+    color: white;
+
+    border-color: #666;
+
+}
+
+
+.report-actions .delete-action {
+
+    color: #8d3030;
+
+    border-color: #421414;
+
+}
+
+
+.report-actions .delete-action:hover {
+
+    color: white;
+
+    background: #600000;
+
+    border-color: #a00000;
+
+    box-shadow:
+        0 0 18px rgba(160,0,0,0.2);
+
+}
+
+
+/* =========================================================
+   LOADING
+   ========================================================= */
+
+.loading {
+
+    grid-column: 1 / -1;
+
+    padding: 70px;
+
+    text-align: center;
+
+    color: #666;
+
+    font-size: 11px;
+
+    letter-spacing: 4px;
+
+    border: 1px solid #222;
+
+    background: #090909;
+
+}
+
+
+/* =========================================================
+   ERREUR
+   ========================================================= */
+
+.error-box {
+
+    grid-column: 1 / -1;
+
+    padding: 40px;
+
+    text-align: center;
+
+    border: 1px solid #500000;
+
+    background:
+        rgba(80,0,0,0.08);
+
+    color: #b00000;
+
+    font-size: 12px;
+
+    letter-spacing: 2px;
+
+}
+
+
+/* =========================================================
+   VIDE
+   ========================================================= */
+
+.empty-box {
+
+    grid-column: 1 / -1;
+
+    padding: 70px 30px;
+
+    text-align: center;
+
+    background: #090909;
+
+    border: 1px solid #222;
+
+}
+
+
+.empty-box h3 {
+
+    margin-bottom: 10px;
+
+    color: white;
+
+    font-family: 'Rajdhani', sans-serif;
+
+    font-size: 24px;
+
+    letter-spacing: 3px;
+
+}
+
+
+.empty-box p {
+
+    color: #666;
+
+    font-size: 12px;
+
+}
+
+
+/* =========================================================
+   MODALES
+   ========================================================= */
+
+.modal {
+
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 9999;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+}
+
+
+.modal.hidden {
+
+    display: none;
+
+}
+
+
+.modal-background {
+
+    position: absolute;
+
+    inset: 0;
+
+    background:
+        rgba(0,0,0,0.86);
+
+    backdrop-filter: blur(8px);
+
+}
+
+
+/* =========================================================
+   BOÎTE MODALE
+   ========================================================= */
+
+.modal-box {
+
+    position: relative;
+
+    z-index: 2;
+
+    width: 90%;
+
+    max-width: 520px;
+
+    max-height: 90vh;
+
+    overflow-y: auto;
+
+    padding: 45px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #171717,
+            #090909
+        );
+
+    border: 1px solid #3a0000;
+
+    box-shadow:
+        0 0 60px rgba(0,0,0,0.8),
+        0 0 35px rgba(130,0,0,0.12);
+
+    animation:
+        modalOpen 0.25s ease;
+
+}
+
+
+.large-modal {
+
+    max-width: 750px;
+
+}
+
+
+@keyframes modalOpen {
+
+    from {
+
+        opacity: 0;
+
+        transform:
+            translateY(20px)
+            scale(0.98);
+
+    }
+
+    to {
+
+        opacity: 1;
+
+        transform:
+            translateY(0)
+            scale(1);
+
+    }
+
+}
+
+
+/* =========================================================
+   LIGNE ROUGE MODALE
+   ========================================================= */
+
+.modal-box::before {
+
+    content: "";
+
+    position: absolute;
+
+    top: 0;
+
+    left: 0;
+
+    width: 100%;
+
+    height: 2px;
+
+    background: var(--red);
+
+}
+
+
+/* =========================================================
+   FERMER
+   ========================================================= */
+
+.modal-close {
+
+    position: absolute;
+
+    top: 14px;
+
+    right: 17px;
+
+    width: auto;
+
+    padding: 5px;
+
+    border: none;
+
+    background: transparent;
+
+    color: #555;
+
+    cursor: pointer;
+
+    font-size: 24px;
+
+    transition: 0.3s ease;
+
+}
+
+
+.modal-close:hover {
+
+    color: var(--red-light);
+
+}
+
+
+/* =========================================================
+   TITRE MODALE
+   ========================================================= */
+
+.modal-box h2 {
+
+    margin: 12px 0;
+
+    color: white;
+
+    font-family: 'Rajdhani', sans-serif;
+
+    font-size: 30px;
+
+    letter-spacing: 3px;
+
+}
+
+
+.modal-box > p {
+
+    margin-bottom: 25px;
+
+    color: #777;
+
+    font-size: 13px;
+
+    line-height: 1.6;
+
+}
+
+
+/* =========================================================
+   INPUT CODE
+   ========================================================= */
+
+.code-input {
+
+    width: 100%;
+
+    padding: 16px;
+
+    background: #0b0b0b;
+
+    border: 1px solid #333;
+
+    outline: none;
+
+    color: white;
+
+    font-family: inherit;
+
+    font-size: 14px;
+
+    letter-spacing: 2px;
+
+    transition: 0.3s ease;
+
+}
+
+
+.code-input::placeholder {
+
+    color: #555;
+
+}
+
+
+.code-input:focus {
+
+    border-color: #8d0000;
+
+    box-shadow:
+        0 0 18px rgba(140,0,0,0.15);
+
+}
+
+
+/* =========================================================
+   ERREUR CODE
+   ========================================================= */
+
+.access-error {
+
+    min-height: 18px;
+
+    margin: 10px 0 !important;
+
+    color: #d00000 !important;
+
+    font-size: 11px !important;
+
+    letter-spacing: 1px;
+
+}
+
+
+/* =========================================================
+   VALIDER
+   ========================================================= */
+
+.validate-button {
+
+    width: 100%;
+
+    padding: 15px;
+
+    border: 1px solid #900000;
+
+    background:
+        linear-gradient(
+            135deg,
+            #650000,
+            #3f0000
+        );
+
+    color: white;
+
+    cursor: pointer;
+
+    font-family: 'Rajdhani', sans-serif;
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+    letter-spacing: 3px;
+
+    transition: 0.3s ease;
+
+}
+
+
+.validate-button:hover {
+
+    background:
+        linear-gradient(
+            135deg,
+            #a00000,
+            #600000
+        );
+
+    border-color: #c00000;
+
+    box-shadow:
+        0 0 25px rgba(160,0,0,0.25);
+
+}
+
+
+/* =========================================================
+   FORMULAIRE
+   ========================================================= */
+
+#eventReportForm {
+
+    display: flex;
+
+    flex-direction: column;
+
+}
+
+
+#eventReportForm label {
+
+    margin:
+        18px 0 8px;
+
+    color: #777;
+
+    font-size: 10px;
+
+    font-weight: 600;
+
+    letter-spacing: 3px;
+
+}
+
+
+#eventReportForm input,
+#eventReportForm textarea,
+#eventReportForm select {
+
+    width: 100%;
+
+    padding: 14px;
+
+    background: #0b0b0b;
+
+    border: 1px solid #303030;
+
+    outline: none;
+
+    color: white;
+
+    font-family: inherit;
+
+    font-size: 13px;
+
+    transition: 0.3s ease;
+
+}
+
+
+#eventReportForm input:focus,
+#eventReportForm textarea:focus,
+#eventReportForm select:focus {
+
+    border-color: #850000;
+
+    box-shadow:
+        0 0 15px rgba(140,0,0,0.1);
+
+}
+
+
+#eventReportForm input::placeholder,
+#eventReportForm textarea::placeholder {
+
+    color: #505050;
+
+}
+
+
+#eventReportForm textarea {
+
+    min-height: 120px;
+
+    resize: vertical;
+
+    line-height: 1.6;
+
+}
+
+
+#eventReportForm select {
+
+    cursor: pointer;
+
+}
+
+
+#eventReportForm select option {
+
+    background: #111;
+
+    color: white;
+
+}
+
+
+/* =========================================================
+   ACTIONS FORMULAIRE
+   ========================================================= */
+
+.form-actions {
+
+    display: grid;
+
+    grid-template-columns:
+        1fr 1fr;
+
+    gap: 12px;
+
+    margin-top: 30px;
+
+}
+
+
+.cancel-button,
+.save-button {
+
+    padding: 14px;
+
+    cursor: pointer;
+
+    font-family: 'Rajdhani', sans-serif;
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+    letter-spacing: 2px;
+
+    transition: 0.3s ease;
+
+}
+
+
+.cancel-button {
+
+    border: 1px solid #333;
+
+    background: #111;
+
+    color: #888;
+
+}
+
+
+.cancel-button:hover {
+
+    color: white;
+
+    border-color: #666;
+
+}
+
+
+.save-button {
+
+    border: 1px solid #900000;
+
+    background:
+        linear-gradient(
+            135deg,
+            #650000,
+            #400000
+        );
+
+    color: white;
+
+}
+
+
+.save-button:hover {
+
+    background:
+        linear-gradient(
+            135deg,
+            #a00000,
+            #600000
+        );
+
+    border-color: #c00000;
+
+    box-shadow:
+        0 0 25px rgba(160,0,0,0.2);
+
+}
+
+
+/* =========================================================
+   SCROLLBAR
+   ========================================================= */
+
+::-webkit-scrollbar {
+
+    width: 8px;
+
+}
+
+
+::-webkit-scrollbar-track {
+
+    background: #050505;
+
+}
+
+
+::-webkit-scrollbar-thumb {
+
+    background: #3d0000;
+
+    border: 2px solid #050505;
+
+}
+
+
+::-webkit-scrollbar-thumb:hover {
+
+    background: #700000;
+
+}
+
+
+/* =========================================================
+   FOOTER
+   ========================================================= */
+
+footer {
+
+    position: relative;
+
+    z-index: 2;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 30px;
+
+    padding: 40px 6%;
+
+    border-top: 1px solid #222;
+
+    background: #050505;
+
+}
+
+
+.footer-logo {
+
+    color: white;
+
+    font-family: 'Rajdhani', sans-serif;
+
+    font-size: 23px;
+
+    font-weight: 700;
+
+    letter-spacing: 3px;
+
+}
+
+
+.footer-logo span {
+
+    color: var(--red);
+
+}
+
+
+.footer-info p {
+
+    color: #555;
+
+    font-size: 9px;
+
+    letter-spacing: 2px;
+
+    line-height: 1.8;
+
+}
+
+
+.footer-right {
+
+    color: #3b0000;
+
+    font-family: 'Rajdhani', sans-serif;
+
+    font-size: 35px;
+
+    font-weight: 700;
+
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 900px) {
+
+    .topbar {
+
+        height: auto;
+
+        min-height: 75px;
+
+        flex-direction: column;
+
+        gap: 10px;
+
+        padding: 18px;
+
+    }
+
+
+    .topbar nav {
+
+        width: 100%;
+
+        overflow-x: auto;
+
+        justify-content: flex-start;
+
+    }
+
+
+    .topbar nav a {
+
+        white-space: nowrap;
+
+    }
+
+
+    .reports-list {
+
+        grid-template-columns: 1fr;
+
+    }
+
+
+    .events-top {
+
+        align-items: flex-start;
+
+        flex-direction: column;
+
+    }
+
+
+    .create-button {
+
+        width: 100%;
+
+    }
+
+}
+
+
+@media (max-width: 650px) {
+
+    .page-header {
+
+        padding:
+            75px 25px 60px;
+
+    }
+
+
+    .page-header::before {
+
+        left: 25px;
+
+        top: 55px;
+
+    }
+
+
+    .page-header h1,
+    .page-header span,
+    .page-header p {
+
+        margin-left: 20px;
+
+    }
+
+
+    .page-header h1 {
+
+        font-size: 48px;
+
+        letter-spacing: 4px;
+
+    }
+
+
+    .access-section {
+
+        padding: 0 15px;
+
+    }
+
+
+    .access-box {
+
+        padding: 32px 25px;
+
+    }
+
+
+    .access-buttons {
+
+        grid-template-columns: 1fr;
+
+    }
+
+
+    .events-content {
+
+        padding:
+            0 18px 70px;
+
+    }
+
+
+    .events-top h2 {
+
+        font-size: 30px;
+
+    }
+
+
+    .report-header {
+
+        flex-direction: column;
+
+    }
+
+
+    .report-info {
+
+        grid-template-columns: 1fr;
+
+    }
+
+
+    .report-info-item {
+
+        border-right: none;
+
+        border-bottom: 1px solid #222;
+
+    }
+
+
+    .report-info-item:last-child {
+
+        border-bottom: none;
+
+    }
+
+
+    .modal-box {
+
+        width: 94%;
+
+        padding: 32px 24px;
+
+    }
+
+
+    .form-actions {
+
+        grid-template-columns: 1fr;
+
+    }
+
+
+    footer {
+
+        flex-direction: column;
+
+        text-align: center;
+
+    }
+
+}
+/* =========================================================
+   CHAMP DATE — CORRECTION
+   ========================================================= */
+
+#eventDate {
+
+    width: 100%;
+
+    min-height: 48px;
+
+    padding: 14px;
+
+    background: #0b0b0b;
+
+    border: 1px solid #303030;
+
+    color: #ffffff;
+
+    color-scheme: dark;
+
+    font-family: 'Blinker', sans-serif;
+
+    font-size: 13px;
+
+    cursor: pointer;
+
+}
+
+
+#eventDate:focus {
+
+    border-color: #850000;
+
+    outline: none;
+
+    box-shadow:
+        0 0 15px rgba(140, 0, 0, 0.1);
+
+}
+
+
+/* Icône calendrier */
+
+#eventDate::-webkit-calendar-picker-indicator {
+
+    filter: invert(1);
+
+    opacity: 0.6;
+
+    cursor: pointer;
+
+}
+
+
+#eventDate::-webkit-calendar-picker-indicator:hover {
+
+    opacity: 1;
+
+}

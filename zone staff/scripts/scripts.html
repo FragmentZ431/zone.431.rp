@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>SCRIPTS // ZONE-431</title>
+
+    <link rel="stylesheet" href="scripts.css">
+</head>
+
+<body>
+
+    <div class="scripts-grid"></div>
+    <div class="scripts-scanline"></div>
+
+    <div class="scripts-interface">
+
+        <header class="scripts-topbar">
+
+            <div class="scripts-brand">
+                <span class="scripts-brand-main">ZONE-431</span>
+                <span class="scripts-brand-sub">
+                    SYSTÈME DE GESTION DES SCRIPTS
+                </span>
+            </div>
+
+            <div class="scripts-status">
+                <span class="status-indicator"></span>
+                <span>SYSTÈME OPÉRATIONNEL</span>
+            </div>
+
+        </header>
+
+        <main class="scripts-main">
+
+            <section class="scripts-header">
+
+                <div class="scripts-header-label">
+                    // MODULE 02 // SCRIPTS
+                </div>
+
+                <h1>GESTION DES SCRIPTS</h1>
+
+                <p>
+                    Consultation et gestion des scripts enregistrés au sein de la ZONE-431.
+                </p>
+
+            </section>
+
+            <section class="scripts-toolbar">
+
+                <div class="scripts-search-section">
+
+                    <div class="scripts-section-title">
+                        <span>// RECHERCHE</span>
+                        <span class="section-line"></span>
+                    </div>
+
+                    <div class="scripts-search">
+
+                        <span class="search-icon">//</span>
+
+                        <input
+                            type="text"
+                            id="scripts-search"
+                            placeholder="RECHERCHER UN SCRIPT..."
+                            autocomplete="off"
+                        >
+
+                        <button
+                            type="button"
+                            id="clear-search"
+                            class="clear-search"
+                            aria-label="Effacer la recherche"
+                        >
+                            ×
+                        </button>
+
+                    </div>
+
+                </div>
+
+                <button
+                    type="button"
+                    id="create-script-button"
+                    class="create-script-button"
+                    hidden
+                >
+                    + CRÉER UN SCRIPT
+                </button>
+
+            </section>
+
+            <section class="scripts-list-section">
+
+                <div class="scripts-section-title">
+
+                    <span>// SCRIPTS ENREGISTRÉS</span>
+
+                    <span class="section-line"></span>
+
+                </div>
+
+                <div
+                    id="scripts-list"
+                    class="scripts-list"
+                ></div>
+
+                <div
+                    id="scripts-empty"
+                    class="scripts-empty"
+                    hidden
+                >
+                    AUCUN SCRIPT ENREGISTRÉ.
+                </div>
+
+            </section>
+
+            <section class="scripts-information">
+
+                <div class="information-header">
+                    <span>// INFORMATIONS SYSTÈME</span>
+                </div>
+
+                <div class="information-content">
+
+                    <div class="information-item">
+                        <span class="information-label">
+                            DONNÉES
+                        </span>
+
+                        <span class="information-value">
+                            SCRIPTS ZONE-431
+                        </span>
+                    </div>
+
+                    <div class="information-item">
+                        <span class="information-label">
+                            ACCÈS
+                        </span>
+
+                        <span class="information-value">
+                            STAFF
+                        </span>
+                    </div>
+
+                    <div class="information-item">
+                        <span class="information-label">
+                            CRÉATION
+                        </span>
+
+                        <span class="information-value">
+                            ADMINISTRATEUR
+                        </span>
+                    </div>
+
+                    <div class="information-item">
+                        <span class="information-label">
+                            STATUT
+                        </span>
+
+                        <span class="information-value">
+                            OPÉRATIONNEL
+                        </span>
+                    </div>
+
+                </div>
+
+            </section>
+
+            <section class="scripts-navigation">
+
+                <a
+                    href="../../zone staff.html"
+                    class="back-button"
+                >
+                    <span class="back-arrow">←</span>
+                    RETOUR AU POSTE DE COMMANDEMENT
+                </a>
+
+            </section>
+
+        </main>
+
+        <footer class="scripts-footer">
+
+            <div>
+                SCP FOUNDATION // SITE-431
+            </div>
+
+            <div>
+                SCRIPT MANAGEMENT SYSTEM
+            </div>
+
+        </footer>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="scripts.js"></script>
+
+</body>
+</html>

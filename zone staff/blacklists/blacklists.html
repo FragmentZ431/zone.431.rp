@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>BLACKLIST // ZONE-431</title>
+
+    <link rel="stylesheet" href="blacklists.css">
+</head>
+
+<body>
+
+    <div class="blacklist-grid"></div>
+    <div class="blacklist-scanline"></div>
+
+    <main class="blacklist-interface">
+
+        <!-- TOPBAR -->
+        <header class="blacklist-topbar">
+
+            <div class="blacklist-brand">
+                <span class="blacklist-brand-main">SCP FOUNDATION</span>
+                <span class="blacklist-brand-separator">//</span>
+                <span class="blacklist-brand-site">SITE-431</span>
+            </div>
+
+            <div class="blacklist-system-status">
+                <span class="status-indicator"></span>
+                <span>SYSTÈME OPÉRATIONNEL</span>
+            </div>
+
+        </header>
+
+
+        <!-- HEADER -->
+        <section class="blacklist-header">
+
+            <div class="blacklist-header-content">
+
+                <span class="blacklist-kicker">
+                    // BASE DE DONNÉES DISCIPLINAIRE
+                </span>
+
+                <h1>BLACKLIST</h1>
+
+                <p>
+                    REGISTRE DES INDIVIDUS SOUS RESTRICTION D'ACCÈS
+                </p>
+
+            </div>
+
+        </section>
+
+
+        <!-- ACCESS -->
+        <section class="blacklist-section">
+
+            <div class="blacklist-section-title">
+                <span>//</span>
+                <h2>ACCÈS SYSTÈME</h2>
+                <div></div>
+            </div>
+
+            <div id="accessStatus" class="blacklist-access-panel">
+
+                <div class="access-status-indicator"></div>
+
+                <div class="access-status-content">
+                    <strong>VÉRIFICATION DES AUTORISATIONS</strong>
+                    <span>Chargement du niveau d'accès...</span>
+                </div>
+
+            </div>
+
+            <div class="blacklist-actions">
+
+                <button
+                    id="createBlacklistButton"
+                    class="blacklist-primary-button"
+                    type="button"
+                    style="display: none;"
+                >
+                    <span>+</span>
+                    AJOUTER À LA BLACKLIST
+                </button>
+
+            </div>
+
+        </section>
+
+
+        <!-- SEARCH -->
+        <section class="blacklist-section">
+
+            <div class="blacklist-section-title">
+                <span>//</span>
+                <h2>RECHERCHE</h2>
+                <div></div>
+            </div>
+
+            <div class="blacklist-search-panel">
+
+                <div class="blacklist-search-header">
+                    <span class="search-icon">⌕</span>
+
+                    <div>
+                        <strong>RECHERCHE DANS LE REGISTRE</strong>
+                        <span>
+                            Rechercher par pseudo Discord, pseudo IG, motif ou autre donnée.
+                        </span>
+                    </div>
+                </div>
+
+                <div class="blacklist-search-wrapper">
+
+                    <input
+                        type="text"
+                        id="searchInput"
+                        class="blacklist-search-input"
+                        placeholder="Rechercher un pseudo Discord..."
+                        autocomplete="off"
+                        oninput="searchBlacklist()"
+                    >
+
+                    <button
+                        id="clearSearchButton"
+                        class="blacklist-clear-button"
+                        type="button"
+                        onclick="clearBlacklistSearch()"
+                        aria-label="Effacer la recherche"
+                    >
+                        ×
+                    </button>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- REGISTRY -->
+        <section class="blacklist-section">
+
+            <div class="blacklist-section-title">
+
+                <span>//</span>
+
+                <h2>
+                    REGISTRE
+                    <span id="blacklistCount" class="blacklist-count">
+                        0
+                    </span>
+                </h2>
+
+                <div></div>
+
+            </div>
+
+
+            <div id="blacklistList" class="blacklist-list">
+
+                <div id="blacklistLoading" class="blacklist-state">
+
+                    <div class="state-loader"></div>
+
+                    <strong>CHARGEMENT DU REGISTRE</strong>
+
+                    <span>
+                        Récupération des données sécurisées...
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <div
+                id="blacklistEmpty"
+                class="blacklist-state"
+                style="display: none;"
+            >
+
+                <div class="state-symbol">
+                    //
+                </div>
+
+                <strong>AUCUNE ENTRÉE</strong>
+
+                <span>
+                    Aucun individu ne correspond aux critères de recherche.
+                </span>
+
+            </div>
+
+
+            <div
+                id="blacklistError"
+                class="blacklist-state blacklist-state-error"
+                style="display: none;"
+            >
+
+                <div class="state-symbol">
+                    !
+                </div>
+
+                <strong>ERREUR DE CHARGEMENT</strong>
+
+                <span id="blacklistErrorMessage">
+                    Impossible de récupérer les données du registre.
+                </span>
+
+            </div>
+
+        </section>
+
+
+        <!-- INFORMATION -->
+        <section class="blacklist-section">
+
+            <div class="blacklist-section-title">
+                <span>//</span>
+                <h2>INFORMATIONS</h2>
+                <div></div>
+            </div>
+
+            <div class="blacklist-info-panel">
+
+                <div class="info-item">
+
+                    <span class="info-label">
+                        NIVEAU DE CONFIDENTIALITÉ
+                    </span>
+
+                    <strong>
+                        INTERNE
+                    </strong>
+
+                </div>
+
+                <div class="info-item">
+
+                    <span class="info-label">
+                        DONNÉES ENREGISTRÉES
+                    </span>
+
+                    <strong>
+                        PSEUDO DISCORD / PSEUDO IG / MOTIF / DURÉE
+                    </strong>
+
+                </div>
+
+                <div class="info-item">
+
+                    <span class="info-label">
+                        MODIFICATION
+                    </span>
+
+                    <strong>
+                        PERSONNEL AUTORISÉ UNIQUEMENT
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- NAVIGATION -->
+        <section class="blacklist-navigation">
+
+            <a
+                href="../../zone staff.html"
+                class="blacklist-back-button"
+            >
+                <span>←</span>
+                RETOUR AU POSTE DE COMMANDE
+            </a>
+
+        </section>
+
+
+        <!-- FOOTER -->
+        <footer class="blacklist-footer">
+
+            <span>
+                SCP FOUNDATION // SITE-431
+            </span>
+
+            <span>
+                BLACKLIST DATABASE
+            </span>
+
+            <span>
+                AUTHORIZED PERSONNEL ONLY
+            </span>
+
+        </footer>
+
+    </main>
+
+
+    <!-- BLACKLIST MODAL -->
+    <div
+        id="blacklistModal"
+        class="blacklist-modal-overlay"
+        style="display: none;"
+    >
+
+        <div
+            class="blacklist-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="blacklistModalTitle"
+        >
+
+            <div class="blacklist-modal-header">
+
+                <div>
+                    <span class="blacklist-modal-kicker">
+                        // REGISTRE DISCIPLINAIRE
+                    </span>
+
+                    <h2 id="blacklistModalTitle">
+                        AJOUTER UNE ENTRÉE
+                    </h2>
+                </div>
+
+                <button
+                    id="closeBlacklistModal"
+                    class="blacklist-modal-close"
+                    type="button"
+                    aria-label="Fermer"
+                >
+                    ×
+                </button>
+
+            </div>
+
+
+            <form id="blacklistForm">
+
+                <input
+                    type="hidden"
+                    id="blacklistId"
+                >
+
+
+                <div class="blacklist-form-grid">
+
+                    <!-- DISCORD -->
+                    <div class="blacklist-form-group">
+
+                        <label for="blacklistPseudoDiscord">
+                            PSEUDO DISCORD
+                            <span>*</span>
+                        </label>
+
+                        <input
+                            type="text"
+                            id="blacklistPseudoDiscord"
+                            name="pseudo_discord"
+                            placeholder="@Utilisateur"
+                            required
+                            autocomplete="off"
+                        >
+
+                    </div>
+
+
+                    <!-- IG -->
+                    <div class="blacklist-form-group">
+
+                        <label for="blacklistPseudoIG">
+                            PSEUDO IG
+                            <span>*</span>
+                        </label>
+
+                        <input
+                            type="text"
+                            id="blacklistPseudoIG"
+                            name="pseudo_ig"
+                            placeholder="Pseudo Roblox"
+                            required
+                            autocomplete="off"
+                        >
+
+                    </div>
+
+
+                    <!-- MOTIF -->
+                    <div class="blacklist-form-group blacklist-form-full">
+
+                        <label for="blacklistMotif">
+                            MOTIF
+                            <span>*</span>
+                        </label>
+
+                        <textarea
+                            id="blacklistMotif"
+                            name="motif"
+                            placeholder="Motif de la mise en blacklist..."
+                            rows="4"
+                            required
+                        ></textarea>
+
+                    </div>
+
+
+                    <!-- DURÉE -->
+                    <div class="blacklist-form-group">
+
+                        <label for="blacklistDuree">
+                            DURÉE
+                            <span>*</span>
+                        </label>
+
+                        <input
+                            type="text"
+                            id="blacklistDuree"
+                            name="duree"
+                            placeholder="Permanent / 7 jours / etc."
+                            required
+                            autocomplete="off"
+                        >
+
+                    </div>
+
+
+                    <!-- STAFF -->
+                    <div class="blacklist-form-group">
+
+                        <label for="blacklistStaff">
+                            RÉDACTEUR
+                            <span>*</span>
+                        </label>
+
+                        <input
+                            type="text"
+                            id="blacklistStaff"
+                            name="staff"
+                            placeholder="Pseudo du membre du staff"
+                            required
+                            autocomplete="off"
+                        >
+
+                    </div>
+
+
+                    <!-- DATE -->
+                    <div class="blacklist-form-group">
+
+                        <label for="blacklistDate">
+                            DATE DE BLACKLIST
+                        </label>
+
+                        <input
+                            type="datetime-local"
+                            id="blacklistDate"
+                            name="date_blacklist"
+                        >
+
+                    </div>
+
+
+                    <!-- NOTES -->
+                    <div class="blacklist-form-group blacklist-form-full">
+
+                        <label for="blacklistNotes">
+                            NOTES
+                        </label>
+
+                        <textarea
+                            id="blacklistNotes"
+                            name="notes"
+                            placeholder="Informations complémentaires..."
+                            rows="4"
+                        ></textarea>
+
+                    </div>
+
+                </div>
+
+
+                <div class="blacklist-modal-footer">
+
+                    <button
+                        id="cancelBlacklistButton"
+                        class="blacklist-secondary-button"
+                        type="button"
+                    >
+                        ANNULER
+                    </button>
+
+                    <button
+                        id="saveBlacklistButton"
+                        class="blacklist-primary-button"
+                        type="submit"
+                    >
+                        ENREGISTRER
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+    <!-- SUPABASE -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- BLACKLIST JS -->
+    <script src="blacklists.js"></script>
+
+</body>
+</html>

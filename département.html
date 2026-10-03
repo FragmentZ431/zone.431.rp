@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>ZONE-431 | Départements</title>
+
+    <link rel="stylesheet" href="style.css">
+
+
+    <!-- =====================================================
+         ZONE-431 — CSS FENÊTRE STAFF
+         ===================================================== -->
+
+    <style>
+
+        .staff-access-modal {
+
+            position: fixed;
+            inset: 0;
+
+            z-index: 999999;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            width: 100%;
+            height: 100%;
+
+            padding: 20px;
+
+            box-sizing: border-box;
+
+            background: rgba(0, 0, 0, 0.85);
+
+            backdrop-filter: blur(8px);
+
+            opacity: 0;
+            visibility: hidden;
+
+            pointer-events: none;
+
+            transition:
+                opacity 0.25s ease,
+                visibility 0.25s ease;
+
+        }
+
+
+        .staff-access-modal.active {
+
+            opacity: 1;
+
+            visibility: visible;
+
+            pointer-events: auto;
+
+        }
+
+
+        .staff-access-box {
+
+            position: relative;
+
+            width: 100%;
+
+            max-width: 440px;
+
+            padding: 40px;
+
+            box-sizing: border-box;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    #171717,
+                    #090909
+                );
+
+            border: 1px solid #3a0000;
+
+            box-shadow:
+                0 20px 70px rgba(0, 0, 0, 0.9),
+                0 0 35px rgba(130, 0, 0, 0.12);
+
+            transform:
+                translateY(15px)
+                scale(0.98);
+
+            transition:
+                transform 0.25s ease;
+
+        }
+
+
+        .staff-access-modal.active
+        .staff-access-box {
+
+            transform:
+                translateY(0)
+                scale(1);
+
+        }
+
+
+        .staff-access-box::before {
+
+            content: "";
+
+            position: absolute;
+
+            top: 0;
+            left: 0;
+
+            width: 100%;
+            height: 2px;
+
+            background: #a00000;
+
+            box-shadow:
+                0 0 12px
+                rgba(160, 0, 0, 0.4);
+
+        }
+
+
+        .staff-access-label {
+
+            margin-bottom: 8px;
+
+            color: #777;
+
+            font-size: 10px;
+
+            font-weight: 700;
+
+            letter-spacing: 4px;
+
+        }
+
+
+        .staff-access-box h2 {
+
+            margin: 0;
+
+            color: #fff;
+
+            font-size: 27px;
+
+            font-weight: 700;
+
+            letter-spacing: 3px;
+
+        }
+
+
+        .staff-access-description {
+
+            margin:
+                18px 0 25px;
+
+            color: #777;
+
+            font-size: 12px;
+
+            line-height: 1.7;
+
+        }
+
+
+        .staff-access-input {
+
+            display: block;
+
+            width: 100%;
+
+            padding: 14px;
+
+            box-sizing: border-box;
+
+            border: 1px solid #333;
+
+            border-radius: 0;
+
+            outline: none;
+
+            background: #0b0b0b;
+
+            color: #fff;
+
+            font-family: inherit;
+
+            font-size: 13px;
+
+            letter-spacing: 2px;
+
+            transition:
+                border-color 0.2s ease,
+                box-shadow 0.2s ease;
+
+        }
+
+
+        .staff-access-input::placeholder {
+
+            color: #555;
+
+        }
+
+
+        .staff-access-input:focus {
+
+            border-color: #8d0000;
+
+            box-shadow:
+                0 0 15px
+                rgba(140, 0, 0, 0.15);
+
+        }
+
+
+        .staff-access-message {
+
+            min-height: 18px;
+
+            margin-top: 10px;
+
+            color: #777;
+
+            font-size: 10px;
+
+            letter-spacing: 1px;
+
+        }
+
+
+        .staff-access-message.error {
+
+            color: #d00000;
+
+        }
+
+
+        .staff-access-message.success {
+
+            color: #5aaa5a;
+
+        }
+
+
+        .staff-access-submit {
+
+            display: block;
+
+            width: 100%;
+
+            margin-top: 18px;
+
+            padding: 13px;
+
+            box-sizing: border-box;
+
+            border: 1px solid #900000;
+
+            border-radius: 0;
+
+            outline: none;
+
+            background: #650000;
+
+            color: #fff;
+
+            cursor: pointer;
+
+            font-family: inherit;
+
+            font-size: 10px;
+
+            font-weight: 700;
+
+            letter-spacing: 2px;
+
+            transition:
+                background 0.2s ease,
+                border-color 0.2s ease,
+                box-shadow 0.2s ease;
+
+        }
+
+
+        .staff-access-submit:hover {
+
+            background: #a00000;
+
+            border-color: #c00000;
+
+            box-shadow:
+                0 0 20px
+                rgba(160, 0, 0, 0.25);
+
+        }
+
+
+        .staff-access-close {
+
+            position: absolute;
+
+            top: 12px;
+            right: 15px;
+
+            width: 28px;
+            height: 28px;
+
+            padding: 0;
+            margin: 0;
+
+            border: none;
+
+            outline: none;
+
+            background: transparent;
+
+            color: #555;
+
+            cursor: pointer;
+
+            font-family: Arial, sans-serif;
+
+            font-size: 22px;
+
+            font-weight: 400;
+
+            line-height: 28px;
+
+            text-align: center;
+
+            transition:
+                color 0.2s ease,
+                transform 0.2s ease;
+
+        }
+
+
+        .staff-access-close:hover {
+
+            color: #d00000;
+
+            transform:
+                scale(1.1);
+
+        }
+
+
+        @media (max-width: 600px) {
+
+            .staff-access-box {
+
+                max-width: none;
+
+                padding: 32px 25px;
+
+            }
+
+
+            .staff-access-box h2 {
+
+                font-size: 23px;
+
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<!-- =====================================================
+     BARRE DE NAVIGATION
+     ===================================================== -->
+
+<header class="topbar">
+
+    <a href="accueil.html" class="logo">
+
+        ZONE<span>-431</span>
+
+    </a>
+
+
+    <nav>
+
+        <a href="accueil.html">
+            ACCUEIL
+        </a>
+
+        <a href="menu.html">
+            LA ZONE
+        </a>
+
+        <a href="departement.html" class="active">
+            DÉPARTEMENTS
+        </a>
+
+        <a href="documents.html">
+            DOCUMENTS
+        </a>
+
+        <a href="contact.html">
+            CONTACT
+        </a>
+
+        <a
+            href="zone staff.html"
+            onclick="openStaffAccess(event)"
+        >
+            ZONE STAFF
+        </a>
+
+    </nav>
+
+</header>
+
+
+<!-- =====================================================
+     CONTENU
+     ===================================================== -->
+
+<main>
+
+
+    <!-- =================================================
+         EN-TÊTE
+         ================================================= -->
+
+    <section class="page-header">
+
+        <span>
+            ZONE-431 // ORGANISATION
+        </span>
+
+        <h1>
+            DÉPARTEMENTS
+        </h1>
+
+        <p>
+            Découvrez les différents départements et unités
+            participant au fonctionnement de la Zone-431.
+        </p>
+
+    </section>
+
+
+    <!-- =================================================
+         LISTE DES DÉPARTEMENTS
+         ================================================= -->
+
+    <section class="departments-list">
+
+
+        <!-- =================================================
+             D.SE
+             ================================================= -->
+
+        <article class="department-card">
+
+            <div class="department-number">
+                01
+            </div>
+
+            <div class="department-info">
+
+                <span class="department-code">
+                    D.SE
+                </span>
+
+                <h2>
+                    DÉPARTEMENT DE LA SÉCURITÉ
+                </h2>
+
+                <p>
+                    Le Département de la Sécurité assure la
+                    protection du personnel, des installations
+                    et des secteurs sensibles de la Zone-431.
+                </p>
+
+                <button
+                    type="button"
+                    onclick="openDepartment('dse')"
+                >
+                    EN SAVOIR PLUS →
+                </button>
+
+            </div>
+
+        </article>
+
+
+        <!-- =================================================
+             D.SCI
+             ================================================= -->
+
+        <article class="department-card">
+
+            <div class="department-number">
+                02
+            </div>
+
+            <div class="department-info">
+
+                <span class="department-code">
+                    D.SCI
+                </span>
+
+                <h2>
+                    DÉPARTEMENT SCIENTIFIQUE
+                </h2>
+
+                <p>
+                    Le Département Scientifique est chargé
+                    de l'étude, de l'analyse et de la
+                    compréhension des phénomènes anormaux
+                    rencontrés par la Fondation.
+                </p>
+
+                <button
+                    type="button"
+                    onclick="openDepartment('dsci')"
+                >
+                    EN SAVOIR PLUS →
+                </button>
+
+            </div>
+
+        </article>
+
+
+        <!-- =================================================
+             D.M
+             ================================================= -->
+
+        <article class="department-card">
+
+            <div class="department-number">
+                03
+            </div>
+
+            <div class="department-info">
+
+                <span class="department-code">
+                    D.M
+                </span>
+
+                <h2>
+                    DÉPARTEMENT MÉDICAL
+                </h2>
+
+                <p>
+                    Le Département Médical assure la prise
+                    en charge médicale du personnel et
+                    intervient lors des situations nécessitant
+                    des soins.
+                </p>
+
+                <button
+                    type="button"
+                    onclick="openDepartment('dm')"
+                >
+                    EN SAVOIR PLUS →
+                </button>
+
+            </div>
+
+        </article>
+
+
+        <!-- =================================================
+             D.A
+             ================================================= -->
+
+        <article class="department-card">
+
+            <div class="department-number">
+                04
+            </div>
+
+            <div class="department-info">
+
+                <span class="department-code">
+                    D.A
+                </span>
+
+                <h2>
+                    DÉPARTEMENT ADMINISTRATIF
+                </h2>
+
+                <p>
+                    Le Département Administratif assure la
+                    gestion interne, l'organisation et le
+                    suivi administratif de la Zone-431.
+                </p>
+
+                <button
+                    type="button"
+                    onclick="openDepartment('da')"
+                >
+                    EN SAVOIR PLUS →
+                </button>
+
+            </div>
+
+        </article>
+
+
+        <!-- =================================================
+             F.I.M
+             ================================================= -->
+
+        <article class="department-card external">
+
+            <div class="department-number">
+                05
+            </div>
+
+            <div class="department-info">
+
+                <span class="department-code">
+                    F.I.M
+                </span>
+
+                <h2>
+                    FORCES D'INTERVENTION MOBILE
+                </h2>
+
+                <p>
+                    Les Forces d'Intervention Mobile constituent
+                    une unité extérieure spécialisée intervenant
+                    dans des situations nécessitant des moyens
+                    particuliers.
+                </p>
+
+                <button
+                    type="button"
+                    onclick="openDepartment('fim')"
+                >
+                    EN SAVOIR PLUS →
+                </button>
+
+            </div>
+
+        </article>
+
+
+        <!-- =================================================
+             C.D
+             ================================================= -->
+
+        <article class="department-card">
+
+            <div class="department-number">
+                06
+            </div>
+
+            <div class="department-info">
+
+                <span class="department-code">
+                    C.D
+                </span>
+
+                <h2>
+                    CLASSE DELTA
+                </h2>
+
+                <p>
+                    La Classe Delta regroupe les personnes
+                    affectées aux tâches et protocoles
+                    spécifiques liés à leur statut au sein
+                    de la Fondation.
+                </p>
+
+                <button
+                    type="button"
+                    onclick="openDepartment('cd')"
+                >
+                    EN SAVOIR PLUS →
+                </button>
+
+            </div>
+
+        </article>
+
+
+        <!-- =================================================
+             G.D.I
+             ================================================= -->
+
+        <article class="department-card external">
+
+            <div class="department-number">
+                07
+            </div>
+
+            <div class="department-info">
+
+                <span class="department-code">
+                    G.D.I
+                </span>
+
+                <h2>
+                    GROUPES D'INTÉRÊT
+                </h2>
+
+                <p>
+                    Les Groupes d'Intérêt représentent
+                    différentes organisations extérieures
+                    à la Fondation, dont certaines peuvent
+                    lui être hostiles.
+                </p>
+
+                <button
+                    type="button"
+                    onclick="openDepartment('gdi')"
+                >
+                    EN SAVOIR PLUS →
+                </button>
+
+            </div>
+
+        </article>
+
+
+        <!-- =================================================
+             DI&ST
+             ================================================= -->
+
+        <article class="department-card">
+
+            <div class="department-number">
+                08
+            </div>
+
+            <div class="department-info">
+
+                <span class="department-code">
+                    DI&amp;ST
+                </span>
+
+                <h2>
+                    DÉPARTEMENT D'INGÉNIERIE
+                    ET SERVICES TECHNIQUES
+                </h2>
+
+                <p>
+                    Le DI&amp;ST assure la maintenance,
+                    la conception, la réparation et le
+                    fonctionnement technique des
+                    infrastructures de la Zone-431.
+                </p>
+
+                <button
+                    type="button"
+                    onclick="openDepartment('dist')"
+                >
+                    EN SAVOIR PLUS →
+                </button>
+
+            </div>
+
+        </article>
+
+
+    </section>
+
+
+    <!-- =====================================================
+         RÈGLES D'AFFILIATION
+         ===================================================== -->
+
+    <section class="department-rules">
+
+        <span>
+            RÈGLES D'ORGANISATION
+        </span>
+
+        <h2>
+            AFFILIATIONS
+        </h2>
+
+        <p>
+            Certaines affiliations sont incompatibles entre elles.
+        </p>
+
+        <p>
+            Un personnage appartenant aux
+            <strong>F.I.M</strong>
+            ne peut pas simultanément appartenir aux
+            <strong>G.D.I</strong>.
+        </p>
+
+        <p>
+            Les F.I.M représentent une force d'intervention
+            de la Fondation tandis que les G.D.I regroupent
+            des organisations extérieures pouvant être
+            hostiles à la Fondation.
+        </p>
+
+    </section>
+
+</main>
+
+
+<!-- =====================================================
+     FENÊTRE MODALE DÉPARTEMENT
+     ===================================================== -->
+
+<div
+    id="departmentModal"
+    class="modal"
+    onclick="closeDepartment()"
+>
+
+    <div
+        class="modal-content"
+        onclick="event.stopPropagation()"
+    >
+
+        <button
+            type="button"
+            class="modal-close"
+            onclick="closeDepartment()"
+        >
+            ×
+        </button>
+
+        <span
+            id="modalCode"
+            class="modal-code"
+        ></span>
+
+        <h2 id="modalTitle"></h2>
+
+        <div class="modal-line"></div>
+
+        <p id="modalDescription"></p>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     FOOTER
+     ===================================================== -->
+
+<footer>
+
+    <div>
+        ZONE<span>-431</span>
+    </div>
+
+    <p>
+        SCP FOUNDATION // SITE-431
+    </p>
+
+    <span>
+        DOCUMENT CLASSIFIÉ — ACCÈS RESTREINT
+    </span>
+
+</footer>
+
+
+<!-- =====================================================
+     JAVASCRIPT
+     ===================================================== -->
+
+<script src="departement.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script src="staff-access.js"></script>
+
+
+</body>
+
+</html>

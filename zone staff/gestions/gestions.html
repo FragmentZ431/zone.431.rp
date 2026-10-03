@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>ZONE-431 // GESTION</title>
+
+    <link rel="stylesheet" href="gestions.css">
+    <link rel="stylesheet" href="../../accès/staff-access.css">
+</head>
+
+
+<body class="gestion-page">
+
+
+    <div class="gestion-grid"></div>
+    <div class="gestion-scanline"></div>
+
+
+    <div id="gestion-interface" class="gestion-interface">
+
+
+        <!-- =================================================
+             BARRE SUPÉRIEURE
+             ================================================= -->
+
+        <header class="gestion-topbar">
+
+            <div class="gestion-brand">
+
+                <span class="brand-main">
+                    ZONE-431
+                </span>
+
+                <span class="brand-separator">
+                    //
+                </span>
+
+                <span class="brand-secondary">
+                    STAFF MANAGEMENT SYSTEM
+                </span>
+
+            </div>
+
+
+            <div class="gestion-session">
+
+                <span class="session-indicator"></span>
+
+                <span id="gestion-session-status">
+                    SESSION NON VÉRIFIÉE
+                </span>
+
+                <span class="session-separator">
+                    |
+                </span>
+
+                <span id="gestion-session-role">
+                    NON AUTHENTIFIÉ
+                </span>
+
+            </div>
+
+        </header>
+
+
+
+        <main class="gestion-main">
+
+
+            <!-- =================================================
+                 EN-TÊTE
+                 ================================================= -->
+
+            <section class="gestion-header">
+
+                <div class="gestion-header-code">
+                    Z431 // STAFF // GESTION // 001
+                </div>
+
+                <h1>
+                    GESTION
+                </h1>
+
+                <p>
+                    ADMINISTRATION DES ACCÈS ET DU PERSONNEL STAFF
+                </p>
+
+
+                <div class="gestion-access-display">
+
+                    <span class="access-label">
+                        NIVEAU D'ACCÈS
+                    </span>
+
+                    <span
+                        id="gestion-access-level"
+                        class="access-value"
+                    >
+                        VÉRIFICATION...
+                    </span>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- =================================================
+                 ÉTAT DU SYSTÈME
+                 ================================================= -->
+
+            <section class="gestion-system-panel">
+
+                <div class="system-title">
+
+                    <span class="system-line"></span>
+
+                    ÉTAT DU SYSTÈME
+
+                    <span class="system-line"></span>
+
+                </div>
+
+
+                <div class="system-grid">
+
+
+                    <div class="system-item">
+
+                        <span class="system-label">
+                            INSTALLATION
+                        </span>
+
+                        <span class="system-value">
+                            SITE-431
+                        </span>
+
+                    </div>
+
+
+                    <div class="system-item">
+
+                        <span class="system-label">
+                            SYSTÈME
+                        </span>
+
+                        <span class="system-value online">
+                            OPÉRATIONNEL
+                        </span>
+
+                    </div>
+
+
+                    <div class="system-item">
+
+                        <span class="system-label">
+                            SESSION
+                        </span>
+
+                        <span
+                            id="gestion-system-session"
+                            class="system-value"
+                        >
+                            CONTRÔLÉE
+                        </span>
+
+                    </div>
+
+
+                    <div class="system-item">
+
+                        <span class="system-label">
+                            RÔLE ACTUEL
+                        </span>
+
+                        <span
+                            id="gestion-system-role"
+                            class="system-value"
+                        >
+                            -
+                        </span>
+
+                    </div>
+
+
+                    <div class="system-item">
+
+                        <span class="system-label">
+                            HEURE LOCALE
+                        </span>
+
+                        <span
+                            id="gestion-system-clock"
+                            class="system-value"
+                        >
+                            --:--:--
+                        </span>
+
+                    </div>
+
+
+                </div>
+
+            </section>
+
+
+
+            <!-- =================================================
+                 CENTRE DE GESTION
+                 ================================================= -->
+
+            <section class="gestion-section">
+
+
+                <div class="section-heading">
+
+                    <span class="section-code">
+                        ADMINISTRATION // 004
+                    </span>
+
+                    <h2>
+                        CENTRE DE GESTION
+                    </h2>
+
+                    <p>
+                        Gestion centralisée du personnel,
+                        des rôles, des accès et des paramètres
+                        du système STAFF.
+                    </p>
+
+                </div>
+
+
+
+                <div class="gestion-modules">
+
+
+                    <!-- MEMBRES -->
+
+                    <a
+                        href="#staff-members"
+                        class="gestion-module"
+                    >
+
+                        <span class="module-number">
+                            001
+                        </span>
+
+                        <div class="module-content">
+
+                            <span class="module-category">
+                                PERSONNEL
+                            </span>
+
+                            <h3>
+                                MEMBRES DU STAFF
+                            </h3>
+
+                            <p>
+                                Ajouter, modifier, désactiver
+                                et gérer les membres du personnel.
+                            </p>
+
+                        </div>
+
+                        <span class="module-arrow">
+                            →
+                        </span>
+
+                    </a>
+
+
+
+                    <!-- RÔLES -->
+
+                    <a
+                        href="#staff-roles"
+                        class="gestion-module"
+                    >
+
+                        <span class="module-number">
+                            002
+                        </span>
+
+                        <div class="module-content">
+
+                            <span class="module-category">
+                                AUTORISATIONS
+                            </span>
+
+                            <h3>
+                                RÔLES
+                            </h3>
+
+                            <p>
+                                Créer et modifier les rôles ainsi
+                                que leurs permissions.
+                            </p>
+
+                        </div>
+
+                        <span class="module-arrow">
+                            →
+                        </span>
+
+                    </a>
+
+
+
+                    <!-- CODES -->
+
+                    <a
+                        href="#staff-codes"
+                        class="gestion-module"
+                    >
+
+                        <span class="module-number">
+                            003
+                        </span>
+
+                        <div class="module-content">
+
+                            <span class="module-category">
+                                SÉCURITÉ
+                            </span>
+
+                            <h3>
+                                CODES D'ACCÈS
+                            </h3>
+
+                            <p>
+                                Gestion des codes d'authentification
+                                du personnel.
+                            </p>
+
+                        </div>
+
+                        <span class="module-arrow">
+                            →
+                        </span>
+
+                    </a>
+
+
+
+                    <!-- PARAMÈTRES -->
+
+                    <a
+                        href="#staff-settings"
+                        class="gestion-module"
+                    >
+
+                        <span class="module-number">
+                            004
+                        </span>
+
+                        <div class="module-content">
+
+                            <span class="module-category">
+                                SYSTÈME
+                            </span>
+
+                            <h3>
+                                PARAMÈTRES
+                            </h3>
+
+                            <p>
+                                Configuration générale du système
+                                de gestion STAFF.
+                            </p>
+
+                        </div>
+
+                        <span class="module-arrow">
+                            →
+                        </span>
+
+                    </a>
+
+
+                </div>
+
+            </section>
+
+
+
+            <!-- =================================================
+                 MEMBRES DU STAFF
+                 ================================================= -->
+
+            <section
+                id="staff-members"
+                class="gestion-panel"
+            >
+
+                <div class="panel-heading">
+
+                    <div>
+
+                        <span class="section-code">
+                            PERSONNEL // 001
+                        </span>
+
+                        <h2>
+                            MEMBRES DU STAFF
+                        </h2>
+
+                        <p>
+                            Gestion des membres actuellement
+                            enregistrés dans le système.
+                        </p>
+
+                    </div>
+
+
+                    <button
+                        type="button"
+                        id="add-staff-member"
+                        class="gestion-button"
+                    >
+                        AJOUTER UN MEMBRE
+                    </button>
+
+                </div>
+
+
+                <div
+                    id="staff-members-list"
+                    class="gestion-data-list"
+                >
+
+                    <div class="gestion-empty">
+
+                        <span>
+                            DATABASE
+                        </span>
+
+                        <strong>
+                            CHARGEMENT DES MEMBRES...
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- =================================================
+                 RÔLES
+                 ================================================= -->
+
+            <section
+                id="staff-roles"
+                class="gestion-panel"
+            >
+
+                <div class="panel-heading">
+
+                    <div>
+
+                        <span class="section-code">
+                            AUTORISATIONS // 002
+                        </span>
+
+                        <h2>
+                            RÔLES STAFF
+                        </h2>
+
+                        <p>
+                            Définition des rôles et des permissions
+                            accessibles à chacun d'eux.
+                        </p>
+
+                    </div>
+
+
+                    <button
+                        type="button"
+                        id="add-staff-role"
+                        class="gestion-button"
+                    >
+                        CRÉER UN RÔLE
+                    </button>
+
+                </div>
+
+
+                <div
+                    id="staff-roles-list"
+                    class="gestion-data-list"
+                >
+
+                    <div class="gestion-empty">
+
+                        <span>
+                            AUTHORIZATION DATABASE
+                        </span>
+
+                        <strong>
+                            CHARGEMENT DES RÔLES...
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- =================================================
+                 CODES D'ACCÈS
+                 ================================================= -->
+
+            <section
+                id="staff-codes"
+                class="gestion-panel"
+            >
+
+                <div class="panel-heading">
+
+                    <div>
+
+                        <span class="section-code">
+                            SÉCURITÉ // 003
+                        </span>
+
+                        <h2>
+                            CODES D'ACCÈS
+                        </h2>
+
+                        <p>
+                            Gestion des codes utilisés pour
+                            l'authentification du personnel.
+                        </p>
+
+                    </div>
+
+
+                    <button
+                        type="button"
+                        id="add-staff-code"
+                        class="gestion-button"
+                    >
+                        NOUVEAU CODE
+                    </button>
+
+                </div>
+
+
+                <div
+                    id="staff-codes-list"
+                    class="gestion-data-list"
+                >
+
+                    <div class="gestion-empty">
+
+                        <span>
+                            SECURITY DATABASE
+                        </span>
+
+                        <strong>
+                            CHARGEMENT DES CODES...
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- =================================================
+                 PARAMÈTRES
+                 ================================================= -->
+
+            <section
+                id="staff-settings"
+                class="gestion-panel"
+            >
+
+                <div class="panel-heading">
+
+                    <div>
+
+                        <span class="section-code">
+                            SYSTÈME // 004
+                        </span>
+
+                        <h2>
+                            PARAMÈTRES
+                        </h2>
+
+                        <p>
+                            Paramètres généraux du système
+                            de gestion STAFF.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="settings-grid">
+
+
+                    <div class="setting-card">
+
+                        <span class="setting-code">
+                            AUTH-01
+                        </span>
+
+                        <h3>
+                            AUTHENTIFICATION
+                        </h3>
+
+                        <p>
+                            Système d'authentification Supabase
+                            et sessions anonymes.
+                        </p>
+
+                        <span class="setting-status online">
+                            ACTIF
+                        </span>
+
+                    </div>
+
+
+                    <div class="setting-card">
+
+                        <span class="setting-code">
+                            AUTH-02
+                        </span>
+
+                        <h3>
+                            CONTRÔLE DES RÔLES
+                        </h3>
+
+                        <p>
+                            Les permissions sont contrôlées
+                            selon le rôle attribué au membre.
+                        </p>
+
+                        <span class="setting-status online">
+                            ACTIF
+                        </span>
+
+                    </div>
+
+
+                    <div class="setting-card">
+
+                        <span class="setting-code">
+                            SEC-01
+                        </span>
+
+                        <h3>
+                            PROTECTION DES DONNÉES
+                        </h3>
+
+                        <p>
+                            Les données sensibles sont protégées
+                            par les politiques d'accès Supabase.
+                        </p>
+
+                        <span class="setting-status online">
+                            ACTIF
+                        </span>
+
+                    </div>
+
+
+                </div>
+
+            </section>
+
+
+
+            <!-- =================================================
+                 JOURNAL SYSTÈME
+                 ================================================= -->
+
+            <section class="gestion-panel">
+
+
+                <div class="panel-heading">
+
+                    <div>
+
+                        <span class="section-code">
+                            SÉCURITÉ // 005
+                        </span>
+
+                        <h2>
+                            ÉTAT DU SYSTÈME
+                        </h2>
+
+                        <p>
+                            Informations relatives à
+                            l'environnement de gestion.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="system-status-grid">
+
+
+                    <div class="status-card">
+
+                        <span class="status-label">
+                            AUTHENTIFICATION
+                        </span>
+
+                        <strong
+                            id="status-auth"
+                        >
+                            VÉRIFICATION...
+                        </strong>
+
+                    </div>
+
+
+                    <div class="status-card">
+
+                        <span class="status-label">
+                            SUPABASE
+                        </span>
+
+                        <strong
+                            id="status-supabase"
+                        >
+                            VÉRIFICATION...
+                        </strong>
+
+                    </div>
+
+
+                    <div class="status-card">
+
+                        <span class="status-label">
+                            SESSION
+                        </span>
+
+                        <strong
+                            id="status-session"
+                        >
+                            VÉRIFICATION...
+                        </strong>
+
+                    </div>
+
+
+                    <div class="status-card">
+
+                        <span class="status-label">
+                            AUTORISATIONS
+                        </span>
+
+                        <strong
+                            id="status-permissions"
+                        >
+                            VÉRIFICATION...
+                        </strong>
+
+                    </div>
+
+
+                </div>
+
+            </section>
+
+
+
+            <!-- =================================================
+                 NAVIGATION
+                 ================================================= -->
+
+            <section class="gestion-navigation">
+
+                <a
+                    href="../../zone staff.html"
+                    class="gestion-back"
+                >
+                    ← RETOUR À LA ZONE STAFF
+                </a>
+
+            </section>
+
+
+        </main>
+
+
+
+        <!-- =================================================
+             FOOTER
+             ================================================= -->
+
+        <footer class="gestion-footer">
+
+            <span>
+                SCP FOUNDATION // SITE-431
+            </span>
+
+            <span>
+                STAFF MANAGEMENT SYSTEM
+            </span>
+
+        </footer>
+
+
+    </div>
+
+
+
+    <!-- =====================================================
+         SUPABASE
+         ===================================================== -->
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script src="../../accès/staff-access.js"></script>
+
+    <script src="gestions.js"></script>
+
+
+</body>
+
+</html>
