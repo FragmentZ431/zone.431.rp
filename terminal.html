@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#080a0d">
+  <meta name="description" content="Terminal de contrôle d'accès — Zone-431">
+  <title>Terminal d'accès | Zone-431</title>
+  <link rel="stylesheet" href="terminal.css">
+  <script src="terminal.js" defer></script>
+</head>
+<body>
+  <div class="scanlines" aria-hidden="true"></div>
+  <main class="terminal-shell">
+    <header class="topbar">
+      <a class="brand" href="index.html" aria-label="Zone-431 — retour">
+        <span class="brand-mark">Z<span>431</span></span>
+        <span class="brand-name">ZONE-431 <small>INSTALLATION DE CONFINEMENT</small></span>
+      </a>
+      <div class="topbar-status"><span class="status-light"></span> SYSTÈME LOCAL <span class="separator">/</span> SIMULATION</div>
+    </header>
+
+    <section class="terminal-card" aria-labelledby="terminal-title">
+      <div class="card-heading">
+        <div>
+          <p class="eyebrow">SYSTÈME DE CONTRÔLE CENTRAL</p>
+          <h1 id="terminal-title">Terminal d'accès</h1>
+          <p class="subtitle">Vérification des autorisations d'accès à l'installation.</p>
+        </div>
+        <div class="security-stamp"><span>SEC</span><strong>431</strong><small>CONTROL</small></div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="session-row">
+        <div><span class="field-label">SESSION</span><strong id="session-id">GÉNÉRATION...</strong></div>
+        <div><span class="field-label">NIVEAU DE SÉCURITÉ</span><strong>RESTREINT</strong></div>
+        <div><span class="field-label">ÉTAT DU TERMINAL</span><strong class="state-running" id="terminal-state">INITIALISATION</strong></div>
+      </div>
+
+      <section class="process" aria-label="Progression du contrôle">
+        <div class="process-top"><span id="process-label">Initialisation du terminal</span><strong id="progress-value">00%</strong></div>
+        <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+      </section>
+
+      <section class="log-panel" aria-label="Journal des opérations">
+        <div class="log-header"><span>JOURNAL DES OPÉRATIONS</span><span id="log-count">0 ÉVÉNEMENT</span></div>
+        <div class="log-lines" id="log-lines" aria-live="polite">
+          <p class="log-placeholder">En attente du démarrage du protocole...</p>
+        </div>
+      </section>
+
+      <section class="result-panel is-hidden" id="result-panel" aria-live="assertive">
+        <div class="result-icon">×</div>
+        <div class="result-copy">
+          <p class="eyebrow">RÉSULTAT DU CONTRÔLE</p>
+          <h2>ACCÈS REFUSÉ</h2>
+          <p>Aucune identité authentifiée n'est associée à cette session. Cette démonstration ne vérifie aucun compte réel.</p>
+        </div>
+        <span class="result-code">ERR / 403</span>
+      </section>
+
+      <footer class="card-footer">
+        <span>ZONE-431 <i>•</i> SYSTÈME DE CONTRÔLE</span>
+        <span id="footer-message">PROTOCOLE EN ATTENTE</span>
+      </footer>
+    </section>
+
+    <footer class="page-footer">
+      <span>DOCUMENTATION INTERNE — ACCÈS CONTRÔLÉ</span>
+      <a href="index.html">RETOUR AU SITE PUBLIC <span aria-hidden="true">↗</span></a>
+    </footer>
+  </main>
+</body>
+</html>
