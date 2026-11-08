@@ -1,0 +1,144 @@
+ <!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#090b0e">
+    <title>ZONE-431 | Terminal d'accès</title>
+    <link rel="stylesheet" href="terminal.css">
+    <script src="terminal.js" defer></script>
+</head>
+<body>
+
+    <div class="background-grid"></div>
+
+    <header class="topbar">
+        <div class="brand">
+            <div class="brand-logo">Z431</div>
+            <div class="brand-text">
+                <strong>ZONE-431</strong>
+                <span>INSTALLATION DE CONFINEMENT</span>
+            </div>
+        </div>
+
+        <div class="system-status">
+            <span class="status-dot"></span>
+            SYSTÈME OPÉRATIONNEL
+        </div>
+    </header>
+
+    <main class="main-container">
+
+        <section class="access-section" id="accessSection">
+            <div class="section-label">ACCÈS À L'INSTALLATION</div>
+
+            <h1>PORTAIL D'ACCÈS</h1>
+
+            <p class="intro">
+                Vous êtes sur le point d'accéder à l'environnement numérique
+                de la Zone-431. Veuillez initialiser le terminal d'accès.
+            </p>
+
+            <button class="primary-button" id="startButton">
+                <span>ACCÉDER À LA ZONE</span>
+                <span class="button-arrow">→</span>
+            </button>
+
+            <div class="access-note">
+                <span class="status-dot"></span>
+                TERMINAL DISPONIBLE
+            </div>
+        </section>
+
+        <section class="terminal-panel hidden" id="terminalPanel">
+
+            <div class="terminal-header">
+                <div>
+                    <span class="terminal-label">ZONE-431 / SYSTÈME CENTRAL</span>
+                    <h2>TERMINAL D'IDENTIFICATION</h2>
+                </div>
+
+                <div class="terminal-indicator">
+                    <span class="status-dot"></span>
+                    EN LIGNE
+                </div>
+            </div>
+
+            <div class="terminal-info">
+                <div class="info-item">
+                    <span>INSTALLATION</span>
+                    <strong>ZONE-431</strong>
+                </div>
+
+                <div class="info-item">
+                    <span>TYPE DE CONTRÔLE</span>
+                    <strong>IDENTIFICATION NUMÉRIQUE</strong>
+                </div>
+
+                <div class="info-item">
+                    <span>CONNEXION</span>
+                    <strong>ACTIVE</strong>
+                </div>
+            </div>
+
+            <div class="progress-area">
+                <div class="progress-heading">
+                    <span id="progressLabel">INITIALISATION DU SYSTÈME</span>
+                    <span id="progressPercent">0 %</span>
+                </div>
+
+                <div class="progress-track">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+            </div>
+
+            <div class="console">
+                <div class="console-header">
+                    <span>JOURNAL DU SYSTÈME</span>
+                    <span>LIVE LOG</span>
+                </div>
+
+                <div class="console-content" id="consoleContent">
+                    <div class="console-placeholder">
+                        En attente de lancement de la procédure...
+                    </div>
+                </div>
+            </div>
+
+            <div class="result-panel hidden" id="resultPanel">
+                <div class="result-icon">✓</div>
+
+                <div class="result-content">
+                    <span class="result-label">RÉSULTAT DU CONTRÔLE</span>
+                    <h3>ACCÈS AUTORISÉ</h3>
+                    <p>
+                        Procédure terminée. Le terminal autorise
+                        l'accès à l'environnement Zone-431.
+                    </p>
+                </div>
+            </div>
+
+            <div class="continue-container hidden" id="continueContainer">
+                <button class="primary-button continue-button" id="continueButton">
+                    <span>CONTINUER VERS L'ACCUEIL</span>
+                    <span class="button-arrow">→</span>
+                </button>
+            </div>
+
+            <div class="terminal-footer">
+                <span>ZONE-431 // SYSTÈME D'ACCÈS</span>
+                <span id="terminalState">EN ATTENTE</span>
+            </div>
+
+        </section>
+
+    </main>
+
+    <footer class="page-footer">
+        <span>ZONE-431</span>
+        <span>DOCUMENTATION ET ENVIRONNEMENT NUMÉRIQUE</span>
+        <span>TOUS DROITS RÉSERVÉS</span>
+    </footer>
+
+</body>
+</html>

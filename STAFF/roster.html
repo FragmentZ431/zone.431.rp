@@ -1,0 +1,212 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#080e17">
+    <meta name="description" content="Gestion des effectifs de la Zone-431.">
+    <title>ZONE-431 | Roster</title>
+    <link rel="stylesheet" href="roster.css">
+</head>
+<body>
+<div class="roster-page">
+
+    <header class="topbar">
+        <a href="../accueil.html" class="logo">ZONE<span>-431</span></a>
+        <nav>
+            <a href="../accueil.html">ACCUEIL</a>
+            <a href="../menu.html">LA ZONE</a>
+            <a href="../département.html">DÉPARTEMENTS</a>
+            <a href="../documents.html">DOCUMENTS</a>
+            <a href="../contact.html">CONTACT</a>
+            <a href="zone%20staff.html" class="active">ZONE STAFF</a>
+        </nav>
+    </header>
+
+    <section class="page-header">
+        <div class="header-content">
+            <span class="eyebrow">SCP FOUNDATION // SITE-431</span>
+            <h1>GESTION DES <span>ROSTERS</span></h1>
+            <p>Registre administratif des effectifs et des unités de la Zone-431.</p>
+        </div>
+        <div class="header-reference">
+            <span>MODULE</span>
+            <strong>RST-04</strong>
+            <small>ADMINISTRATION DU PERSONNEL</small>
+        </div>
+    </section>
+
+    <main class="main-content">
+
+        <section class="session-panel">
+            <div class="session-identity">
+                <div class="session-mark">Z431</div>
+                <div>
+                    <span class="panel-label">SESSION ACTIVE</span>
+                    <h2 id="sessionName">Vérification en cours...</h2>
+                    <p id="sessionRole">Chargement des autorisations...</p>
+                </div>
+            </div>
+            <div class="session-access">
+                <span class="panel-label">NIVEAU D'ACCÈS</span>
+                <strong id="accessBadge" class="access-badge">VÉRIFICATION</strong>
+                <small id="accessDescription">Contrôle des permissions</small>
+            </div>
+        </section>
+
+        <section class="permission-notice" id="permissionNotice" hidden>
+            <span class="notice-symbol">!</span>
+            <div>
+                <strong id="noticeTitle">Information</strong>
+                <p id="noticeMessage"></p>
+            </div>
+        </section>
+
+        <section class="roster-section">
+            <div class="section-heading">
+                <div>
+                    <span class="eyebrow">REGISTRE DU PERSONNEL</span>
+                    <h2>EFFECTIFS ENREGISTRÉS</h2>
+                    <p>Consultation et administration des rosters de l'installation.</p>
+                </div>
+                <button id="createRosterButton" class="primary-button" type="button" hidden>
+                    <span>+</span> CRÉER UN ROSTER
+                </button>
+            </div>
+
+            <div class="toolbar">
+                <div class="search-field">
+                    <span class="search-icon">⌕</span>
+                    <input
+                        type="search"
+                        id="searchInput"
+                        placeholder="Rechercher un roster, un département ou un membre..."
+                        autocomplete="off">
+                </div>
+                <div class="result-count">
+                    <span id="rosterCount">0</span>
+                    <small>ROSTER(S)</small>
+                </div>
+            </div>
+
+            <div id="rostersList" class="rosters-list" aria-live="polite">
+                <div class="loading-state">
+                    <span class="loading-spinner"></span>
+                    <p>CHARGEMENT DU REGISTRE...</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="access-information">
+            <div class="information-heading">
+                <span class="eyebrow">CONTRÔLE DES ACCÈS</span>
+                <h2>RÈGLES DU MODULE</h2>
+            </div>
+            <div class="access-rules">
+                <article>
+                    <span class="rule-code">ADMIN</span>
+                    <strong>Administration complète</strong>
+                    <p>Création, modification et suppression des rosters.</p>
+                </article>
+                <article>
+                    <span class="rule-code">DÉROGATION</span>
+                    <strong>Gestion individuelle</strong>
+                    <p>Les membres disposant de la permission roster.manage bénéficient des mêmes droits de gestion.</p>
+                </article>
+                <article>
+                    <span class="rule-code">LECTURE</span>
+                    <strong>Consultation uniquement</strong>
+                    <p>Les MANAGER, ANIM et MOD peuvent consulter les effectifs sans les modifier.</p>
+                </article>
+            </div>
+        </section>
+
+        <div class="page-footer">
+            <span>ZONE-431 — INTERFACE ADMINISTRATIVE</span>
+            <a href="zone%20staff.html">RETOUR AU CENTRE STAFF</a>
+        </div>
+
+    </main>
+
+    <div id="rosterModal" class="modal hidden" aria-hidden="true">
+        <div class="modal-backdrop" data-close-modal></div>
+
+        <section class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="rosterModalTitle">
+            <div class="modal-header">
+                <div>
+                    <span class="eyebrow">ADMINISTRATION DU REGISTRE</span>
+                    <h2 id="rosterModalTitle">CRÉER UN ROSTER</h2>
+                </div>
+                <button type="button" class="modal-close" id="closeRosterModal" aria-label="Fermer">×</button>
+            </div>
+
+            <form id="rosterForm">
+                <input type="hidden" id="editingRosterId">
+
+                <div class="form-grid">
+                    <div class="form-group full-width">
+                        <label for="rosterName">NOM DU ROSTER</label>
+                        <input type="text" id="rosterName" maxlength="120" placeholder="Ex : D.SE — Sécurité régulière" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="rosterDepartment">DÉPARTEMENT</label>
+                        <input type="text" id="rosterDepartment" maxlength="80" placeholder="Ex : D.SE" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="rosterLeader">RESPONSABLE</label>
+                        <input type="text" id="rosterLeader" maxlength="120" placeholder="Pseudo IG du responsable">
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label for="rosterDescription">DESCRIPTION</label>
+                        <textarea id="rosterDescription" rows="3" maxlength="1000" placeholder="Description et informations du roster..."></textarea>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label for="rosterStatus">STATUT</label>
+                        <select id="rosterStatus">
+                            <option value="ACTIF">ACTIF</option>
+                            <option value="INACTIF">INACTIF</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="members-editor">
+                    <div class="members-editor-heading">
+                        <div>
+                            <span class="eyebrow">COMPOSITION</span>
+                            <h3>MEMBRES DU ROSTER</h3>
+                        </div>
+                        <span id="memberCount" class="member-count">0 MEMBRE</span>
+                    </div>
+
+                    <div class="member-inputs">
+                        <input type="text" id="memberIG" maxlength="80" placeholder="Pseudo Roblox / IG">
+                        <input type="text" id="memberDiscord" maxlength="100" placeholder="Pseudo Discord">
+                        <button type="button" id="addMemberButton" class="secondary-button">AJOUTER</button>
+                    </div>
+
+                    <div id="membersList" class="members-list">
+                        <p class="empty-members">Aucun membre ajouté.</p>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="secondary-button" id="cancelRosterButton">ANNULER</button>
+                    <button type="submit" class="primary-button" id="saveRosterButton">ENREGISTRER</button>
+                </div>
+            </form>
+        </section>
+    </div>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="roster.js"></script>
+</body>
+</html>

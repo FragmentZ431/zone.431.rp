@@ -1,0 +1,131 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#090D0B">
+
+    <title>Lecture documentaire | ZONE-431</title>
+
+    <link rel="stylesheet" href="membre.css">
+    <link rel="stylesheet" href="documentation.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body>
+
+    <header class="member-header">
+        <a href="../accueil.html" class="member-brand">
+            <span class="brand-mark">Z431</span>
+            <span class="brand-information">
+                <strong>ZONE-431</strong>
+                <small>ESPACE PERSONNEL</small>
+            </span>
+        </a>
+
+        <div class="header-status">
+            <span class="status-indicator"></span>
+            <span>SYSTÈME OPÉRATIONNEL</span>
+        </div>
+
+        <a href="documentation.html" class="header-back">
+            <i class="fa-solid fa-arrow-left"></i>
+            <span>BIBLIOTHÈQUE</span>
+        </a>
+    </header>
+
+    <main class="member-main">
+
+        <section id="documentLoading" class="documentation-state">
+            <div class="loading-indicator"></div>
+            <p class="section-eyebrow">CENTRE DOCUMENTAIRE</p>
+            <h1>OUVERTURE DU DOCUMENT</h1>
+            <p>Vérification des autorisations et récupération du contenu.</p>
+        </section>
+
+        <section id="documentError" class="documentation-state" hidden>
+            <div class="documentation-state-icon">
+                <i class="fa-solid fa-file-circle-exclamation"></i>
+            </div>
+
+            <p class="section-eyebrow">CENTRE DOCUMENTAIRE</p>
+            <h1 id="documentErrorTitle">DOCUMENT INTROUVABLE</h1>
+
+            <p id="documentErrorMessage">
+                Ce document est indisponible ou n'est plus publié.
+            </p>
+
+            <a href="documentation.html" class="document-back">
+                <i class="fa-solid fa-arrow-left"></i>
+                RETOUR À LA BIBLIOTHÈQUE
+            </a>
+        </section>
+
+        <article id="documentReader" class="document-reader" hidden>
+
+            <nav class="document-breadcrumb">
+                <a href="accueil.html">ESPACE MEMBRE</a>
+                <i class="fa-solid fa-chevron-right"></i>
+                <a href="documentation.html">DOCUMENTATION</a>
+                <i class="fa-solid fa-chevron-right"></i>
+                <span>LECTURE</span>
+            </nav>
+
+            <header class="document-header">
+                <span id="documentCategory" class="document-category">
+                    CATÉGORIE
+                </span>
+
+                <h1 id="documentTitle">Titre du document</h1>
+
+                <p id="documentSummary" class="document-summary"></p>
+
+                <div class="document-metadata">
+                    <span id="documentDate">
+                        <i class="fa-regular fa-calendar"></i>
+                        Date non renseignée
+                    </span>
+
+                    <span>
+                        <i class="fa-solid fa-shield-halved"></i>
+                        DOCUMENT INTERNE
+                    </span>
+                </div>
+            </header>
+
+            <section class="document-body">
+                <h2>CONTENU DU DOCUMENT</h2>
+
+                <div
+                    id="documentContent"
+                    class="document-body-content"
+                ></div>
+            </section>
+
+            <a href="documentation.html" class="document-back">
+                <i class="fa-solid fa-arrow-left"></i>
+                RETOUR À LA BIBLIOTHÈQUE
+            </a>
+
+        </article>
+
+    </main>
+
+    <footer class="member-footer">
+        <div class="footer-brand">
+            <strong>ZONE-431</strong>
+            <span>ESPACE PERSONNEL</span>
+        </div>
+
+        <p>SYSTÈME INFORMATIQUE DE L'INSTALLATION</p>
+
+        <span class="footer-version">LECTURE DOCUMENTAIRE</span>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="auth.js"></script>
+    <script src="document.js"></script>
+
+</body>
+</html>

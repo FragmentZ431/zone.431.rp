@@ -1,0 +1,537 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#080a0d">
+
+    <meta name="description" content="Annuaire public du personnel de la Zone-431.">
+
+    <title>ZONE-431 | Personnel</title>
+
+    <link rel="stylesheet" href="personnel.css">
+
+    <script src="personnel.js" defer></script>
+</head>
+
+<body>
+
+    <!-- ARRIERE-PLAN -->
+
+    <div class="background-effects" aria-hidden="true">
+        <div class="background-grid"></div>
+        <div class="background-glow"></div>
+    </div>
+
+
+    <!-- NAVIGATION -->
+
+    <header class="main-header">
+
+        <a href="accueil.html" class="brand">
+
+            <span class="brand-symbol">Z</span>
+
+            <span class="brand-name">
+                <strong>ZONE-431</strong>
+                <small>INSTALLATION DE CONFINEMENT</small>
+            </span>
+
+        </a>
+
+
+        <nav class="main-navigation">
+
+            <a href="accueil.html">Accueil</a>
+            <a href="departements.html">Départements</a>
+            <a href="personnel.html" class="active">Personnel</a>
+            <a href="lore.html">Lore</a>
+            <a href="documentation.html">Documentation</a>
+
+        </nav>
+
+
+        <a href="membre/accueil.html" class="member-access">
+            ESPACE MEMBRE
+            <span class="access-arrow">↗</span>
+        </a>
+
+<a href="STAFF/zone staff.html" class="nav-link nav-staff">ACCÈS STAFF</a>
+
+    </header>
+
+
+    <main>
+
+        <!-- INTRODUCTION -->
+
+        <section class="personnel-hero">
+
+            <div class="hero-content">
+
+                <div class="system-indicator">
+                    <span class="status-dot"></span>
+                    REGISTRE DU PERSONNEL
+                </div>
+
+                <p class="hero-subtitle">
+                    FONDATION SCP — ZONE-431
+                </p>
+
+                <h1>
+                    REGISTRE
+                    <span>DU PERSONNEL</span>
+                </h1>
+
+                <p class="hero-description">
+                    Consultez le registre public du personnel de la
+                    Zone-431 et accédez aux fiches individuelles
+                    des membres dont les informations ont été publiées.
+                </p>
+
+            </div>
+
+
+            <div class="hero-reference">
+
+                <span>DOCUMENT : Z431-PERS-001</span>
+                <span>ANNUAIRE INSTITUTIONNEL</span>
+
+            </div>
+
+        </section>
+
+
+        <!-- PRESENTATION DU REGISTRE -->
+
+        <section class="personnel-overview">
+
+            <div class="overview-heading">
+
+                <div>
+                    <span class="section-index">01 / REGISTRE</span>
+                    <h2>ANNUAIRE INSTITUTIONNEL</h2>
+                </div>
+
+                <span class="register-status">
+                    REGISTRE PUBLIC
+                </span>
+
+            </div>
+
+
+            <div class="personnel-statistics">
+
+                <div class="stat-card">
+
+                    <span class="stat-label">
+                        PERSONNEL RÉFÉRENCÉ
+                    </span>
+
+                    <strong id="personnelCount">—</strong>
+
+                    <small>
+                        Fiches publiées
+                    </small>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <span class="stat-label">
+                        DÉPARTEMENTS
+                    </span>
+
+                    <strong id="departmentCount">—</strong>
+
+                    <small>
+                        Départements représentés
+                    </small>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <span class="stat-label">
+                        DERNIÈRE MISE À JOUR
+                    </span>
+
+                    <strong id="lastUpdate">—</strong>
+
+                    <small>
+                        Actualisation du registre
+                    </small>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- RECHERCHE ET FILTRES -->
+
+        <section class="personnel-directory" id="annuaire">
+
+            <div class="section-heading">
+
+                <div>
+                    <span class="section-index">02 / CONSULTATION</span>
+                    <h2>RECHERCHER DU PERSONNEL</h2>
+                </div>
+
+                <p>
+                    Retrouvez un membre à partir de son nom,
+                    de son identifiant ou de son département.
+                </p>
+
+            </div>
+
+
+            <div class="directory-controls">
+
+                <div class="search-container">
+
+                    <label for="personnelSearch">
+                        RECHERCHE
+                    </label>
+
+                    <div class="search-input-wrapper">
+
+                        <span class="search-icon">⌕</span>
+
+                        <input
+                            type="search"
+                            id="personnelSearch"
+                            placeholder="Nom ou identifiant du personnel..."
+                            autocomplete="off"
+                        >
+
+                    </div>
+
+                </div>
+
+
+                <div class="filter-container">
+
+                    <label for="departmentFilter">
+                        DÉPARTEMENT
+                    </label>
+
+                    <select id="departmentFilter">
+
+                        <option value="all">
+                            Tous les départements
+                        </option>
+
+                        <option value="D.SE">D.SE</option>
+                        <option value="D.SCI">D.SCI</option>
+                        <option value="D.M">D.M</option>
+                        <option value="DI&ST">DI&ST</option>
+                        <option value="D.A">D.A</option>
+                        <option value="ZC">ZC</option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="filter-container">
+
+                    <label for="sortFilter">
+                        TRI
+                    </label>
+
+                    <select id="sortFilter">
+
+                        <option value="name-asc">
+                            Nom A → Z
+                        </option>
+
+                        <option value="name-desc">
+                            Nom Z → A
+                        </option>
+
+                        <option value="department">
+                            Département
+                        </option>
+
+                        <option value="date-desc">
+                            Intégration récente
+                        </option>
+
+                    </select>
+
+                </div>
+
+            </div>
+
+
+            <!-- RESULTATS -->
+
+            <div class="directory-results-header">
+
+                <span id="resultsCount">
+                    CHARGEMENT DU REGISTRE...
+                </span>
+
+                <button
+                    type="button"
+                    id="resetFilters"
+                    class="reset-filters">
+                    RÉINITIALISER LES FILTRES
+                </button>
+
+            </div>
+
+
+            <div class="personnel-grid" id="personnelGrid">
+
+                <!--
+                    Les fiches du personnel seront générées
+                    automatiquement depuis les données Supabase.
+
+                    Aucun membre fictif n'est affiché.
+                -->
+
+            </div>
+
+
+            <!-- ETAT VIDE -->
+
+            <div class="directory-empty" id="directoryEmpty" hidden>
+
+                <div class="empty-symbol">
+                    <span></span>
+                </div>
+
+                <h3>AUCUN PERSONNEL RÉFÉRENCÉ</h3>
+
+                <p>
+                    Aucun membre ne correspond aux critères sélectionnés
+                    ou aucune fiche publique n'est actuellement disponible.
+                </p>
+
+            </div>
+
+
+            <!-- ERREUR DE CHARGEMENT -->
+
+            <div class="directory-error" id="directoryError" hidden>
+
+                <div class="error-indicator">
+                    ERREUR DE CONSULTATION
+                </div>
+
+                <h3>REGISTRE INDISPONIBLE</h3>
+
+                <p>
+                    Impossible de récupérer les informations du personnel.
+                    Veuillez réessayer ultérieurement.
+                </p>
+
+                <button type="button" id="retryPersonnel">
+                    RÉESSAYER
+                </button>
+
+            </div>
+
+        </section>
+
+
+        <!-- INFORMATIONS SUR LES FICHES -->
+
+        <section class="personnel-information">
+
+            <div class="information-content">
+
+                <span class="section-index">
+                    03 / INFORMATIONS
+                </span>
+
+                <h2>CONSULTATION DES FICHES</h2>
+
+                <p>
+                    Les fiches présentées dans cet annuaire sont publiées
+                    par les responsables autorisés de la Zone-431.
+                    Leur contenu est susceptible d'évoluer en fonction
+                    des modifications apportées au registre.
+                </p>
+
+                <p>
+                    Seules les informations destinées à la consultation
+                    publique sont affichées sur cette page.
+                </p>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- FENETRE DE PROFIL -->
+
+    <dialog id="personnelModal" class="personnel-modal">
+
+        <div class="personnel-modal-content">
+
+
+            <div class="personnel-modal-header">
+
+                <div>
+
+                    <span class="modal-reference">
+                        ZONE-431 / REGISTRE DU PERSONNEL
+                    </span>
+
+                    <span class="modal-status" id="profileStatus">
+                        FICHE PUBLIÉE
+                    </span>
+
+                </div>
+
+
+                <button
+                    type="button"
+                    id="closePersonnelModal"
+                    class="modal-close"
+                    aria-label="Fermer la fiche">
+                    ×
+                </button>
+
+            </div>
+
+
+            <div class="personnel-modal-body">
+
+                <div class="profile-heading">
+
+                    <div class="profile-initials" id="profileInitials">
+                        --
+                    </div>
+
+                    <div>
+
+                        <span class="profile-label">
+                            IDENTITÉ DU PERSONNEL
+                        </span>
+
+                        <h2 id="profileName">
+                            Nom du personnel
+                        </h2>
+
+                        <span class="profile-id" id="profileId">
+                            Z431-0000
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <div class="profile-information-grid">
+
+                    <div class="profile-information-item">
+
+                        <span>DÉPARTEMENT</span>
+
+                        <strong id="profileDepartment">
+                            Non renseigné
+                        </strong>
+
+                    </div>
+
+
+                    <div class="profile-information-item">
+
+                        <span>GRADE</span>
+
+                        <strong id="profileGrade">
+                            Non renseigné
+                        </strong>
+
+                    </div>
+
+
+                    <div class="profile-information-item">
+
+                        <span>FONCTION</span>
+
+                        <strong id="profileFunction">
+                            Non renseignée
+                        </strong>
+
+                    </div>
+
+
+                    <div class="profile-information-item">
+
+                        <span>DATE D'INTÉGRATION</span>
+
+                        <strong id="profileDate">
+                            Non renseignée
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="profile-footer">
+
+                    <span>REGISTRE INSTITUTIONNEL</span>
+
+                    <span>ZONE-431</span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </dialog>
+
+
+    <!-- FOOTER -->
+
+    <footer class="main-footer">
+
+        <div class="footer-brand">
+
+            <strong>ZONE-431</strong>
+
+            <span>INSTALLATION DE CONFINEMENT</span>
+
+        </div>
+
+
+        <div class="footer-links">
+
+            <a href="accueil.html">Accueil</a>
+            <a href="departements.html">Départements</a>
+            <a href="personnel.html">Personnel</a>
+            <a href="lore.html">Lore</a>
+            <a href="documentation.html">Documentation</a>
+            <a href="recrutement.html">Recrutement</a>
+            <a href="contact.html">Contact</a>
+
+        </div>
+
+
+        <div class="footer-bottom">
+
+            <span>ZONE-431 — FONDATION SCP</span>
+
+            <span>UNIVERS ROLEPLAY NON OFFICIEL</span>
+
+        </div>
+
+    </footer>
+
+</body>
+</html>

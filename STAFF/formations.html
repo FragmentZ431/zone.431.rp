@@ -1,0 +1,294 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#080e17">
+    <meta name="description" content="Centre de formation du personnel et des membres de la Zone-431.">
+    <title>Zone-431 | Formations</title>
+
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="formations.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="formations.js" defer></script>
+</head>
+<body>
+    <main class="formations-shell">
+        <header class="page-header">
+            <div>
+                <span class="eyebrow">ZONE-431 // GESTION DES COMPÉTENCES</span>
+                <h1>Centre de formations</h1>
+                <p class="subtitle">Plateforme de formation et de suivi des compétences du personnel.</p>
+            </div>
+
+            <div class="header-status">
+                <span class="status-dot"></span>
+                <span id="accessLabel">Vérification des accès...</span>
+            </div>
+        </header>
+
+        <section id="accessDenied" class="panel access-denied hidden">
+            <h2>Accès non autorisé</h2>
+            <p>Votre compte ne dispose pas des autorisations nécessaires pour accéder à ce module.</p>
+        </section>
+
+        <section id="mainContent" class="hidden">
+            <div class="stats-grid">
+                <article class="stat-card">
+                    <span class="stat-label">FORMATIONS DISPONIBLES</span>
+                    <strong id="statCourses">0</strong>
+                    <span class="stat-detail">Dans l'espace sélectionné</span>
+                </article>
+
+                <article class="stat-card">
+                    <span class="stat-label">FORMATIONS PUBLIÉES</span>
+                    <strong id="statPublished">0</strong>
+                    <span class="stat-detail">Accessibles aux destinataires</span>
+                </article>
+
+                <article class="stat-card">
+                    <span class="stat-label">MON AVANCEMENT</span>
+                    <strong id="statProgress">0%</strong>
+                    <span class="stat-detail">Progression personnelle</span>
+                </article>
+            </div>
+
+            <section class="panel">
+                <div class="section-heading">
+                    <div>
+                        <span class="eyebrow">ESPACE DE FORMATION</span>
+                        <h2>Catalogue</h2>
+                    </div>
+                    <button id="refreshButton" class="button button-secondary" type="button">Actualiser</button>
+                </div>
+
+                <div class="space-switch">
+                    <button class="space-tab active" data-space="rp" type="button">
+                        <span class="tab-kicker">01</span>
+                        <span>
+                            <strong>Formations RP</strong>
+                            <small>Départements, divisions et filières</small>
+                        </span>
+                    </button>
+
+                    <button class="space-tab" data-space="staff" type="button">
+                        <span class="tab-kicker">02</span>
+                        <span>
+                            <strong>Formations STAFF</strong>
+                            <small>Animation et Modération</small>
+                        </span>
+                    </button>
+                </div>
+
+                <div class="toolbar">
+                    <div class="search-wrap">
+                        <input id="searchInput" type="search" placeholder="Rechercher une formation..." autocomplete="off">
+                    </div>
+
+                    <select id="categoryFilter" aria-label="Filtrer par catégorie">
+                        <option value="">Toutes les catégories</option>
+                    </select>
+
+                    <button id="createCourseButton" class="button button-primary hidden" type="button">
+                        + Nouvelle formation
+                    </button>
+                </div>
+
+                <div id="spaceDescription" class="space-description">
+                    Les formations accessibles selon vos affectations RP.
+                </div>
+
+                <div id="courseGrid" class="course-grid">
+                    <div class="empty-state">Chargement des formations...</div>
+                </div>
+            </section>
+
+            <section id="assignmentPanel" class="panel hidden">
+                <div class="section-heading">
+                    <div>
+                        <span class="eyebrow">ADMINISTRATION RP</span>
+                        <h2>Affectations des membres</h2>
+                        <p class="muted">Attribuer les départements, divisions et filières auxquels un membre appartient.</p>
+                    </div>
+                </div>
+
+                <form id="assignmentForm" class="form-grid">
+                    <label class="field full-width">
+                        <span>Identifiant utilisateur Supabase (UUID)</span>
+                        <input id="assignmentUserId" type="text" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" required>
+                        <small>Identifiant du compte RP à affecter.</small>
+                    </label>
+
+                    <div class="field full-width">
+                        <span>Départements</span>
+                        <div id="assignmentDepartments" class="selection-grid"></div>
+                    </div>
+
+                    <div class="field full-width">
+                        <span>Divisions, subdivisions et filières</span>
+                        <div id="assignmentNodes" class="selection-grid"></div>
+                    </div>
+
+                    <div class="form-actions full-width">
+                        <button class="button button-primary" type="submit">Enregistrer les affectations</button>
+                    </div>
+                </form>
+            </section>
+        </section>
+    </main>
+
+    <!-- MODALE FORMATION -->
+    <div id="courseModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="courseModalTitle">
+        <div class="modal-card modal-large">
+            <div class="modal-header">
+                <div>
+                    <span class="eyebrow">GESTION DU CATALOGUE</span>
+                    <h2 id="courseModalTitle">Nouvelle formation</h2>
+                </div>
+                <button class="icon-button" data-close="courseModal" type="button" aria-label="Fermer">×</button>
+            </div>
+
+            <form id="courseForm" class="form-grid">
+                <input id="courseId" type="hidden">
+
+                <label class="field full-width">
+                    <span>Intitulé de la formation</span>
+                    <input id="courseTitle" type="text" maxlength="140" required placeholder="Ex. Procédures générales de sécurité">
+                </label>
+
+                <label class="field">
+                    <span>Catégorie</span>
+                    <input id="courseCategory" type="text" maxlength="80" required placeholder="Ex. Sécurité">
+                </label>
+
+                <label class="field">
+                    <span>Ordre d'affichage</span>
+                    <input id="courseOrder" type="number" min="0" value="0">
+                </label>
+
+                <label class="field full-width">
+                    <span>Résumé</span>
+                    <textarea id="courseSummary" rows="2" maxlength="300" placeholder="Présentation courte de la formation."></textarea>
+                </label>
+
+                <label class="field full-width">
+                    <span>Description</span>
+                    <textarea id="courseDescription" rows="4" placeholder="Objectifs et présentation générale."></textarea>
+                </label>
+
+                <div id="rpTargetFields" class="field full-width">
+                    <div class="target-heading">
+                        <span>Public RP concerné</span>
+                        <small>Les choix sont importés du module Départements.</small>
+                    </div>
+
+                    <div class="target-block">
+                        <strong>Départements</strong>
+                        <div id="courseDepartments" class="selection-grid"></div>
+                    </div>
+
+                    <div class="target-block">
+                        <strong>Divisions, subdivisions et filières</strong>
+                        <div id="courseNodes" class="selection-grid"></div>
+                    </div>
+
+                    <p class="form-note">Un membre doit posséder l'affectation correspondante pour accéder à la formation. Sélectionner un département et une division ajoute deux publics distincts.</p>
+                </div>
+
+                <div id="staffTargetFields" class="field full-width hidden">
+                    <span>Public STAFF concerné</span>
+                    <div class="radio-cards">
+                        <label class="radio-card">
+                            <input type="radio" name="staffAudience" value="ANIMATION" checked>
+                            <span><strong>ANIMATION</strong><small>Équipe Animation uniquement</small></span>
+                        </label>
+                        <label class="radio-card">
+                            <input type="radio" name="staffAudience" value="MODÉRATION">
+                            <span><strong>MODÉRATION</strong><small>Équipe Modération uniquement</small></span>
+                        </label>
+                        <label class="radio-card">
+                            <input type="radio" name="staffAudience" value="LES_DEUX">
+                            <span><strong>LES DEUX</strong><small>Animation et Modération</small></span>
+                        </label>
+                    </div>
+                </div>
+
+                <label class="checkbox-line full-width">
+                    <input id="coursePublished" type="checkbox">
+                    <span>Publier immédiatement cette formation</span>
+                </label>
+
+                <div class="form-actions full-width">
+                    <button class="button button-secondary" data-close="courseModal" type="button">Annuler</button>
+                    <button class="button button-primary" type="submit">Enregistrer la formation</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODALE LEÇON -->
+    <div id="lessonModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="lessonModalTitle">
+        <div class="modal-card modal-large">
+            <div class="modal-header">
+                <div>
+                    <span class="eyebrow">CONTENU PÉDAGOGIQUE</span>
+                    <h2 id="lessonModalTitle">Nouvelle leçon</h2>
+                </div>
+                <button class="icon-button" data-close="lessonModal" type="button" aria-label="Fermer">×</button>
+            </div>
+
+            <form id="lessonForm" class="form-grid">
+                <input id="lessonId" type="hidden">
+                <input id="lessonCourseId" type="hidden">
+
+                <label class="field full-width">
+                    <span>Titre de la leçon</span>
+                    <input id="lessonTitle" type="text" maxlength="140" required>
+                </label>
+
+                <label class="field full-width">
+                    <span>Contenu</span>
+                    <textarea id="lessonContent" rows="12" required placeholder="Rédigez le contenu pédagogique de cette leçon..."></textarea>
+                </label>
+
+                <label class="checkbox-line full-width">
+                    <input id="lessonPublished" type="checkbox">
+                    <span>Leçon publiée</span>
+                </label>
+
+                <div class="form-actions full-width">
+                    <button class="button button-secondary" data-close="lessonModal" type="button">Annuler</button>
+                    <button class="button button-primary" type="submit">Enregistrer la leçon</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODALE CONSULTATION -->
+    <div id="viewModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="viewTitle">
+        <div class="modal-card modal-large">
+            <div class="modal-header">
+                <div>
+                    <span class="eyebrow" id="viewEyebrow">FORMATION</span>
+                    <h2 id="viewTitle">Titre de la formation</h2>
+                </div>
+                <button class="icon-button" data-close="viewModal" type="button" aria-label="Fermer">×</button>
+            </div>
+
+            <p id="viewDescription" class="view-description"></p>
+            <div id="viewMeta" class="view-meta"></div>
+
+            <div class="lessons-heading">
+                <h3>Programme pédagogique</h3>
+                <button id="addLessonButton" class="button button-primary hidden" type="button">+ Ajouter une leçon</button>
+            </div>
+
+            <div id="lessonList" class="lesson-list"></div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+</body>
+</html>
