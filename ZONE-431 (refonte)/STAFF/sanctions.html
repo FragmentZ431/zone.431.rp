@@ -1,0 +1,310 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#080e17">
+    <meta name="description" content="Registre disciplinaire du personnel Zone-431.">
+    <title>Zone-431 | Registre des sanctions</title>
+
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="sanctions.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="sanctions.js" defer></script>
+</head>
+
+<body>
+
+<header class="staff-header">
+    <a href="zone staff.html" class="staff-brand">
+        <div class="brand-mark">431</div>
+        <div class="brand-name">
+            ZONE-431
+            <small>ADMINISTRATION DU PERSONNEL</small>
+        </div>
+    </a>
+
+    <nav class="staff-nav">
+        <a href="zone staff.html">TABLEAU DE BORD</a>
+        <a href="roster.html">EFFECTIFS</a>
+        <a href="sanctions.html" class="active">SANCTIONS</a>
+        <a href="blacklist.html">BLACKLIST</a>
+    </nav>
+
+    <div class="header-status">
+        <span class="status-indicator"></span>
+        SYSTÈME OPÉRATIONNEL
+    </div>
+</header>
+
+<main class="sanctions-container">
+
+    <section class="page-heading">
+        <div>
+            <div class="eyebrow">ZONE-431 / ADMINISTRATION / DOSSIERS DISCIPLINAIRES</div>
+            <h1>REGISTRE DES SANCTIONS</h1>
+            <p class="page-description">
+                Registre administratif destiné à l'enregistrement et au suivi
+                des mesures disciplinaires prises à l'encontre des membres.
+            </p>
+        </div>
+
+        <div class="heading-code">
+            <span>CLASSIFICATION</span>
+            <strong>INTERNE</strong>
+            <span>MODULE : DISCIPLINE</span>
+        </div>
+    </section>
+
+    <div id="access-error" class="notice notice-error hidden">
+        <strong>ACCÈS REFUSÉ</strong>
+        <p id="access-error-message">
+            Vous ne disposez pas des autorisations nécessaires.
+        </p>
+    </div>
+
+    <div id="loading-state" class="loading-state">
+        VÉRIFICATION DES AUTORISATIONS...
+    </div>
+
+    <section id="sanctions-interface" class="hidden">
+
+        <section class="session-panel">
+            <div class="session-left">
+                <span class="session-label">SESSION ADMINISTRATIVE</span>
+                <strong id="staff-name">Personnel connecté</strong>
+                <span id="staff-role">Rôle non défini</span>
+            </div>
+
+            <div class="session-right">
+                <span id="permission-badge" class="permission-badge">
+                    CONSULTATION
+                </span>
+            </div>
+        </section>
+
+        <section class="statistics-grid">
+
+            <article class="stat-card">
+                <span>TOTAL DES SANCTIONS</span>
+                <strong id="stat-total">0</strong>
+            </article>
+
+            <article class="stat-card">
+                <span>BANS DÉFINITIFS</span>
+                <strong id="stat-definitive">0</strong>
+            </article>
+
+            <article class="stat-card">
+                <span>AVERTISSEMENTS</span>
+                <strong id="stat-warnings">0</strong>
+            </article>
+
+        </section>
+
+        <section class="toolbar">
+
+            <div class="search-wrapper">
+                <label for="search-input">RECHERCHE DANS LE REGISTRE</label>
+                <input
+                    type="search"
+                    id="search-input"
+                    placeholder="Pseudo Roblox, Discord, motif, responsable..."
+                    autocomplete="off"
+                >
+            </div>
+
+            <div class="toolbar-actions">
+
+                <select id="type-filter" aria-label="Filtrer par type">
+                    <option value="">TOUS LES TYPES</option>
+                </select>
+
+                <button
+                    id="refresh-button"
+                    class="secondary-button"
+                    type="button"
+                >
+                    ACTUALISER
+                </button>
+
+                <button
+                    id="add-button"
+                    class="primary-button hidden"
+                    type="button"
+                >
+                    + NOUVELLE SANCTION
+                </button>
+
+            </div>
+        </section>
+
+        <section class="registry-panel">
+
+            <div class="panel-heading">
+                <div>
+                    <div class="eyebrow">BASE DE DONNÉES / DISCIPLINE</div>
+                    <h2>HISTORIQUE DISCIPLINAIRE</h2>
+                </div>
+
+                <span id="result-count" class="result-count">
+                    0 DOSSIER
+                </span>
+            </div>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>IDENTIFIANT</th>
+                            <th>JOUEUR</th>
+                            <th>TYPE</th>
+                            <th>MOTIF</th>
+                            <th>DURÉE</th>
+                            <th>RESPONSABLE</th>
+                            <th>DATE</th>
+                            <th>ACTIONS</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="sanctions-table-body">
+                        <tr>
+                            <td colspan="8" class="loading-state">
+                                CHARGEMENT DU REGISTRE...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </section>
+
+        <p class="module-disclaimer">
+            DOCUMENT INTERNE — Les informations contenues dans ce registre
+            sont réservées au personnel disposant des autorisations nécessaires.
+        </p>
+
+    </section>
+
+</main>
+
+<!-- MODALE DE CRÉATION / MODIFICATION -->
+
+<div id="sanction-modal" class="modal hidden">
+
+    <div class="modal-backdrop" id="modal-backdrop"></div>
+
+    <div class="modal-content">
+
+        <div class="modal-heading">
+            <div>
+                <div class="eyebrow">ADMINISTRATION / DISCIPLINE</div>
+                <h2 id="modal-title">NOUVELLE SANCTION</h2>
+            </div>
+
+            <button
+                type="button"
+                id="close-modal"
+                class="close-button"
+                aria-label="Fermer"
+            >
+                ×
+            </button>
+        </div>
+
+        <form id="sanction-form">
+
+            <input type="hidden" id="sanction-id">
+
+            <label for="pseudo-ig">PSEUDO ROBLOX</label>
+            <input
+                type="text"
+                id="pseudo-ig"
+                maxlength="100"
+                required
+                placeholder="Pseudo du joueur"
+            >
+
+            <label for="pseudo-discord">PSEUDO DISCORD</label>
+            <input
+                type="text"
+                id="pseudo-discord"
+                maxlength="100"
+                required
+                placeholder="Pseudo Discord"
+            >
+
+            <label for="sanction-type">TYPE DE SANCTION</label>
+            <input
+                type="text"
+                id="sanction-type"
+                maxlength="100"
+                required
+                placeholder="Ex. : AVERTISSEMENT MAJEUR"
+            >
+
+            <label for="sanction-reason">MOTIF</label>
+            <textarea
+                id="sanction-reason"
+                rows="3"
+                maxlength="2000"
+                required
+                placeholder="Motif de la sanction..."
+            ></textarea>
+
+            <label for="sanction-duration">DURÉE</label>
+            <input
+                type="text"
+                id="sanction-duration"
+                maxlength="100"
+                placeholder="Ex. : 7 jours, Définitif..."
+            >
+
+            <label for="sanction-date">DATE DE LA SANCTION</label>
+            <input
+                type="datetime-local"
+                id="sanction-date"
+                required
+            >
+
+            <label for="sanction-notes">NOTES COMPLÉMENTAIRES</label>
+            <textarea
+                id="sanction-notes"
+                rows="3"
+                maxlength="3000"
+                placeholder="Informations complémentaires..."
+            ></textarea>
+
+            <div id="form-error" class="form-error hidden"></div>
+
+            <div class="modal-actions">
+
+                <button
+                    type="button"
+                    id="cancel-modal"
+                    class="secondary-button"
+                >
+                    ANNULER
+                </button>
+
+                <button
+                    type="submit"
+                    id="save-sanction"
+                    class="primary-button"
+                >
+                    ENREGISTRER
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+</div>
+
+<div id="toast" class="toast hidden" role="status"></div>
+
+</body>
+</html>

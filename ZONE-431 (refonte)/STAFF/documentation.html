@@ -1,0 +1,342 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#080e17">
+    <meta name="description" content="Gestion de la documentation interne Zone-431.">
+    <title>Zone-431 | Documentation STAFF</title>
+
+    <link rel="stylesheet" href="documentation.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="documentation.js" defer></script>
+</head>
+
+<body>
+    <div class="page-shell">
+
+        <header class="topbar">
+            <div class="brand">
+                <div class="brand-mark">431</div>
+                <div>
+                    <span class="brand-title">ZONE-431</span>
+                    <span class="brand-subtitle">Administration du personnel</span>
+                </div>
+            </div>
+
+            <div class="topbar-right">
+                <span class="system-indicator"></span>
+                <span class="system-label">SYSTÈME OPÉRATIONNEL</span>
+                <span class="topbar-divider"></span>
+                <span id="userName" class="user-name">Chargement...</span>
+            </div>
+        </header>
+
+        <main class="main-content">
+
+            <nav class="breadcrumb">
+                <a href="zone staff.html">Administration STAFF</a>
+                <span>/</span>
+                <span>Documentation</span>
+            </nav>
+
+            <section class="page-heading">
+                <div>
+                    <div class="eyebrow">CENTRE DE RESSOURCES INTERNES</div>
+                    <h1>Documentation</h1>
+                    <p>
+                        Gestion, publication et consultation des documents
+                        institutionnels de la Zone-431.
+                    </p>
+                </div>
+
+                <div class="heading-actions">
+                    <span id="accessLabel" class="access-label">
+                        VÉRIFICATION DES DROITS...
+                    </span>
+                    <button id="refreshBtn" class="button button-secondary">
+                        Actualiser
+                    </button>
+                    <button id="newDocumentBtn" class="button button-primary" hidden>
+                        Nouveau document
+                    </button>
+                </div>
+            </section>
+
+            <section class="statistics-grid">
+                <article class="stat-card">
+                    <span class="stat-label">DOCUMENTS ACCESSIBLES</span>
+                    <strong id="statTotal">—</strong>
+                    <span class="stat-description">Documents dans le registre</span>
+                </article>
+
+                <article class="stat-card">
+                    <span class="stat-label">DOCUMENTS PUBLIÉS</span>
+                    <strong id="statPublished">—</strong>
+                    <span class="stat-description">Disponibles à la consultation</span>
+                </article>
+
+                <article class="stat-card">
+                    <span class="stat-label">BROUILLONS</span>
+                    <strong id="statDrafts">—</strong>
+                    <span class="stat-description">Documents non publiés</span>
+                </article>
+
+                <article class="stat-card">
+                    <span class="stat-label">DERNIÈRE MODIFICATION</span>
+                    <strong id="statLastUpdate">—</strong>
+                    <span class="stat-description">Mise à jour du registre</span>
+                </article>
+            </section>
+
+            <section class="toolbar">
+                <div class="search-wrapper">
+                    <input
+                        type="search"
+                        id="searchInput"
+                        placeholder="Rechercher un document..."
+                        autocomplete="off"
+                    >
+                </div>
+
+                <div class="toolbar-filters">
+                    <select id="categoryFilter">
+                        <option value="">Toutes les catégories</option>
+                    </select>
+
+                    <select id="statusFilter">
+                        <option value="">Tous les statuts</option>
+                        <option value="published">Publiés</option>
+                        <option value="draft">Brouillons</option>
+                    </select>
+                </div>
+            </section>
+
+            <section class="registry-heading">
+                <div>
+                    <h2>Registre documentaire</h2>
+                    <p>Documents disponibles selon vos autorisations.</p>
+                </div>
+
+                <span id="resultsCount" class="results-count">Chargement...</span>
+            </section>
+
+            <section id="documentsGrid" class="documents-grid"></section>
+
+            <section id="emptyState" class="empty-state" hidden>
+                <div class="empty-icon">DOC</div>
+                <h3>Aucun document trouvé</h3>
+                <p>
+                    Aucun document ne correspond à votre recherche
+                    ou à vos autorisations actuelles.
+                </p>
+            </section>
+
+        </main>
+
+        <footer class="footer">
+            <span>ZONE-431 · DOCUMENTATION INTERNE</span>
+            <span>ACCÈS RÉSERVÉ AU PERSONNEL AUTORISÉ</span>
+        </footer>
+
+    </div>
+
+    <!-- MODALE DE CRÉATION / MODIFICATION -->
+
+    <div id="documentModal" class="modal" hidden>
+        <div class="modal-panel modal-panel-large">
+
+            <div class="modal-header">
+                <div>
+                    <span class="eyebrow">GESTION DOCUMENTAIRE</span>
+                    <h2 id="modalTitle">Nouveau document</h2>
+                </div>
+
+                <button id="closeModalBtn" class="modal-close" type="button">
+                    ×
+                </button>
+            </div>
+
+            <form id="documentForm">
+
+                <input type="hidden" id="documentId">
+
+                <div class="form-grid">
+
+                    <div class="form-group form-full">
+                        <label for="documentTitle">Titre du document</label>
+                        <input
+                            type="text"
+                            id="documentTitle"
+                            maxlength="180"
+                            placeholder="Ex. : Procédure de contrôle des accès"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="documentCategory">Catégorie</label>
+                        <select id="documentCategory" required>
+                            <option value="Général">Général</option>
+                            <option value="Procédures">Procédures</option>
+                            <option value="Sécurité">Sécurité</option>
+                            <option value="Départements">Départements</option>
+                            <option value="Formation">Formation</option>
+                            <option value="Règlement">Règlement</option>
+                            <option value="Administration">Administration</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="documentOrder">Ordre d'affichage</label>
+                        <input
+                            type="number"
+                            id="documentOrder"
+                            value="0"
+                            min="0"
+                            step="1"
+                        >
+                    </div>
+
+                    <div class="form-group form-full">
+                        <label for="documentSummary">Résumé</label>
+                        <textarea
+                            id="documentSummary"
+                            rows="2"
+                            maxlength="500"
+                            placeholder="Courte présentation du document..."
+                        ></textarea>
+                    </div>
+
+                    <div class="form-group form-full">
+                        <label for="documentContent">Contenu</label>
+                        <textarea
+                            id="documentContent"
+                            class="content-input"
+                            rows="14"
+                            placeholder="Rédigez le contenu du document..."
+                            required
+                        ></textarea>
+                        <span class="field-hint">
+                            Le contenu est enregistré en texte brut.
+                        </span>
+                    </div>
+
+                    <div class="form-group form-full">
+                        <div class="section-divider"></div>
+                        <label class="section-label">Visibilité du document</label>
+
+                        <label id="globalVisibilityWrapper" class="checkbox-line" hidden>
+                            <input type="checkbox" id="documentGlobal">
+                            <span>
+                                <strong>Document général</strong>
+                                <small>
+                                    Accessible à tous les membres autorisés.
+                                    Réservé aux administrateurs.
+                                </small>
+                            </span>
+                        </label>
+
+                        <p id="departmentHelp" class="field-hint">
+                            Sélectionnez le ou les départements concernés.
+                        </p>
+
+                        <div id="departmentChoices" class="department-choices">
+                            <span class="muted-text">Chargement des départements...</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group form-full">
+                        <div class="section-divider"></div>
+
+                        <label class="checkbox-line">
+                            <input type="checkbox" id="documentPublished">
+                            <span>
+                                <strong>Publier immédiatement</strong>
+                                <small>
+                                    Le document sera visible par les membres
+                                    disposant des autorisations de consultation.
+                                </small>
+                            </span>
+                        </label>
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+                    <button
+                        type="button"
+                        id="cancelModalBtn"
+                        class="button button-secondary"
+                    >
+                        Annuler
+                    </button>
+
+                    <button
+                        type="submit"
+                        id="saveDocumentBtn"
+                        class="button button-primary"
+                    >
+                        Enregistrer
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+    <!-- MODALE DE CONSULTATION -->
+
+    <div id="detailsModal" class="modal" hidden>
+        <div class="modal-panel modal-panel-large">
+
+            <div class="modal-header">
+                <div>
+                    <span class="eyebrow">CONSULTATION DOCUMENTAIRE</span>
+                    <h2 id="detailsTitle">Document</h2>
+                </div>
+
+                <button id="closeDetailsBtn" class="modal-close" type="button">
+                    ×
+                </button>
+            </div>
+
+            <div class="details-meta">
+                <span id="detailsCategory"></span>
+                <span id="detailsStatus"></span>
+                <span id="detailsUpdated"></span>
+            </div>
+
+            <p id="detailsSummary" class="details-summary"></p>
+
+            <div id="detailsDepartments" class="details-departments"></div>
+
+            <div id="detailsContent" class="details-content"></div>
+
+            <div class="modal-footer">
+                <button id="copyDetailsBtn" class="button button-secondary">
+                    Copier le contenu
+                </button>
+
+                <div class="modal-footer-right">
+                    <button id="editDetailsBtn" class="button button-primary" hidden>
+                        Modifier
+                    </button>
+
+                    <button
+                        id="closeDetailsFooterBtn"
+                        class="button button-secondary"
+                    >
+                        Fermer
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="toastContainer" class="toast-container"></div>
+
+</body>
+</html>

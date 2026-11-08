@@ -1,0 +1,278 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#090D0B">
+
+    <title>Formations | ZONE-431</title>
+
+    <link rel="stylesheet" href="membre.css">
+    <link rel="stylesheet" href="formations.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body>
+
+    <header class="member-header">
+        <a href="../accueil.html" class="member-brand">
+            <span class="brand-mark">Z431</span>
+            <span class="brand-information">
+                <strong>ZONE-431</strong>
+                <small>ESPACE PERSONNEL</small>
+            </span>
+        </a>
+
+        <div class="header-status">
+            <span class="status-indicator"></span>
+            <span>SYSTÈME OPÉRATIONNEL</span>
+        </div>
+
+        <a href="accueil.html" class="header-back">
+            <i class="fa-solid fa-arrow-left"></i>
+            <span>RETOUR À L'ESPACE MEMBRE</span>
+        </a>
+    </header>
+
+    <main class="member-main training-main">
+
+        <section class="training-heading">
+            <div>
+                <p class="section-eyebrow">ESPACE PERSONNEL / DÉVELOPPEMENT DES COMPÉTENCES</p>
+                <h1>CENTRE DE <span>FORMATION</span></h1>
+                <p>
+                    Consultez les formations disponibles, étudiez leurs leçons
+                    et suivez votre progression personnelle.
+                </p>
+            </div>
+
+            <div class="training-access-status">
+                <span class="status-indicator"></span>
+                ACCÈS AUTHENTIFIÉ
+            </div>
+        </section>
+
+        <section class="training-overview">
+
+            <div class="training-stat">
+                <div class="training-stat-icon">
+                    <i class="fa-solid fa-book"></i>
+                </div>
+                <div>
+                    <span>FORMATIONS DISPONIBLES</span>
+                    <strong id="courseTotal">—</strong>
+                </div>
+            </div>
+
+            <div class="training-stat">
+                <div class="training-stat-icon">
+                    <i class="fa-solid fa-list-check"></i>
+                </div>
+                <div>
+                    <span>LEÇONS TERMINÉES</span>
+                    <strong id="completedTotal">—</strong>
+                </div>
+            </div>
+
+            <div class="training-stat">
+                <div class="training-stat-icon">
+                    <i class="fa-solid fa-chart-line"></i>
+                </div>
+                <div>
+                    <span>PROGRESSION GLOBALE</span>
+                    <strong id="globalProgress">—</strong>
+                </div>
+            </div>
+
+        </section>
+
+        <section class="training-workspace">
+
+            <aside class="training-sidebar">
+
+                <div class="training-sidebar-heading">
+                    <p class="section-eyebrow">CATALOGUE</p>
+                    <h2>MES FORMATIONS</h2>
+                </div>
+
+                <div id="courseList" class="course-list">
+                    <div class="training-loading-small">
+                        <span class="loading-indicator"></span>
+                        <p>Chargement des formations...</p>
+                    </div>
+                </div>
+
+                <div class="training-sidebar-note">
+                    <i class="fa-solid fa-circle-info"></i>
+                    <p>
+                        Votre progression est personnelle et enregistrée
+                        sur votre compte.
+                    </p>
+                </div>
+
+            </aside>
+
+            <section class="training-content">
+
+                <div id="trainingLoading" class="training-message">
+                    <span class="loading-indicator"></span>
+                    <p class="section-eyebrow">SYSTÈME CENTRAL</p>
+                    <h2>CHARGEMENT DU CENTRE DE FORMATION</h2>
+                    <p>Récupération des formations et de votre progression.</p>
+                </div>
+
+                <div id="trainingError" class="training-message training-error" hidden>
+                    <div class="training-message-icon">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                    </div>
+                    <p class="section-eyebrow">ERREUR SYSTÈME</p>
+                    <h2>CHARGEMENT IMPOSSIBLE</h2>
+                    <p id="trainingErrorText">
+                        Une erreur est survenue.
+                    </p>
+                    <button type="button" id="retryTraining" class="training-button">
+                        <i class="fa-solid fa-rotate-right"></i>
+                        RÉESSAYER
+                    </button>
+                </div>
+
+                <div id="trainingEmpty" class="training-message" hidden>
+                    <div class="training-message-icon">
+                        <i class="fa-solid fa-book-open"></i>
+                    </div>
+                    <p class="section-eyebrow">CATALOGUE DE FORMATION</p>
+                    <h2>AUCUNE FORMATION DISPONIBLE</h2>
+                    <p>
+                        Aucune formation n'a été publiée pour le moment.
+                    </p>
+                </div>
+
+                <div id="trainingWelcome" class="training-message" hidden>
+                    <div class="training-message-icon">
+                        <i class="fa-solid fa-graduation-cap"></i>
+                    </div>
+                    <p class="section-eyebrow">CENTRE DE FORMATION</p>
+                    <h2>SÉLECTIONNEZ UNE FORMATION</h2>
+                    <p>
+                        Sélectionnez une formation dans le catalogue
+                        pour consulter ses leçons.
+                    </p>
+                </div>
+
+                <div id="trainingCourseView" hidden>
+
+                    <div class="course-view-heading">
+                        <div>
+                            <p class="section-eyebrow">FORMATION SÉLECTIONNÉE</p>
+                            <h2 id="selectedCourseTitle">FORMATION</h2>
+                            <p id="selectedCourseSummary"></p>
+                        </div>
+
+                        <span id="selectedCourseProgress" class="course-progress-label">
+                            0 %
+                        </span>
+                    </div>
+
+                    <div class="course-progress-track">
+                        <div id="selectedCourseProgressBar" class="course-progress-fill"></div>
+                    </div>
+
+                    <div class="course-view-layout">
+
+                        <div class="lesson-list-panel">
+                            <div class="lesson-list-heading">
+                                <h3>PROGRAMME</h3>
+                                <span id="lessonCount">0 LEÇON</span>
+                            </div>
+
+                            <div id="lessonList" class="lesson-list"></div>
+                        </div>
+
+                        <article class="lesson-reader" id="lessonReader">
+                            <div class="lesson-reader-placeholder">
+                                <i class="fa-solid fa-book-open"></i>
+                                <h3>SÉLECTIONNEZ UNE LEÇON</h3>
+                                <p>
+                                    Le contenu de la leçon sélectionnée
+                                    apparaîtra dans cet espace.
+                                </p>
+                            </div>
+                        </article>
+
+                    </div>
+
+                    <!-- RÉSULTAT ATTRIBUÉ PAR UN FORMATEUR -->
+                    <section class="training-result-panel" aria-live="polite">
+                        <div class="training-result-heading">
+                            <div class="training-result-icon">
+                                <i class="fa-solid fa-award"></i>
+                            </div>
+
+                            <div>
+                                <p class="section-eyebrow">ÉVALUATION OFFICIELLE</p>
+                                <h3>RÉSULTAT DE FORMATION</h3>
+                                <p>
+                                    Résultat renseigné par un membre habilité
+                                    de l'administration.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="training-result-content">
+                            <div class="training-result-grade">
+                                <span>NOTE ATTRIBUÉE</span>
+                                <strong id="trainingResultGrade">—</strong>
+                            </div>
+
+                            <div class="training-result-status">
+                                <span>STATUT</span>
+                                <strong id="trainingResultStatus" class="result-status result-missing">
+                                    <i class="fa-solid fa-circle-minus"></i>
+                                    MANQUANT
+                                </strong>
+                            </div>
+                        </div>
+
+                        <p class="training-result-note" id="trainingResultNote">
+                            Aucun résultat complet n'a été communiqué pour cette formation.
+                        </p>
+                    </section>
+
+                </div>
+
+            </section>
+
+        </section>
+
+        <div class="training-footer">
+            <span>
+                <i class="fa-solid fa-shield-halved"></i>
+                RESSOURCES RÉSERVÉES AU PERSONNEL AUTORISÉ
+            </span>
+
+            <a href="accueil.html">
+                RETOUR AU TABLEAU DE BORD
+                <i class="fa-solid fa-arrow-right"></i>
+            </a>
+        </div>
+
+    </main>
+
+    <footer class="member-footer">
+        <div class="footer-brand">
+            <strong>ZONE-431</strong>
+            <span>ESPACE PERSONNEL</span>
+        </div>
+
+        <p>SYSTÈME INFORMATIQUE DE L'INSTALLATION</p>
+
+        <span class="footer-version">INTERFACE MEMBRE</span>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="auth.js"></script>
+    <script src="formations.js"></script>
+
+</body>
+</html>

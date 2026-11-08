@@ -1,0 +1,330 @@
+
+/* =========================================
+   ZONE-431 — MAINTENANCE PAGE
+   Identity: Military / Institutional
+   ========================================= */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+
+:root {
+    --background: #080b10;
+    --panel: #0e131b;
+    --panel-light: #111822;
+    --border: #472027;
+
+    /* Rouge lumineux */
+    --red: #ff1525;
+    --red-hover: #ff3545;
+    --text: #e5e9ef;
+    --text-muted: #a6afbb;
+    --text-dim: #596473;
+}
+
+
+body {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 25px;
+
+    background:
+        linear-gradient(
+            rgba(8, 11, 16, 0.94),
+            rgba(8, 11, 16, 0.97)
+        ),
+        repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 39px,
+            #ffffff08 40px
+        ),
+        repeating-linear-gradient(
+            90deg,
+            transparent,
+            transparent 39px,
+            #ffffff08 40px
+        );
+
+    color: var(--text);
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+/* MAIN CONTAINER */
+
+.container {
+    width: 100%;
+    max-width: 650px;
+    position: relative;
+
+    padding: 55px 40px;
+
+    text-align: center;
+
+    background: rgba(14, 19, 27, 0.96);
+    border: 1px solid var(--border);
+
+    box-shadow: 0 20px 80px #0009;
+}
+
+/* TOP RED LINE */
+
+.top-line {
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 3px;
+
+    background: var(--red);
+}
+
+/* HEADER */
+
+.classification {
+    margin-bottom: 20px;
+
+    color: var(--red);
+
+    font-size: 11px;
+    font-weight: bold;
+    letter-spacing: 4px;
+}
+
+.logo {
+    margin-bottom: 8px;
+
+    font-size: 35px;
+    font-weight: 900;
+    letter-spacing: 5px;
+}
+
+.subtitle {
+    margin-bottom: 40px;
+
+    color: #7e8998;
+
+    font-size: 11px;
+    letter-spacing: 3px;
+}
+
+/* SEPARATOR */
+
+.separator {
+    width: 60px;
+    height: 2px;
+
+    margin: 0 auto 35px;
+
+    background: var(--red);
+}
+
+/* STATUS */
+
+.status {
+    display: inline-block;
+
+    margin-bottom: 25px;
+    padding: 8px 14px;
+
+    color: #e17b81;
+    background: #a52b3218;
+
+    border: 1px solid #773039;
+
+    font-size: 10px;
+    font-weight: bold;
+    letter-spacing: 2px;
+}
+
+/* MAIN MESSAGE */
+
+h1 {
+    margin-bottom: 18px;
+
+    font-size: 25px;
+    font-weight: 700;
+}
+
+.message {
+    margin-bottom: 30px;
+
+    color: var(--text-muted);
+
+    font-size: 14px;
+    line-height: 1.8;
+}
+
+/* CONTACT PANEL */
+
+.contact {
+    margin-bottom: 30px;
+    padding: 22px;
+
+    background: var(--panel-light);
+    border: 1px solid var(--border);
+}
+
+.contact p {
+    margin-bottom: 17px;
+
+    color: #8995a4;
+
+    font-size: 12px;
+    line-height: 1.7;
+}
+
+/* DISCORD BUTTON */
+
+.discord {
+    display: inline-block;
+
+    padding: 14px 25px;
+
+    color: white;
+    background: var(--red);
+
+    text-decoration: none;
+
+    font-size: 12px;
+    font-weight: bold;
+    letter-spacing: 1px;
+
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease;
+}
+
+.discord:hover {
+    background: var(--red-hover);
+    transform: translateY(-2px);
+}
+
+/* REFERENCE */
+
+.reference {
+    color: var(--text-dim);
+
+    font-size: 10px;
+    letter-spacing: 2px;
+}
+
+/* FOOTER */
+
+footer {
+    margin-top: 40px;
+    padding-top: 20px;
+
+    border-top: 1px solid #252e39;
+
+    color: #566170;
+
+    font-size: 10px;
+    letter-spacing: 1px;
+    line-height: 1.6;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 500px) {
+
+    body {
+        padding: 15px;
+    }
+
+    .container {
+        padding: 40px 22px;
+    }
+
+    .logo {
+        font-size: 27px;
+    }
+
+    .subtitle {
+        font-size: 9px;
+        letter-spacing: 2px;
+    }
+
+    h1 {
+        font-size: 21px;
+    }
+
+    .status {
+        font-size: 9px;
+    }
+
+    .discord {
+        width: 100%;
+        padding: 14px 10px;
+    }
+}
+
+/* =========================================
+   RED NEON LIGHT EFFECTS
+   ========================================= */
+
+/* Ligne supérieure lumineuse */
+.top-line {
+    background: #ff1525;
+    box-shadow:
+        0 0 5px #ff1525,
+        0 0 12px #ff1525,
+        0 0 25px #ff1525;
+}
+
+/* Logo et identité */
+.logo {
+    text-shadow:
+        0 0 8px #ff152580,
+        0 0 20px #ff152540;
+}
+
+/* Classification */
+.classification {
+    text-shadow: 0 0 10px #ff152580;
+}
+
+/* Séparateur */
+.separator {
+    background: #ff1525;
+    box-shadow:
+        0 0 8px #ff1525,
+        0 0 18px #ff1525;
+}
+
+/* Statut */
+.status {
+    border-color: #ff1525;
+    box-shadow:
+        0 0 8px #ff152540,
+        inset 0 0 10px #ff152515;
+}
+
+/* Bouton Discord */
+.discord {
+    background: #ff1525;
+    box-shadow:
+        0 0 8px #ff152580,
+        0 0 20px #ff152550;
+}
+
+.discord:hover {
+    background: #ff3545;
+    box-shadow:
+        0 0 12px #ff1525,
+        0 0 30px #ff152580;
+}
+
+/* Contour du panneau */
+.container {
+    border-color: #472027;
+    box-shadow:
+        0 20px 80px #0009,
+        0 0 20px #ff152510;
+}

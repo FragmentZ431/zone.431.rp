@@ -1,0 +1,221 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#090b0e">
+    <meta name="description" content="Retrouvez les différents moyens de contacter et de suivre Zone-431.">
+    <title>Contact | ZONE-431</title>
+
+    <link rel="stylesheet" href="contact.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body>
+
+    <div class="background-grid"></div>
+    <div class="background-glow"></div>
+
+    <header class="site-header">
+        <a href="accueil.html" class="brand">
+            <span class="brand-symbol">Z</span>
+            <span class="brand-text">
+                <strong>ZONE-431</strong>
+                <small>INSTALLATION DE CONFINEMENT</small>
+            </span>
+        </a>
+
+        <button class="menu-toggle" id="menuToggle" aria-label="Ouvrir le menu" aria-expanded="false">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+
+        <nav class="main-nav" id="mainNav">
+            <a href="accueil.html">Accueil</a>
+            <a href="departements.html">Départements</a>
+            <a href="personnel.html">Personnel</a>
+            <a href="lore.html">Lore</a>
+            <a href="documentation.html">Documentation</a>
+            <a href="contact.html" class="active">Contact</a>
+        </nav>
+
+        <div class="header-actions">
+            <a href="membre/accueil.html" class="header-member">
+                <i class="fa-solid fa-user-lock"></i>
+                ESPACE MEMBRE
+            </a>
+
+            <a href="STAFF/zone staff.html" class="header-staff">
+                <i class="fa-solid fa-user-shield"></i>
+                ACCÈS STAFF
+            </a>
+        </div>
+    </header>
+
+    <main>
+
+        <section class="contact-hero">
+            <div class="hero-content">
+                <div class="eyebrow">
+                    <span class="eyebrow-line"></span>
+                    ZONE-431 / COMMUNICATION
+                </div>
+
+                <h1>NOUS <span>CONTACTER</span></h1>
+
+                <p>
+                    Retrouvez ici les différents canaux officiels de communication
+                    de la Zone-431.
+                </p>
+
+                <div class="hero-reference">
+                    <span class="status-dot"></span>
+                    CANAUX DE COMMUNICATION OFFICIELS
+                </div>
+            </div>
+
+            <div class="hero-index">
+                <span>RÉFÉRENCE</span>
+                <strong>COM-431</strong>
+                <small>COMMUNICATION EXTERNE</small>
+            </div>
+        </section>
+
+        <section class="contact-section">
+            <div class="section-heading">
+                <div>
+                    <span class="section-label">POINTS DE CONTACT</span>
+                    <h2>NOS PLATEFORMES</h2>
+                </div>
+
+                <p>
+                    Sélectionnez le canal correspondant à votre demande
+                    ou à votre intérêt pour notre communauté.
+                </p>
+            </div>
+
+            <div class="contact-grid">
+
+                <article class="contact-card discord-card">
+                    <div class="card-top">
+                        <div class="platform-icon">
+                            <i class="fa-brands fa-discord"></i>
+                        </div>
+                        <span class="platform-number">01 / DISCORD</span>
+                    </div>
+
+                    <div class="card-content">
+                        <span class="card-category">COMMUNAUTÉ</span>
+                        <h3>DISCORD</h3>
+                        <p>
+                            Rejoignez notre serveur communautaire pour suivre
+                            les actualités, échanger avec les membres et découvrir
+                            l'activité de la Zone-431.
+                        </p>
+                    </div>
+
+                    <a class="contact-link" href="https://discord.gg/5fjRwpWven" target="_blank" rel="noopener noreferrer">
+                        REJOINDRE LE SERVEUR
+                        <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                    </a>
+                </article>
+
+                <article class="contact-card youtube-card">
+                    <div class="card-top">
+                        <div class="platform-icon">
+                            <i class="fa-brands fa-youtube"></i>
+                        </div>
+                        <span class="platform-number">02 / YOUTUBE</span>
+                    </div>
+
+                    <div class="card-content">
+                        <span class="card-category">CONTENUS VIDÉO</span>
+                        <h3>YOUTUBE</h3>
+                        <p>
+                            Retrouvez nos contenus vidéo, nos présentations
+                            et les publications liées à l'univers de la Zone-431.
+                        </p>
+                    </div>
+
+                    <a class="contact-link" href="https://www.youtube.com/@Zone-431.seriousrp.officiel" target="_blank" rel="noopener noreferrer">
+                        CONSULTER LA CHAÎNE
+                        <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                    </a>
+                </article>
+
+                <article class="contact-card mail-card">
+                    <div class="card-top">
+                        <div class="platform-icon">
+                            <i class="fa-solid fa-envelope"></i>
+                        </div>
+                        <span class="platform-number">03 / E-MAIL</span>
+                    </div>
+
+                    <div class="card-content">
+                        <span class="card-category">CONTACT DIRECT</span>
+                        <h3>COURRIER ÉLECTRONIQUE</h3>
+                        <p>
+                            Pour toute demande nécessitant un échange direct,
+                            vous pouvez nous écrire à notre adresse électronique officielle.
+                        </p>
+
+                        <div class="email-address">
+                            <span id="emailAddress">zone.431.rp@gmail.com</span>
+                            <button type="button" id="copyEmail" aria-label="Copier l'adresse e-mail" title="Copier l'adresse">
+                                <i class="fa-regular fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <a class="contact-link" href="mailto:zone.431.rp@gmail.com">
+                        ENVOYER UN E-MAIL
+                        <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                    </a>
+                </article>
+
+            </div>
+        </section>
+
+        <section class="contact-notice">
+            <div class="notice-icon">
+                <i class="fa-solid fa-circle-info"></i>
+            </div>
+
+            <div>
+                <span>INFORMATION</span>
+                <p>
+                    Veillez à utiliser les canaux officiels indiqués sur cette page.
+                    Les coordonnées présentées ici constituent les moyens de contact
+                    publics de la Zone-431.
+                </p>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-brand">
+            <strong>ZONE-431</strong>
+            <span>INSTALLATION DE CONFINEMENT</span>
+        </div>
+
+        <p>
+            Une installation. Une mission. Une responsabilité.
+        </p>
+
+        <div class="footer-bottom">
+            <span>ZONE-431 — TOUS DROITS RÉSERVÉS</span>
+            <span>COMMUNICATION EXTERNE / COM-431</span>
+        </div>
+    </footer>
+
+    <div class="copy-notification" id="copyNotification" role="status" aria-live="polite">
+        Adresse e-mail copiée.
+    </div>
+
+    <script src="contact.js"></script>
+</body>
+</html>

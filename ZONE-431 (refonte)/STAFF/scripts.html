@@ -1,0 +1,307 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#080e17">
+    <meta name="description" content="Bibliothèque des scripts internes de Zone-431.">
+
+    <title>Zone-431 | Bibliothèque des scripts</title>
+
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="scripts.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="scripts.js" defer></script>
+</head>
+
+<body class="scripts-page">
+
+    <div class="background-grid"></div>
+    <div class="background-scanline"></div>
+
+    <header class="scripts-topbar">
+        <div class="topbar-brand">
+            <div class="brand-mark">431</div>
+
+            <div class="brand-information">
+                <strong>ZONE-431</strong>
+                <span>ESPACE ADMINISTRATIF / STAFF</span>
+            </div>
+        </div>
+
+        <div class="topbar-right">
+            <div class="connection-indicator">
+                <span class="connection-dot"></span>
+                SESSION AUTHENTIFIÉE
+            </div>
+
+            <a href="zone staff.html" class="return-button">
+                RETOUR AU STAFF
+            </a>
+        </div>
+    </header>
+
+    <main class="scripts-container">
+
+        <section class="page-heading">
+            <div class="heading-overline">
+                <span>BASE DOCUMENTAIRE</span>
+                <span class="heading-separator"></span>
+                <span>MODULE 06</span>
+            </div>
+
+            <div class="heading-main">
+                <div>
+                    <h1>BIBLIOTHÈQUE DES SCRIPTS</h1>
+
+                    <p>
+                        Registre centralisé des scripts et ressources
+                        techniques de l'installation.
+                    </p>
+                </div>
+
+                <div class="access-indicator" id="accessLabel">
+                    VÉRIFICATION DES DROITS...
+                </div>
+            </div>
+        </section>
+
+        <section class="statistics-grid">
+
+            <article class="stat-card">
+                <span class="stat-label">SCRIPTS ENREGISTRÉS</span>
+                <strong id="statTotal">—</strong>
+                <span class="stat-description">Entrées dans le registre</span>
+            </article>
+
+            <article class="stat-card">
+                <span class="stat-label">RÉDACTEURS</span>
+                <strong id="statAuthors">—</strong>
+                <span class="stat-description">Contributeurs identifiés</span>
+            </article>
+
+            <article class="stat-card">
+                <span class="stat-label">DERNIÈRE MODIFICATION</span>
+                <strong id="statLastUpdate">—</strong>
+                <span class="stat-description">Mise à jour du registre</span>
+            </article>
+
+        </section>
+
+        <section class="library-section">
+
+            <div class="section-heading">
+                <div>
+                    <span class="section-overline">CONSULTATION</span>
+                    <h2>REGISTRE DOCUMENTAIRE</h2>
+                </div>
+
+                <div class="section-actions">
+                    <button type="button" id="refreshBtn" class="secondary-button">
+                        ACTUALISER
+                    </button>
+
+                    <button type="button" id="newScriptBtn" class="primary-button" hidden>
+                        + NOUVEAU SCRIPT
+                    </button>
+                </div>
+            </div>
+
+            <div class="library-toolbar">
+
+                <div class="search-wrapper">
+                    <span class="search-symbol">⌕</span>
+
+                    <input
+                        type="search"
+                        id="searchInput"
+                        placeholder="Rechercher un script, un rédacteur ou du contenu..."
+                        autocomplete="off"
+                    >
+                </div>
+
+                <div class="results-information">
+                    <span id="resultsCount">Chargement...</span>
+                </div>
+
+            </div>
+
+            <div id="scriptsGrid" class="scripts-grid">
+
+                <div class="loading-state">
+                    <span class="loading-indicator"></span>
+                    <p>CHARGEMENT DU REGISTRE DOCUMENTAIRE...</p>
+                </div>
+
+            </div>
+
+            <div id="emptyState" class="empty-state" hidden>
+                <div class="empty-symbol">—</div>
+                <h3>AUCUN SCRIPT TROUVÉ</h3>
+                <p>Aucune entrée ne correspond à votre recherche.</p>
+            </div>
+
+        </section>
+
+        <footer class="scripts-footer">
+            <span>ZONE-431 / DIRECTION ADMINISTRATIVE</span>
+            <span>DOCUMENTATION INTERNE</span>
+        </footer>
+
+    </main>
+
+    <!-- MODALE DE CRÉATION / MODIFICATION -->
+
+    <div class="modal" id="scriptModal" hidden>
+        <div class="modal-panel">
+
+            <div class="modal-header">
+                <div>
+                    <span class="modal-overline">GESTION DOCUMENTAIRE</span>
+                    <h2 id="modalTitle">NOUVEAU SCRIPT</h2>
+                </div>
+
+                <button type="button" class="modal-close" id="closeModalBtn">
+                    ×
+                </button>
+            </div>
+
+            <form id="scriptForm">
+
+                <input type="hidden" id="scriptId">
+
+                <div class="form-group">
+                    <label for="scriptTitle">TITRE DU SCRIPT</label>
+
+                    <input
+                        type="text"
+                        id="scriptTitle"
+                        maxlength="150"
+                        placeholder="Ex : Système de contrôle..."
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="scriptAuthor">RÉDACTEUR</label>
+
+                    <input
+                        type="text"
+                        id="scriptAuthor"
+                        maxlength="120"
+                        placeholder="Nom du rédacteur"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <div class="content-label">
+                        <label for="scriptContent">CONTENU DU SCRIPT</label>
+                        <span>FORMAT TEXTE / CODE</span>
+                    </div>
+
+                    <textarea
+                        id="scriptContent"
+                        rows="18"
+                        placeholder="Insérez ici le contenu du script..."
+                        spellcheck="false"
+                        required
+                    ></textarea>
+                </div>
+
+                <div class="modal-footer">
+                    <button
+                        type="button"
+                        id="cancelModalBtn"
+                        class="secondary-button"
+                    >
+                        ANNULER
+                    </button>
+
+                    <button
+                        type="submit"
+                        id="saveScriptBtn"
+                        class="primary-button"
+                    >
+                        ENREGISTRER
+                    </button>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+
+    <!-- MODALE DE CONSULTATION -->
+
+    <div class="modal" id="detailsModal" hidden>
+        <div class="modal-panel details-panel">
+
+            <div class="modal-header">
+                <div>
+                    <span class="modal-overline">CONSULTATION DOCUMENTAIRE</span>
+                    <h2 id="detailsTitle">SCRIPT</h2>
+                </div>
+
+                <button type="button" class="modal-close" id="closeDetailsBtn">
+                    ×
+                </button>
+            </div>
+
+            <div class="details-metadata">
+                <div>
+                    <span>RÉDACTEUR</span>
+                    <strong id="detailsAuthor">—</strong>
+                </div>
+
+                <div>
+                    <span>DERNIÈRE MODIFICATION</span>
+                    <strong id="detailsUpdated">—</strong>
+                </div>
+
+                <div>
+                    <span>RÉFÉRENCE</span>
+                    <strong id="detailsReference">—</strong>
+                </div>
+            </div>
+
+            <div class="details-content-wrapper">
+                <pre id="detailsContent"></pre>
+            </div>
+
+            <div class="modal-footer">
+                <button
+                    type="button"
+                    id="copyDetailsBtn"
+                    class="secondary-button"
+                >
+                    COPIER LE CONTENU
+                </button>
+
+                <button
+                    type="button"
+                    id="editDetailsBtn"
+                    class="primary-button"
+                    hidden
+                >
+                    MODIFIER
+                </button>
+
+                <button
+                    type="button"
+                    id="closeDetailsFooterBtn"
+                    class="secondary-button"
+                >
+                    FERMER
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="toastContainer" class="toast-container"></div>
+
+</body>
+</html>

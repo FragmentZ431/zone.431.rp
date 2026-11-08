@@ -1,0 +1,349 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --background: #090b0e;
+    --panel: #101419;
+    --border: #29313a;
+    --text: #e7e9ec;
+    --muted: #89939e;
+    --red: #a83232;
+    --red-light: #d04444;
+    --green: #42a878;
+}
+
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: var(--background);
+    color: var(--text);
+    font-family: "Segoe UI", Arial, sans-serif;
+}
+
+.background-grid {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-image:
+        linear-gradient(rgba(255,255,255,0.018) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.018) 1px, transparent 1px);
+    background-size: 45px 45px;
+}
+
+.topbar {
+    height: 82px;
+    padding: 0 7%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+    background: rgba(10, 13, 17, 0.95);
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    color: var(--text);
+    text-decoration: none;
+}
+
+.brand-logo {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--red);
+    background: rgba(168, 50, 50, 0.12);
+    color: white;
+    font-size: 13px;
+    font-weight: 900;
+    letter-spacing: -1px;
+}
+
+.brand-text {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.brand-text strong {
+    font-size: 15px;
+    letter-spacing: 2px;
+}
+
+.brand-text span {
+    color: var(--muted);
+    font-size: 9px;
+    letter-spacing: 1.5px;
+}
+
+.back-link {
+    color: var(--muted);
+    font-size: 10px;
+    letter-spacing: 1.2px;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.back-link:hover {
+    color: white;
+}
+
+.main-container {
+    width: min(580px, 92%);
+    margin: auto;
+    padding: 55px 0;
+}
+
+.register-card {
+    padding: 35px;
+    border: 1px solid var(--border);
+    background: rgba(16, 20, 25, 0.97);
+    box-shadow: 0 20px 70px rgba(0, 0, 0, 0.3);
+    animation: fadeIn 0.5s ease;
+}
+
+.card-heading {
+    margin-bottom: 27px;
+}
+
+.section-label {
+    color: var(--red-light);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 2px;
+}
+
+.card-heading h1 {
+    margin-top: 12px;
+    font-size: clamp(23px, 5vw, 30px);
+    letter-spacing: 1.5px;
+}
+
+.card-heading p {
+    margin-top: 12px;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.7;
+}
+
+.notice {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 30px;
+    padding: 14px;
+    border: 1px solid rgba(168, 50, 50, 0.35);
+    background: rgba(168, 50, 50, 0.07);
+}
+
+.notice-indicator {
+    width: 7px;
+    height: 7px;
+    margin-top: 5px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: var(--red-light);
+}
+
+.notice p {
+    color: #c0c5cb;
+    font-size: 11px;
+    line-height: 1.7;
+}
+
+.form-section-title {
+    padding-bottom: 12px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+    color: #c5cbd1;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+}
+
+.second-section {
+    margin-top: 32px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    color: var(--muted);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+}
+
+.form-group input {
+    width: 100%;
+    height: 47px;
+    padding: 0 14px;
+    outline: none;
+    border: 1px solid var(--border);
+    background: #0b0f13;
+    color: white;
+    font-family: inherit;
+    font-size: 13px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-group input::placeholder {
+    color: #56616b;
+}
+
+.form-group input:focus {
+    border-color: var(--red);
+    box-shadow: 0 0 0 2px rgba(168, 50, 50, 0.12);
+}
+
+.form-conditions {
+    margin: 25px 0;
+    color: #78838e;
+    font-size: 10px;
+    line-height: 1.8;
+}
+
+.submit-button {
+    width: 100%;
+    min-height: 53px;
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border: 1px solid var(--red);
+    background: var(--red);
+    color: white;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1.4px;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.submit-button:hover {
+    border-color: var(--red-light);
+    background: var(--red-light);
+    box-shadow: 0 8px 25px rgba(168, 50, 50, 0.2);
+}
+
+.submit-button:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.button-arrow {
+    font-size: 19px;
+}
+
+.form-message {
+    margin-bottom: 20px;
+    padding: 13px;
+    border: 1px solid var(--border);
+    background: #0b0f13;
+    color: #c8cdd2;
+    font-size: 12px;
+    line-height: 1.7;
+    overflow-wrap: anywhere;
+}
+
+.form-message.success {
+    border-color: rgba(66, 168, 120, 0.45);
+    color: #78c69e;
+}
+
+.form-message.error {
+    border-color: rgba(208, 68, 68, 0.5);
+    color: #e47d7d;
+}
+
+.card-footer {
+    margin-top: 30px;
+    padding-top: 16px;
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    border-top: 1px solid var(--border);
+    color: #65707a;
+    font-size: 8px;
+    letter-spacing: 1px;
+}
+
+.page-footer {
+    min-height: 55px;
+    padding: 15px 7%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    border-top: 1px solid var(--border);
+    color: #626d77;
+    font-size: 9px;
+    letter-spacing: 1px;
+}
+
+.hidden {
+    display: none !important;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 600px) {
+    .topbar {
+        height: 72px;
+        padding: 0 5%;
+    }
+
+    .brand-logo {
+        width: 42px;
+        height: 42px;
+    }
+
+    .brand-text span {
+        font-size: 8px;
+    }
+
+    .back-link {
+        font-size: 8px;
+    }
+
+    .main-container {
+        padding: 30px 0;
+    }
+
+    .register-card {
+        padding: 24px 19px;
+    }
+
+    .card-footer,
+    .page-footer {
+        font-size: 8px;
+    }
+
+    .page-footer {
+        flex-direction: column;
+        text-align: center;
+    }
+}

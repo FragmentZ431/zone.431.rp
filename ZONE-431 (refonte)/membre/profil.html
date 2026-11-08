@@ -1,0 +1,305 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#090D0B">
+
+    <title>Profil personnel | ZONE-431</title>
+
+    <link rel="stylesheet" href="membre.css">
+    <link rel="stylesheet" href="profil.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body>
+
+    <header class="member-header">
+        <a href="../accueil.html" class="member-brand">
+            <span class="brand-mark">Z431</span>
+            <span class="brand-information">
+                <strong>ZONE-431</strong>
+                <small>ESPACE PERSONNEL</small>
+            </span>
+        </a>
+
+        <div class="header-status">
+            <span class="status-indicator"></span>
+            <span>SYSTÈME OPÉRATIONNEL</span>
+        </div>
+
+        <a href="accueil.html" class="header-back">
+            <i class="fa-solid fa-arrow-left"></i>
+            <span>RETOUR À L'ESPACE MEMBRE</span>
+        </a>
+    </header>
+
+    <main class="member-main profile-main">
+
+        <section class="profile-heading">
+            <div>
+                <p class="section-eyebrow">ESPACE PERSONNEL / IDENTITÉ</p>
+                <h1>MON <span>PROFIL</span></h1>
+                <p>
+                    Consultez vos informations personnelles,
+                    votre affectation et vos autorisations sur la Zone-431.
+                </p>
+            </div>
+
+            <div class="profile-access-status">
+                <span class="status-indicator"></span>
+                SESSION AUTHENTIFIÉE
+            </div>
+        </section>
+
+        <div id="profileLoading" class="profile-message">
+            <span class="loading-indicator"></span>
+            <p class="section-eyebrow">SYSTÈME CENTRAL</p>
+            <h2>CHARGEMENT DU PROFIL</h2>
+            <p>Récupération de vos informations personnelles.</p>
+        </div>
+
+        <div id="profileError" class="profile-message profile-error" hidden>
+            <div class="profile-message-icon">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <p class="section-eyebrow">ERREUR SYSTÈME</p>
+            <h2>PROFIL INDISPONIBLE</h2>
+            <p id="profileErrorText">
+                Impossible de récupérer vos informations.
+            </p>
+            <button type="button" id="profileRetry" class="profile-button">
+                <i class="fa-solid fa-rotate-right"></i>
+                RÉESSAYER
+            </button>
+        </div>
+
+        <div id="profileContent" hidden>
+
+            <section class="profile-identity-card">
+
+                <div class="profile-monogram" id="profileMonogram">
+                    --
+                </div>
+
+                <div class="profile-identity-information">
+                    <p class="section-eyebrow">IDENTITÉ DU PERSONNEL</p>
+                    <h2 id="profileDisplayName">Agent</h2>
+                    <p id="profilePersonnelId">Identifiant non renseigné</p>
+                </div>
+
+                <div class="profile-account-status" id="profileAccountStatus">
+                    <span class="status-indicator"></span>
+                    <span id="profileStatusText">AUTORISÉ</span>
+                </div>
+
+            </section>
+
+            <section class="profile-grid">
+
+                <article class="profile-panel">
+                    <div class="profile-panel-heading">
+                        <div class="profile-panel-icon">
+                            <i class="fa-solid fa-id-card"></i>
+                        </div>
+                        <div>
+                            <p class="section-eyebrow">IDENTITÉ</p>
+                            <h2>INFORMATIONS PERSONNELLES</h2>
+                        </div>
+                    </div>
+
+                    <div class="profile-fields">
+
+                        <div class="profile-field">
+                            <span>Nom affiché</span>
+                            <strong id="profileName">—</strong>
+                        </div>
+
+                        <div class="profile-field">
+                            <span>Pseudonyme Roblox</span>
+                            <strong id="profileRoblox">—</strong>
+                        </div>
+
+                        <div class="profile-field">
+                            <span>Pseudonyme Discord</span>
+                            <strong id="profileDiscord">—</strong>
+                        </div>
+
+                        <div class="profile-field">
+                            <span>Adresse électronique</span>
+                            <strong id="profileEmail">—</strong>
+                        </div>
+
+                    </div>
+                </article>
+
+                <article class="profile-panel">
+                    <div class="profile-panel-heading">
+                        <div class="profile-panel-icon">
+                            <i class="fa-solid fa-building-shield"></i>
+                        </div>
+                        <div>
+                            <p class="section-eyebrow">AFFECTATION</p>
+                            <h2>INFORMATIONS ADMINISTRATIVES</h2>
+                        </div>
+                    </div>
+
+                    <div class="profile-fields">
+
+                        <div class="profile-field">
+                            <span>Département principal</span>
+                            <strong id="profileDepartment">—</strong>
+                        </div>
+
+                        <div class="profile-field">
+                            <span>Grade</span>
+                            <strong id="profileGrade">—</strong>
+                        </div>
+
+                        <div class="profile-field">
+                            <span>Fonction</span>
+                            <strong id="profileFunction">—</strong>
+                        </div>
+
+                        <div class="profile-field">
+                            <span>Date d'intégration</span>
+                            <strong id="profileIntegrationDate">—</strong>
+                        </div>
+
+                    </div>
+                </article>
+
+                <article class="profile-panel profile-panel-wide">
+                    <div class="profile-panel-heading">
+                        <div class="profile-panel-icon">
+                            <i class="fa-solid fa-user-shield"></i>
+                        </div>
+                        <div>
+                            <p class="section-eyebrow">AUTORISATIONS</p>
+                            <h2>RÔLES ATTRIBUÉS</h2>
+                        </div>
+                    </div>
+
+                    <div id="profileRoles" class="profile-roles">
+                        <span class="profile-role-tag">Chargement...</span>
+                    </div>
+
+                    <p class="profile-panel-note">
+                        Les rôles affichés correspondent aux attributions
+                        enregistrées pour votre compte.
+                    </p>
+                </article>
+
+                <article class="profile-panel profile-panel-wide">
+                    <div class="profile-panel-heading">
+                        <div class="profile-panel-icon">
+                            <i class="fa-solid fa-eye"></i>
+                        </div>
+                        <div>
+                            <p class="section-eyebrow">ANNUAIRE</p>
+                            <h2>VISIBILITÉ DU PROFIL</h2>
+                        </div>
+                    </div>
+
+                    <div class="profile-publication-status">
+                        <div>
+                            <strong id="profilePublicationTitle">Profil non publié</strong>
+                            <p id="profilePublicationDescription">
+                                Votre profil n'est pas visible dans l'annuaire public.
+                            </p>
+                        </div>
+
+                        <span id="profilePublicationBadge" class="publication-badge">
+                            NON PUBLIÉ
+                        </span>
+                    </div>
+
+                    <div class="profile-publication-actions">
+                        <button
+                            type="button"
+                            id="profilePublicationButton"
+                            class="profile-publication-button"
+                            disabled
+                            aria-pressed="false"
+                        >
+                            <i
+                                id="profilePublicationButtonIcon"
+                                class="fa-solid fa-eye"
+                            ></i>
+                            <span id="profilePublicationButtonText">
+                                PUBLIER MON PROFIL
+                            </span>
+                        </button>
+
+                        <p
+                            id="profilePublicationFeedback"
+                            class="profile-publication-feedback"
+                            aria-live="polite"
+                        ></p>
+                    </div>
+
+                    <p class="profile-panel-note">
+                        Vous pouvez à tout moment rendre votre fiche visible
+                        ou la retirer de l'annuaire du personnel.
+                    </p>
+                </article>
+
+            </section>
+
+            <section class="profile-account-panel">
+
+                <div class="profile-account-information">
+                    <div class="profile-panel-icon">
+                        <i class="fa-solid fa-gear"></i>
+                    </div>
+
+                    <div>
+                        <p class="section-eyebrow">GESTION DU COMPTE</p>
+                        <h2>SESSION ET SÉCURITÉ</h2>
+                        <p>
+                            Vous pouvez fermer votre session sur cet appareil.
+                        </p>
+                    </div>
+                </div>
+
+                <button type="button" id="profileSignOut" class="profile-signout-button">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    DÉCONNEXION
+                </button>
+
+            </section>
+
+        </div>
+
+        <div class="profile-footer">
+            <span>
+                <i class="fa-solid fa-lock"></i>
+                INFORMATIONS PERSONNELLES — ACCÈS RESTREINT
+            </span>
+
+            <a href="accueil.html">
+                RETOUR AU TABLEAU DE BORD
+                <i class="fa-solid fa-arrow-right"></i>
+            </a>
+        </div>
+
+    </main>
+
+    <footer class="member-footer">
+        <div class="footer-brand">
+            <strong>ZONE-431</strong>
+            <span>ESPACE PERSONNEL</span>
+        </div>
+
+        <p>SYSTÈME INFORMATIQUE DE L'INSTALLATION</p>
+
+        <span class="footer-version">INTERFACE MEMBRE</span>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="auth.js"></script>
+    <script src="profil.js"></script>
+
+</body>
+</html>
