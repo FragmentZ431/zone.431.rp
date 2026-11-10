@@ -191,8 +191,8 @@ async function initializeModule() {
         }
 
         state.canManageRP = staffAccess === true && staffWrite === true;
-        state.canAccessStaff = state.role === "ADMINISTRATEUR";
-        state.canManageStaff = state.role === "ADMINISTRATEUR";
+        state.canAccessStaff = ["ADMINISTRATEUR", "ADMIN"].includes(state.role);
+        state.canManageStaff = ["ADMINISTRATEUR", "ADMIN"].includes(state.role);
 
         $("accessLabel").textContent = state.canManageRP
             ? "ACCÈS RP — GESTION AUTORISÉE"
@@ -319,7 +319,10 @@ function renderCatalogSelectors() {
 
 function configureInterface() {
     const staffTab = document.querySelector('.space-tab[data-space="staff"]');
-    if (staffTab) staffTab.classList.toggle("hidden", !state.canAccessStaff);
+    if (staffTab) {
+        staffTab.classList.toggle("hidden", !state.canAccessStaff);
+        staffTab.style.display = state.canAccessStaff ? "" : "none";
+    }
 
     $("createCourseButton").classList.toggle("hidden", !canManageCurrentSpace());
 
