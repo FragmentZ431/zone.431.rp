@@ -115,7 +115,6 @@ async function loadCatalog() {
     nodes = nodeResult.data || [];
 
     renderDepartmentSelection();
-    renderNodeSelection();
 }
 
 /* =========================================================
@@ -297,6 +296,13 @@ function renderAccounts() {
    AFFECTATIONS : DÉPARTEMENT PRINCIPAL ET ADDITIONNELS
    ========================================================= */
 
+function sortNodes(list) {
+    return [...list].sort((a, b) =>
+        (Number(a.sort_order) || 0) - (Number(b.sort_order) || 0) ||
+        String(a.code).localeCompare(String(b.code), "fr")
+    );
+}
+
 function getSpecialDepartments() {
     return ["FIM", "GDI"].map(code => {
         const node = nodes.find(item => item.code === code);
@@ -408,7 +414,6 @@ async function openAccountEditor(account) {
 
     $("accountRpName").value = account.rp_name || "";
     $("accountStatus").value = account.status;
-    $("accountGrade").value = account.grade || "";
 
     renderPrimaryDepartmentOptions(account.department || account.department_codes?.[0] || "");
     $("primaryGrade").value = account.grade || "";
@@ -466,7 +471,6 @@ async function saveAccount(event) {
         const userId = $("accountUserId").value;
         const rpName = $("accountRpName").value.trim();
         const status = $("accountStatus").value;
-        const grade = $("accountGrade").value.trim();
 
         if (rpName.length > 100) {
             throw new Error("Le nom RP ne peut pas dépasser 100 caractères.");
@@ -485,9 +489,17 @@ async function saveAccount(event) {
         if (secondaryAssignments.some(item => !item.department_code || !item.grade)) {
             throw new Error("Chaque département additionnel doit avoir un département et un grade.");
         }
-        const departmentCodes = [primaryDepartment, ...secondaryAssignments.map(item => item.department_code)];
+        const departmentCodes = [
+            primaryDepartment,
+            ...secondaryAssignments
+                .map(item => item.department_code)
+                .filter(code => departments.some(department => department.code === code))
+        ];
         const nodeCodes = [
             ...(primaryDivision ? [primaryDivision] : []),
+            ...secondaryAssignments
+                .map(item => item.department_code)
+                .filter(code => code === "FIM" || code === "GDI"),
             ...secondaryAssignments.map(item => item.division_code).filter(Boolean)
         ];
 
