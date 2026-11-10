@@ -571,3 +571,44 @@
         flex-direction: column;
     }
 }
+
+
+/* DÉPARTEMENTS SECONDAIRES */
+.profile-field-stack {
+    display: block;
+}
+.profile-field-stack > span {
+    display: block;
+    margin-bottom: 12px;
+}
+.profile-secondary-list {
+    display: grid;
+    gap: 10px;
+}
+.profile-secondary-item {
+    display: grid;
+    gap: 5px;
+    padding: 12px 14px;
+    background: var(--member-bg-soft);
+    border: 1px solid var(--member-border);
+    border-left: 2px solid var(--member-green-dark);
+    border-radius: var(--member-radius);
+}
+.profile-secondary-item > span {
+    color: var(--member-muted);
+    font-size: .62rem;
+    font-weight: 800;
+    letter-spacing: .7px;
+}
+.profile-secondary-item > strong {
+    max-width: 100%;
+    color: var(--member-text);
+    font-size: .76rem;
+    text-align: left;
+    overflow-wrap: anywhere;
+}
+.profile-secondary-item > small,
+.profile-secondary-empty {
+    color: var(--member-green-light);
+    font-size: .68rem;
+}
