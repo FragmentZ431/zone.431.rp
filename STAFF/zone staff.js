@@ -13,14 +13,6 @@ const SUPABASE_KEY = "sb_publishable_iwAj_zFrWEsMcqUKNINwJw_Po3QAwDG";
 
 const LOGIN_URL = "../accueil.html";
 
-const ALLOWED_ROLES = [
-    "MODÉRATION",
-    "ANIMATION",
-    "MANAGER MOD",
-    "MANAGER ANIM",
-    "ADMINISTRATEUR"
-];
-
 
 /* VARIABLES */
 
@@ -71,32 +63,22 @@ function initializeSupabase() {
 async function verifyStaffAccess() {
 
     try {
-
         if (!supabaseClient) {
             throw new Error("Connexion Supabase indisponible.");
         }
 
-        const {
-            data: sessionData,
-            error: sessionError
-        } = await supabaseClient.auth.getSession();
+        const { data: sessionData, error: sessionError } =
+            await supabaseClient.auth.getSession();
 
-        if (sessionError) {
-            throw sessionError;
-        }
+        if (sessionError) throw sessionError;
 
-        const session = sessionData.session;
-
-        if (!session) {
+        if (!sessionData.session) {
             redirectToLogin();
             return;
         }
 
-
-        const {
-            data: userData,
-            error: userError
-        } = await supabaseClient.auth.getUser();
+        const { data: userData, error: userError } =
+            await supabaseClient.auth.getUser();
 
         if (userError || !userData.user) {
             redirectToLogin();
@@ -105,69 +87,52 @@ async function verifyStaffAccess() {
 
         const user = userData.user;
 
+        // Le tableau de bord possède sa propre permission.
+        // Les autres modules ne dépendent pas de STAFF_ZONE.
+        const { data: hasAccess, error: permissionError } =
+            await supabaseClient.rpc("has_staff_module_permission", {
+                p_module_code: "STAFF_ZONE",
+                p_action: "access"
+            });
 
-        /*
-         * Vérification du rôle côté serveur.
-         * sessionStorage n'est jamais utilisé
-         * comme preuve d'autorisation.
-         */
+        if (permissionError) throw permissionError;
 
-        const {
-            data: roleData,
-            error: roleError
-        } = await supabaseClient.rpc("current_staff_role");
-
-        if (roleError) {
-            throw roleError;
-        }
-
-        const role = extractRole(roleData);
-
-        if (!role) {
+        if (hasAccess !== true) {
             showAccessError(
-                "Aucun rôle administratif n'est associé à votre compte."
+                "Votre compte ne dispose pas de l'autorisation d'accès au tableau de bord STAFF."
             );
             return;
         }
 
+        const { data: roleData, error: roleError } =
+            await supabaseClient.rpc("current_staff_role");
 
-        if (!ALLOWED_ROLES.includes(role)) {
-            showAccessError(
-                "Votre rôle ne permet pas d'accéder à l'administration STAFF."
-            );
-            return;
-        }
+        const role = !roleError ? extractRole(roleData) : null;
 
-
-        displayStaffIdentity(user, role);
-
+        displayStaffIdentity(user, role || "ACCÈS INDIVIDUEL");
         setSessionStatus(true);
 
-        sessionStorage.setItem("zone431_role", role);
+        if (role) {
+            sessionStorage.setItem("zone431_role", role);
+        } else {
+            sessionStorage.removeItem("zone431_role");
+        }
 
         document.body.classList.add("authorized");
-
         hideLoadingOverlay();
 
     } catch (error) {
-
-        console.error(
-            "[ZONE-431] Erreur de vérification STAFF :",
-            error
-        );
-
+        console.error("[ZONE-431] Erreur de vérification STAFF :", error);
         showAccessError(
             "La vérification des autorisations a échoué. Veuillez réessayer."
         );
-
     }
-
 }
 
 
 /* =====================================================
    EXTRACTION DU RÔLE SUPABASE
-   ===================================================== */
+===================================================== */
 
 function extractRole(data) {
 
