@@ -145,8 +145,7 @@ function normalizePersonnel(profile) {
         name: safeString(profile.display_name),
         identifier: safeString(profile.personnel_id),
         department: safeString(profile.department),
-        grade: safeString(profile.grade),
-        function: safeString(profile.function)
+        grade: safeString(profile.grade)
     };
 }
 
@@ -201,8 +200,7 @@ function applyFilters() {
             profile.name,
             profile.identifier,
             profile.department,
-            profile.grade,
-            profile.function
+            profile.grade
         ].join(" "));
 
         const matchesSearch =
@@ -299,8 +297,7 @@ function createPersonnelCard(profile) {
     const details = document.createElement("div");
     details.className = "card-details";
     details.append(
-        createCardDetail("GRADE", profile.grade || "Non renseigné"),
-        createCardDetail("FONCTION", profile.function || "Non renseignée")
+        createCardDetail("GRADE", profile.grade || "Non renseigné")
     );
 
     const action = document.createElement("button");
@@ -343,7 +340,6 @@ function openProfile(profile) {
     setText(elements.profileId, profile.identifier || "Identifiant non renseigné");
     setText(elements.profileDepartment, profile.department);
     setText(elements.profileGrade, profile.grade || "Non renseigné");
-    setText(elements.profileFunction, profile.function || "Non renseignée");
     setText(elements.profileInitials, getInitials(profile.name));
 
     try {
