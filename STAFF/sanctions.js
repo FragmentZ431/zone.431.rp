@@ -12,20 +12,11 @@ const supabaseClient = window.supabase.createClient(
     SUPABASE_KEY
 );
 
-const ALLOWED_ROLES = [
-    "ADMINISTRATEUR",
-    "MANAGER MOD",
-    "MANAGER ANIM",
-    "ANIMATION",
-    "MODÉRATION"
-];
-
-const ADMIN_ROLE = "ADMINISTRATEUR";
-
 let currentUser = null;
 let currentRole = null;
 let currentStaff = null;
 let canManage = false;
+let canAccess = false;
 let sanctions = [];
 let editingSanction = false;
 
@@ -182,28 +173,32 @@ async function initializeSanctions() {
 }
 
 async function verifyStaffAccess() {
-    const { data: role, error: roleError } = await supabaseClient
-        .rpc("current_staff_role");
+    const { data: access, error: accessError } = await supabaseClient.rpc(
+        "has_staff_module_permission",
+        { p_module_code: "sanctions", p_action: "access" }
+    );
 
-    if (roleError) {
-        console.error("Erreur de récupération du rôle :", roleError);
+    if (accessError) throw accessError;
 
+    if (access !== true) {
         showAccessError(
-            "Impossible de vérifier vos autorisations administratives."
+            "Votre compte ne dispose pas de la permission d'accès au module Sanctions."
         );
         return;
     }
 
-    currentRole = String(role || "").trim().toUpperCase();
+    const { data: write, error: writeError } = await supabaseClient.rpc(
+        "has_staff_module_permission",
+        { p_module_code: "sanctions", p_action: "write" }
+    );
 
-    if (!ALLOWED_ROLES.includes(currentRole)) {
-        showAccessError(
-            "Votre rôle ne dispose pas de l'autorisation nécessaire pour consulter le registre des sanctions."
-        );
-        return;
-    }
+    if (writeError) throw writeError;
 
-    canManage = currentRole === ADMIN_ROLE;
+    canAccess = true;
+    canManage = write === true;
+
+    const { data: role } = await supabaseClient.rpc("current_staff_role");
+    currentRole = String(role || "ACCÈS INDIVIDUEL").trim().toUpperCase();
 
     await loadStaffIdentity();
     displayInterface();
