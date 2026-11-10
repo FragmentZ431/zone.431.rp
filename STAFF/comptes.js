@@ -294,289 +294,106 @@ function renderAccounts() {
 }
 
 /* =========================================================
-   SÉLECTION DES DÉPARTEMENTS
+   AFFECTATIONS : DÉPARTEMENT PRINCIPAL ET ADDITIONNELS
    ========================================================= */
 
-function renderDepartmentSelection() {
-    const container = $("departmentsSelection");
-    container.replaceChildren();
-
-    if (!departments.length) {
-        const empty = document.createElement("p");
-        empty.className = "loading";
-        empty.textContent = "Aucun département disponible dans le catalogue DPT.";
-        container.appendChild(empty);
-        return;
-    }
-
-    departments.forEach(department => {
-        const label = document.createElement("label");
-        label.className = "selection-item";
-
-        const checkbox = document.createElement("input");
-        checkbox.type = "checkbox";
-        checkbox.name = "departmentAccess";
-        checkbox.value = department.code;
-
-        const content = document.createElement("span");
-
-        const title = document.createElement("strong");
-        title.textContent = `${department.code} — ${department.name}`;
-
-        const description = document.createElement("small");
-        description.textContent = department.description || "Aucune description.";
-
-        content.append(title, description);
-        label.append(checkbox, content);
-        container.appendChild(label);
+function getSpecialDepartments() {
+    return ["FIM", "GDI"].map(code => {
+        const node = nodes.find(item => item.code === code);
+        return { code, name: node?.title || code };
     });
 }
-
-/* =========================================================
-   ARBORESCENCE ORGANISATIONNELLE
-   Départements + structures indépendantes
-   ========================================================= */
-
-function getNodeSortValue(node) {
-    return Number(node.sort_order) || 0;
+function getDepartmentChoices(includeSpecial = false) {
+    const choices = [...departments];
+    if (includeSpecial) choices.push(...getSpecialDepartments());
+    return choices.sort((a, b) => a.code.localeCompare(b.code, "fr"));
 }
-
-function sortNodes(list) {
-    return [...list].sort((a, b) =>
-        getNodeSortValue(a) - getNodeSortValue(b) ||
-        String(a.code).localeCompare(String(b.code), "fr")
-    );
+function getDivisionsForDepartment(code) {
+    if (!code) return [];
+    return sortNodes(nodes.filter(node => node.code !== code &&
+        (node.root_department_code === code || node.parent_code === code)));
 }
-
-function createNodeOption(node, selectedCodes, depth = 0) {
-    const label = document.createElement("label");
-    label.className = "node-option";
-    label.style.paddingLeft = `${8 + depth * 17}px`;
-
-    const checkbox = document.createElement("input");
-    checkbox.type = "checkbox";
-    checkbox.name = "organizationAccess";
-    checkbox.value = node.code;
-    checkbox.checked = selectedCodes.has(node.code);
-    checkbox.addEventListener("change", updateSelectionSummary);
-
-    const content = document.createElement("span");
-    content.className = "node-option-content";
-
-    const title = document.createElement("strong");
-    title.textContent = `${node.code} — ${node.title}`;
-
-    const type = document.createElement("small");
-    type.textContent = node.node_type || "Élément organisationnel";
-
-    content.append(title, type);
-    label.append(checkbox, content);
-
-    return label;
-}
-
-function appendNodeBranch(
-    node,
-    childrenByParent,
-    selectedCodes,
-    visited,
-    container,
-    depth = 0
-) {
-    if (visited.has(node.code)) return;
-
-    visited.add(node.code);
-
-    container.appendChild(
-        createNodeOption(node, selectedCodes, depth)
-    );
-
-    const children = childrenByParent.get(node.code) || [];
-
-    children.forEach(child => {
-        appendNodeBranch(
-            child,
-            childrenByParent,
-            selectedCodes,
-            visited,
-            container,
-            depth + 1
-        );
+function fillSelect(select, options, placeholder, selectedValue = "") {
+    select.replaceChildren();
+    const empty = document.createElement("option");
+    empty.value = "";
+    empty.textContent = placeholder;
+    select.appendChild(empty);
+    options.forEach(option => {
+        const item = document.createElement("option");
+        item.value = option.code;
+        item.textContent = `${option.code} — ${option.name || option.title}`;
+        select.appendChild(item);
     });
+    select.value = selectedValue || "";
 }
-
-function renderNodeGroup(groupTitle, groupNodes, selectedCodes) {
-    const group = document.createElement("section");
-    group.className = "node-department-group";
-
-    const heading = document.createElement("div");
-    heading.className = "node-group-heading";
-    heading.textContent = groupTitle;
-
-    const tree = document.createElement("div");
-    tree.className = "node-tree";
-
-    const sorted = sortNodes(groupNodes);
-    const groupCodes = new Set(sorted.map(node => node.code));
-
-    const childrenByParent = new Map();
-
-    sorted.forEach(node => {
-        const parentCode = node.parent_code;
-
-        if (!parentCode || !groupCodes.has(parentCode)) return;
-
-        if (!childrenByParent.has(parentCode)) {
-            childrenByParent.set(parentCode, []);
-        }
-
-        childrenByParent.get(parentCode).push(node);
-    });
-
-    for (const [parentCode, children] of childrenByParent.entries()) {
-        childrenByParent.set(parentCode, sortNodes(children));
-    }
-
-    const visited = new Set();
-
-    const roots = sorted.filter(node =>
-        !node.parent_code || !groupCodes.has(node.parent_code)
-    );
-
-    roots.forEach(root => {
-        appendNodeBranch(
-            root,
-            childrenByParent,
-            selectedCodes,
-            visited,
-            tree,
-            0
-        );
-    });
-
-    sorted.forEach(node => {
-        if (visited.has(node.code)) return;
-
-        appendNodeBranch(
-            node,
-            childrenByParent,
-            selectedCodes,
-            visited,
-            tree,
-            0
-        );
-    });
-
-    if (!tree.children.length) {
-        const empty = document.createElement("p");
-        empty.className = "loading";
-        empty.textContent = "Aucun élément organisationnel disponible.";
-        tree.appendChild(empty);
-    }
-
-    group.append(heading, tree);
-
-    return group;
-}
-
-function renderNodeSelection() {
-    const container = $("nodesSelection");
-
-    const selectedCodes = new Set(
-        selectedAccount?.organization_nodes?.map(node => node.code) || []
-    );
-
-    container.replaceChildren();
-
-    if (!nodes.length) {
-        const empty = document.createElement("p");
-        empty.className = "loading";
-        empty.textContent = "Aucun élément organisationnel disponible.";
-        container.appendChild(empty);
+function renderPrimaryDepartmentOptions(selectedDepartment = "", selectedDivision = "") {
+    const departmentSelect = $("primaryDepartment");
+    const divisionSelect = $("primaryDivision");
+    fillSelect(departmentSelect, getDepartmentChoices(false), "Sélectionner le département", selectedDepartment);
+    fillSelect(divisionSelect, getDivisionsForDepartment(departmentSelect.value), "Aucune division", selectedDivision);
+    departmentSelect.onchange = () => {
+        fillSelect(divisionSelect, getDivisionsForDepartment(departmentSelect.value), "Aucune division");
         updateSelectionSummary();
-        return;
-    }
+    };
+}
+function createSecondaryAssignment(data = {}) {
+    const row = document.createElement("div");
+    row.className = "secondary-assignment-row";
+    const departmentLabel = document.createElement("label");
+    departmentLabel.textContent = "Département secondaire";
+    const departmentSelect = document.createElement("select");
+    departmentSelect.className = "secondary-department";
+    departmentSelect.required = true;
+    fillSelect(departmentSelect, getDepartmentChoices(true), "Sélectionner un département", data.department_code || "");
+    departmentLabel.appendChild(departmentSelect);
 
-    const knownDepartmentCodes = new Set(
-        departments.map(department => department.code)
-    );
+    const divisionLabel = document.createElement("label");
+    divisionLabel.textContent = "Division (facultatif)";
+    const divisionSelect = document.createElement("select");
+    divisionSelect.className = "secondary-division";
+    fillSelect(divisionSelect, getDivisionsForDepartment(departmentSelect.value), "Aucune division", data.division_code || "");
+    divisionLabel.appendChild(divisionSelect);
 
-    departments.forEach(department => {
-        const departmentNodes = nodes.filter(node =>
-            node.root_department_code === department.code
-        );
+    const gradeLabel = document.createElement("label");
+    gradeLabel.textContent = "Grade (obligatoire)";
+    const gradeInput = document.createElement("input");
+    gradeInput.className = "secondary-grade";
+    gradeInput.type = "text";
+    gradeInput.maxLength = 120;
+    gradeInput.required = true;
+    gradeInput.placeholder = "Grade dans ce département";
+    gradeInput.value = data.grade || "";
+    gradeLabel.appendChild(gradeInput);
 
-        container.appendChild(
-            renderNodeGroup(
-                `${department.code} — ${department.name}`,
-                departmentNodes,
-                selectedCodes
-            )
-        );
+    const removeButton = document.createElement("button");
+    removeButton.type = "button";
+    removeButton.className = "remove-secondary-button";
+    removeButton.textContent = "SUPPRIMER";
+    removeButton.addEventListener("click", () => { row.remove(); updateSelectionSummary(); });
+    departmentSelect.addEventListener("change", () => {
+        fillSelect(divisionSelect, getDivisionsForDepartment(departmentSelect.value), "Aucune division");
     });
-
-    const independentNodes = nodes.filter(node =>
-        !node.root_department_code ||
-        !knownDepartmentCodes.has(node.root_department_code)
-    );
-
-    if (independentNodes.length) {
-        container.appendChild(
-            renderNodeGroup(
-                "STRUCTURES INDÉPENDANTES",
-                independentNodes,
-                selectedCodes
-            )
-        );
-    }
-
+    row.append(departmentLabel, divisionLabel, gradeLabel, removeButton);
+    $("secondaryAssignments").appendChild(row);
     updateSelectionSummary();
-    filterNodes();
 }
-
-/* =========================================================
-   RÉCAPITULATIF DES AFFECTATIONS
-   ========================================================= */
-
+function renderDepartmentSelection() {
+    renderPrimaryDepartmentOptions();
+    $("secondaryAssignments").replaceChildren();
+    updateSelectionSummary();
+}
 function updateSelectionSummary() {
-    const departmentCount = document.querySelectorAll(
-        'input[name="departmentAccess"]:checked'
-    ).length;
-
-    const nodeCount = document.querySelectorAll(
-        'input[name="organizationAccess"]:checked'
-    ).length;
-
-    $("selectionSummary").textContent =
-        `${departmentCount} département(s) sélectionné(s) · ${nodeCount} élément(s) organisationnel(s) sélectionné(s).`;
-}
-
-/* =========================================================
-   RECHERCHE DANS LES STRUCTURES
-   ========================================================= */
-
-function filterNodes() {
-    const query = $("searchNodes").value.trim().toLowerCase();
-
-    document.querySelectorAll(".node-department-group").forEach(group => {
-        let visibleCount = 0;
-
-        group.querySelectorAll(".node-option").forEach(option => {
-            const matches = option.textContent.toLowerCase().includes(query);
-            option.hidden = !matches;
-
-            if (matches) visibleCount++;
-        });
-
-        group.hidden = query.length > 0 && visibleCount === 0;
-    });
+    const primary = $("primaryDepartment")?.selectedOptions[0]?.textContent || "Aucun";
+    const count = document.querySelectorAll(".secondary-assignment-row").length;
+    $("selectionSummary").textContent = `Principal : ${primary} · ${count} département(s) additionnel(s).`;
 }
 
 /* =========================================================
    OUVERTURE DU DOSSIER D'UN COMPTE
    ========================================================= */
 
-function openAccountEditor(account) {
+async function openAccountEditor(account) {
     selectedAccount = account;
 
     $("accountUserId").value = account.user_id;
@@ -593,12 +410,24 @@ function openAccountEditor(account) {
     $("accountStatus").value = account.status;
     $("accountGrade").value = account.grade || "";
 
-    document.querySelectorAll('input[name="departmentAccess"]').forEach(input => {
-        input.checked = account.department_codes.includes(input.value);
-    });
+    renderPrimaryDepartmentOptions(account.department || account.department_codes?.[0] || "");
+    $("primaryGrade").value = account.grade || "";
+    $("secondaryAssignments").replaceChildren();
 
-    $("searchNodes").value = "";
-    renderNodeSelection();
+    const { data: assignmentData, error: assignmentError } = await db.rpc(
+        "admin_get_member_department_assignments",
+        { p_user_id: account.user_id }
+    );
+    if (assignmentError) throw assignmentError;
+    const assignments = Array.isArray(assignmentData) ? assignmentData : [];
+    const primary = assignments.find(item => item.assignment_type === "primary");
+    if (primary) {
+        renderPrimaryDepartmentOptions(primary.department_code, primary.division_code || "");
+        $("primaryGrade").value = primary.grade || "";
+    }
+    assignments.filter(item => item.assignment_type === "secondary")
+        .sort((a, b) => (a.position || 0) - (b.position || 0))
+        .forEach(item => createSecondaryAssignment(item));
 
     $("accountModal").showModal();
 }
@@ -643,13 +472,24 @@ async function saveAccount(event) {
             throw new Error("Le nom RP ne peut pas dépasser 100 caractères.");
         }
 
-        const departmentCodes = [
-            ...document.querySelectorAll('input[name="departmentAccess"]:checked')
-        ].map(input => input.value);
+        const primaryDepartment = $("primaryDepartment").value;
+        const primaryDivision = $("primaryDivision").value || null;
+        const primaryGrade = $("primaryGrade").value.trim();
+        if (!primaryDepartment) throw new Error("Le département principal est obligatoire.");
 
+        const secondaryAssignments = [...document.querySelectorAll(".secondary-assignment-row")].map(row => ({
+            department_code: row.querySelector(".secondary-department").value,
+            division_code: row.querySelector(".secondary-division").value || null,
+            grade: row.querySelector(".secondary-grade").value.trim()
+        }));
+        if (secondaryAssignments.some(item => !item.department_code || !item.grade)) {
+            throw new Error("Chaque département additionnel doit avoir un département et un grade.");
+        }
+        const departmentCodes = [primaryDepartment, ...secondaryAssignments.map(item => item.department_code)];
         const nodeCodes = [
-            ...document.querySelectorAll('input[name="organizationAccess"]:checked')
-        ].map(input => input.value);
+            ...(primaryDivision ? [primaryDivision] : []),
+            ...secondaryAssignments.map(item => item.division_code).filter(Boolean)
+        ];
 
         /*
          * Enregistrement du nom RP via la nouvelle fonction
@@ -665,12 +505,21 @@ async function saveAccount(event) {
         const { error } = await db.rpc("admin_save_rp_member", {
             p_user_id: userId,
             p_status: status,
-            p_grade: grade,
+            p_grade: primaryGrade,
             p_department_codes: departmentCodes,
             p_node_codes: nodeCodes
         });
 
         if (error) throw error;
+
+        const { error: assignmentSaveError } = await db.rpc("admin_save_member_department_assignments", {
+            p_user_id: userId,
+            p_primary_department_code: primaryDepartment,
+            p_primary_division_code: primaryDivision,
+            p_primary_grade: primaryGrade || null,
+            p_secondary: secondaryAssignments
+        });
+        if (assignmentSaveError) throw assignmentSaveError;
 
         $("accountModal").close();
         showMessage("Le dossier du compte a été mis à jour.");
@@ -724,46 +573,6 @@ async function performGlobalLogout() {
 }
 
 /* =========================================================
-   RÉINITIALISATION DE LA SÉLECTION
-   ========================================================= */
-
-function clearNodeSelection() {
-    document.querySelectorAll('input[name="organizationAccess"]').forEach(input => {
-        input.checked = false;
-    });
-
-    updateSelectionSummary();
-}
-
-function closeAccountModal() {
-    $("accountModal").close();
-    selectedAccount = null;
-}
-
-/* =========================================================
-   ACTUALISATION
-   ========================================================= */
-
-async function refreshAll() {
-    $("refreshButton").disabled = true;
-    $("refreshButton").textContent = "ACTUALISATION...";
-
-    try {
-        await loadCatalog();
-        await loadAccounts();
-        await loadGlobalLogoutState();
-
-        showMessage("Les données ont été actualisées.");
-    } catch (error) {
-        console.error("[ZONE-431] Actualisation impossible :", error);
-        showMessage(error.message || "Impossible d'actualiser les données.", true);
-    } finally {
-        $("refreshButton").disabled = false;
-        $("refreshButton").textContent = "ACTUALISER";
-    }
-}
-
-/* =========================================================
    INITIALISATION
    ========================================================= */
 
@@ -791,10 +600,8 @@ async function initialize() {
         $("searchAccounts").addEventListener("input", renderAccounts);
         $("statusFilter").addEventListener("change", renderAccounts);
 
-        $("searchNodes").addEventListener("input", filterNodes);
-        $("clearNodesButton").addEventListener("click", clearNodeSelection);
-
-        $("departmentsSelection").addEventListener("change", updateSelectionSummary);
+        $("primaryDepartment").addEventListener("change", updateSelectionSummary);
+        $("addSecondaryButton").addEventListener("click", () => createSecondaryAssignment());
 
         $("globalLogoutButton").addEventListener("click", performGlobalLogout);
 
