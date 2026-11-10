@@ -63,53 +63,34 @@ async function checkAccess() {
 
         currentUser = sessionData.session.user;
 
-        const { data: roleData, error: roleError } =
-            await db.rpc("current_staff_role");
+        const { data: moduleAccess, error: moduleAccessError } = await db.rpc(
+            "has_staff_module_permission",
+            { p_module_code: "departments", p_action: "access" }
+        );
 
-        if (roleError) throw roleError;
+        if (moduleAccessError) throw moduleAccessError;
 
-        let role = roleData;
-
-        if (Array.isArray(role)) {
-            role = role[0];
+        if (moduleAccess !== true) {
+            console.error("[ZONE-431] Permission d'accès au module Départements refusée.");
+            window.location.replace("../accueil.html");
+            return false;
         }
 
+        const { data: roleData } = await db.rpc("current_staff_role");
+
+        let role = roleData;
+        if (Array.isArray(role)) role = role[0];
+
         if (role && typeof role === "object") {
-            role =
-                role.role ||
-                role.current_staff_role ||
-                role.staff_role ||
-                null;
+            role = role.role || role.current_staff_role || role.staff_role || null;
         }
 
         currentRole = normalizeRole(role);
-
-        if (!currentRole) {
-            console.error("[ZONE-431] Rôle non reconnu :", roleData);
-            window.location.replace("../accueil.html");
-            return false;
-        }
-
-        const allowedRoles = [
-            "MODERATION",
-            "ANIMATION",
-            "MANAGER MOD",
-            "MANAGER ANIM",
-            "ADMIN",
-            "ADMINISTRATEUR"
-        ];
-
-        if (!allowedRoles.includes(currentRole)) {
-            console.error("[ZONE-431] Rôle non autorisé :", currentRole);
-            window.location.replace("../accueil.html");
-            return false;
-        }
-
         isAdmin = ["ADMIN", "ADMINISTRATEUR"].includes(currentRole);
 
-        $("staffRole").textContent = currentRole;
+        $("staffRole").textContent = currentRole || "ACCÈS INDIVIDUEL";
 
-        console.info("[ZONE-431] Accès autorisé :", currentRole);
+        console.info("[ZONE-431] Accès module Départements autorisé.");
 
         return true;
 
@@ -122,7 +103,6 @@ async function checkAccess() {
         return false;
     }
 }
-
 
 async function loadPermissions() {
     permissions.clear();
