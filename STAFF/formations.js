@@ -190,13 +190,13 @@ async function initializeModule() {
             throw new Error("Vérification des droits de gestion Formations impossible : " + staffWriteError.message);
         }
 
-        state.canManageRP = staffWrite === true;
-        state.canAccessStaff = state.canManageAssignments;
-        state.canManageStaff = state.canManageAssignments;
+        state.canManageRP = staffAccess === true && staffWrite === true;
+        state.canAccessStaff = state.role === "ADMINISTRATEUR";
+        state.canManageStaff = state.role === "ADMINISTRATEUR";
 
-        $("accessLabel").textContent = state.role
-            ? `ACCÈS STAFF — ${state.role}`
-            : "ACCÈS PAR AUTORISATION INDIVIDUELLE";
+        $("accessLabel").textContent = state.canManageRP
+            ? "ACCÈS RP — GESTION AUTORISÉE"
+            : "ACCÈS RP — CONSULTATION UNIQUEMENT";
 
         await loadCatalog();
 
@@ -338,7 +338,11 @@ function configureInterface() {
 async function switchSpace(space) {
     if (!["rp", "staff"].includes(space)) return;
 
-    if (space === "staff" && !state.canAccessStaff) {
+    if (space === "rp" && !state.canManageRP) {
+        showToast("La permission training/write n'est pas active pour ce compte.", true);
+    }
+
+    if (space === "staff" && state.role !== "ADMINISTRATEUR") {
         showToast("L'espace Formations STAFF est réservé aux administrateurs.", true);
         return;
     }
