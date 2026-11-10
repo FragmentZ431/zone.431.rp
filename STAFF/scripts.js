@@ -20,7 +20,7 @@ let currentStaff = null;
 let currentRole = null;
 
 let scripts = [];
-let isAdmin = false;
+let canManageScripts = false;
 let currentDetailsScript = null;
 
 /* =========================================================
@@ -177,52 +177,52 @@ async function initialize() {
 
         currentUser = session.user;
 
-        const { data: roleData, error: roleError } =
-            await supabaseClient.rpc("current_staff_role");
+        const { data: access, error: accessError } = await supabaseClient.rpc(
+            "has_staff_module_permission",
+            { p_module_code: "scripts", p_action: "access" }
+        );
 
-        if (roleError) throw roleError;
+        if (accessError) throw accessError;
 
-        currentRole = roleData;
-
-        if (!currentRole) {
+        if (access !== true) {
             showAccessDenied();
             return;
         }
 
-        const { data: staffData, error: staffError } =
-            await supabaseClient
-                .from("staff_members")
-                .select("pseudo_discord,pseudo_ig,role,active")
-                .eq("auth_user_id", currentUser.id)
-                .eq("active", true)
-                .maybeSingle();
+        const { data: write, error: writeError } = await supabaseClient.rpc(
+            "has_staff_module_permission",
+            { p_module_code: "scripts", p_action: "write" }
+        );
 
-        if (staffError) throw staffError;
+        if (writeError) throw writeError;
 
-        if (!staffData) {
-            throw new Error(
-                "Aucun profil STAFF actif n'est associé à cette session."
-            );
-        }
+        canManageScripts = write === true;
 
-        currentStaff = staffData;
-        isAdmin = currentRole === ADMIN_ROLE;
+        const { data: staffData } = await supabaseClient
+            .from("staff_members")
+            .select("pseudo_discord,pseudo_ig,role,active")
+            .eq("auth_user_id", currentUser.id)
+            .eq("active", true)
+            .maybeSingle();
+
+        currentStaff = staffData || {};
 
         if (elements.userName) {
             elements.userName.textContent =
                 currentStaff.pseudo_discord ||
                 currentStaff.pseudo_ig ||
-                "Agent STAFF";
+                currentUser.user_metadata?.discord ||
+                currentUser.email ||
+                "Agent autorisé";
         }
 
-        elements.accessLabel.textContent = isAdmin
-            ? "ACCÈS ADMINISTRATEUR"
+        elements.accessLabel.textContent = canManageScripts
+            ? "GESTION AUTORISÉE"
             : "CONSULTATION UNIQUEMENT";
 
-        elements.newScriptBtn.hidden = !isAdmin;
+        elements.newScriptBtn.hidden = !canManageScripts;
 
         setupEvents();
-
         await loadScripts();
 
     } catch (error) {
@@ -448,7 +448,7 @@ function renderScripts() {
             })
         );
 
-        if (isAdmin) {
+        if (canManageScripts) {
             actions.appendChild(
                 createButton("MODIFIER", "", () => {
                     openEditModal(script);
@@ -493,7 +493,7 @@ function openDetails(script) {
     elements.detailsContent.textContent =
         script.contenu || "Aucun contenu.";
 
-    elements.editDetailsBtn.hidden = !isAdmin;
+    elements.editDetailsBtn.hidden = !canManageScripts;
 
     setModalVisible(elements.detailsModal, true);
 }
@@ -523,7 +523,7 @@ async function copyScriptContent(content) {
 ========================================================= */
 
 function openCreateModal() {
-    if (!isAdmin) return;
+    if (!canManageScripts) return;
 
     elements.scriptForm.reset();
 
@@ -545,7 +545,7 @@ function openCreateModal() {
 ========================================================= */
 
 function openEditModal(script) {
-    if (!isAdmin) return;
+    if (!canManageScripts) return;
 
     elements.scriptForm.reset();
 
@@ -573,7 +573,7 @@ function closeScriptModal() {
 async function saveScript(event) {
     event.preventDefault();
 
-    if (!isAdmin) {
+    if (!canManageScripts) {
         showToast(
             "Vous ne disposez pas des droits nécessaires.",
             "error"
@@ -659,7 +659,7 @@ async function saveScript(event) {
 ========================================================= */
 
 async function deleteScript(script) {
-    if (!isAdmin) return;
+    if (!canManageScripts) return;
 
     const confirmed = window.confirm(
         `Confirmer la suppression du script "${script.titre}" (#${script.id}) ?\n\nCette action est définitive.`
@@ -756,7 +756,7 @@ function setupEvents() {
     elements.editDetailsBtn.addEventListener(
         "click",
         () => {
-            if (currentDetailsScript && isAdmin) {
+            if (currentDetailsScript && canManageScripts) {
                 openEditModal(currentDetailsScript);
             }
         }
