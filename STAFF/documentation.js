@@ -209,59 +209,63 @@ async function initialize() {
 
         currentUser = session.user;
 
-        const { data: roleData, error: roleError } =
-            await supabaseClient.rpc("current_staff_role");
+        const { data: access, error: accessError } = await supabaseClient.rpc(
+            "has_staff_module_permission",
+            { p_module_code: "documentation", p_action: "access" }
+        );
 
-        if (roleError) throw roleError;
+        if (accessError) throw accessError;
 
-        currentRole = roleData;
-
-        if (!currentRole) {
+        if (access !== true) {
             showAccessDenied();
             return;
         }
 
-        const { data: staffData, error: staffError } =
-            await supabaseClient
-                .from("staff_members")
-                .select("pseudo_discord,pseudo_ig,role,active")
-                .eq("auth_user_id", currentUser.id)
-                .eq("active", true)
-                .maybeSingle();
-
-        if (staffError) throw staffError;
-
-        if (!staffData) {
-            throw new Error(
-                "Aucun profil STAFF actif n'est associé à cette session."
-            );
-        }
-
-        currentStaff = staffData;
+        const { data: roleData } = await supabaseClient.rpc("current_staff_role");
+        currentRole = roleData || "ACCÈS INDIVIDUEL";
         isAdmin = currentRole === ADMIN_ROLE;
+
+        const { data: staffData } = await supabaseClient
+            .from("staff_members")
+            .select("pseudo_discord,pseudo_ig,role,active")
+            .eq("auth_user_id", currentUser.id)
+            .eq("active", true)
+            .maybeSingle();
+
+        currentStaff = staffData || {};
 
         if (elements.userName) {
             elements.userName.textContent =
                 currentStaff.pseudo_discord ||
                 currentStaff.pseudo_ig ||
-                "Agent STAFF";
+                currentUser.user_metadata?.discord ||
+                currentUser.email ||
+                "Agent autorisé";
         }
+
+        const { data: moduleWrite, error: writeError } = await supabaseClient.rpc(
+            "has_staff_module_permission",
+            { p_module_code: "documentation", p_action: "write" }
+        );
+
+        if (writeError) throw writeError;
 
         await loadDepartments();
 
         canManageDocuments =
-            isAdmin || manageableDepartments.length > 0;
+            moduleWrite === true ||
+            isAdmin ||
+            manageableDepartments.length > 0;
 
         elements.accessLabel.textContent = isAdmin
             ? "ACCÈS ADMINISTRATEUR"
             : canManageDocuments
-                ? "GESTION DÉPARTEMENTALE"
+                ? "GESTION AUTORISÉE"
                 : "CONSULTATION UNIQUEMENT";
 
         elements.newDocumentBtn.hidden = !canManageDocuments;
 
         setupEvents();
-
         await loadDocuments();
 
     } catch (error) {
