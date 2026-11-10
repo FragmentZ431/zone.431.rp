@@ -203,47 +203,34 @@
                 </label>
 
                 <div class="form-divider">
-                    <span>AFFECTATIONS DÉPARTEMENTALES</span>
+                    <span>DÉPARTEMENT PRINCIPAL</span>
                 </div>
-
                 <p class="section-help">
-                    Sélectionnez un ou plusieurs départements auxquels le compte
-                    doit être rattaché.
+                    Choisissez le rattachement principal du membre. Les filières F.I.M et GDI
+                    ne peuvent pas être définies comme département principal.
                 </p>
-
-                <div id="departmentsSelection" class="selection-list">
-                    <p class="loading">Chargement des départements...</p>
+                <div class="department-assignment-grid">
+                    <label>Département principal
+                        <select id="primaryDepartment" required><option value="">Chargement du catalogue...</option></select>
+                    </label>
+                    <label>Division principale (facultatif)
+                        <select id="primaryDivision"><option value="">Aucune division</option></select>
+                    </label>
+                    <label>Grade principal
+                        <input type="text" id="primaryGrade" maxlength="120" placeholder="Grade dans le département principal">
+                    </label>
                 </div>
-
-                <div class="form-divider">
-                    <span>AFFECTATIONS ORGANISATIONNELLES</span>
-                </div>
-
+                <div class="form-divider"><span>DÉPARTEMENTS ADDITIONNELS</span></div>
                 <p class="section-help">
-                    Sélectionnez les structures, directions, divisions, services,
-                    unités, filières ou autres éléments présents dans le module DPT.
+                    Cette partie est facultative. Vous pouvez ajouter plusieurs départements secondaires.
+                    Un grade est obligatoire pour chaque affectation ; la division reste facultative.
+                    Tous les départements, y compris F.I.M et GDI, sont disponibles.
                 </p>
-
-                <div class="node-toolbar">
-                    <input
-                        type="search"
-                        id="searchNodes"
-                        placeholder="Rechercher dans l'organisation..."
-                        autocomplete="off"
-                    >
-
-                    <button type="button" id="clearNodesButton" class="text-button">
-                        TOUT DÉSÉLECTIONNER
-                    </button>
-                </div>
-
-                <div id="nodesSelection" class="node-selection">
-                    <p class="loading">Chargement de l'organisation...</p>
-                </div>
-
-                <p id="selectionSummary" class="selection-summary">
-                    Aucune affectation sélectionnée.
-                </p>
+                <div id="secondaryAssignments" class="secondary-assignment-list"></div>
+                <button type="button" id="addSecondaryButton" class="add-secondary-button">
+                    + AJOUTER UN DÉPARTEMENT ADDITIONNEL
+                </button>
+                <p id="selectionSummary" class="selection-summary">Aucun rattachement sélectionné.</p>
             </div>
 
             <div class="modal-actions">
