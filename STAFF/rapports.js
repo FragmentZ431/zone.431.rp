@@ -13,20 +13,11 @@ const supabaseClient = window.supabase.createClient(
     SUPABASE_KEY
 );
 
-const ALLOWED_ROLES = [
-    "ADMINISTRATEUR",
-    "MANAGER MOD",
-    "MANAGER ANIM",
-    "ANIMATION"
-];
-
-const ADMIN_ROLE = "ADMINISTRATEUR";
-
 let currentUser = null;
 let currentStaff = null;
 let currentRole = null;
 let reports = [];
-let isAdmin = false;
+let canManageReports = false;
 
 /* =========================================================
    ELEMENTS HTML
@@ -209,52 +200,55 @@ async function initialize() {
 
         currentUser = session.user;
 
-        const { data: roleData, error: roleError } =
-            await supabaseClient.rpc("current_staff_role");
+        const { data: access, error: accessError } = await supabaseClient.rpc(
+            "has_staff_module_permission",
+            { p_module_code: "event_reports", p_action: "access" }
+        );
 
-        if (roleError) throw roleError;
+        if (accessError) throw accessError;
 
-        currentRole = roleData;
-
-        if (!ALLOWED_ROLES.includes(currentRole)) {
+        if (access !== true) {
             showAccessDenied();
             return;
         }
 
-        const { data: staffData, error: staffError } =
-            await supabaseClient
-                .from("staff_members")
-                .select("pseudo_discord,pseudo_ig,role,active")
-                .eq("auth_user_id", currentUser.id)
-                .eq("active", true)
-                .maybeSingle();
+        const { data: write, error: writeError } = await supabaseClient.rpc(
+            "has_staff_module_permission",
+            { p_module_code: "event_reports", p_action: "write" }
+        );
 
-        if (staffError) throw staffError;
+        if (writeError) throw writeError;
 
-        if (!staffData) {
-            throw new Error(
-                "Aucun profil STAFF actif n'est associé à cette session."
-            );
-        }
+        canManageReports = write === true;
 
-        currentStaff = staffData;
-        isAdmin = currentRole === ADMIN_ROLE;
+        const { data: roleData } = await supabaseClient.rpc("current_staff_role");
+        currentRole = roleData || "ACCÈS INDIVIDUEL";
+
+        const { data: staffData } = await supabaseClient
+            .from("staff_members")
+            .select("pseudo_discord,pseudo_ig,role,active")
+            .eq("auth_user_id", currentUser.id)
+            .eq("active", true)
+            .maybeSingle();
+
+        currentStaff = staffData || {};
 
         elements.userName.textContent =
             currentStaff.pseudo_discord ||
             currentStaff.pseudo_ig ||
-            "Agent STAFF";
+            currentUser.user_metadata?.discord ||
+            currentUser.email ||
+            "Agent autorisé";
 
         elements.userRole.textContent = currentRole;
 
-        elements.accessLabel.textContent = isAdmin
-            ? "ACCÈS ADMINISTRATEUR"
+        elements.accessLabel.textContent = canManageReports
+            ? "GESTION AUTORISÉE"
             : "CONSULTATION UNIQUEMENT";
 
-        elements.newReportBtn.hidden = !isAdmin;
+        elements.newReportBtn.hidden = !canManageReports;
 
         setupEvents();
-
         await loadReports();
 
     } catch (error) {
@@ -464,7 +458,7 @@ function renderReports() {
             })
         );
 
-        if (isAdmin) {
+        if (canManageReports) {
             actions.appendChild(
                 createActionButton("Modifier", "", () => {
                     openEditModal(report);
@@ -586,7 +580,7 @@ function openDetails(report) {
 ========================================================= */
 
 function openCreateModal() {
-    if (!isAdmin) return;
+    if (!canManageReports) return;
 
     elements.reportForm.reset();
 
@@ -610,7 +604,7 @@ function openCreateModal() {
 ========================================================= */
 
 function openEditModal(report) {
-    if (!isAdmin) return;
+    if (!canManageReports) return;
 
     elements.reportForm.reset();
 
@@ -641,7 +635,7 @@ function closeReportModal() {
 async function saveReport(event) {
     event.preventDefault();
 
-    if (!isAdmin) {
+    if (!canManageReports) {
         showToast(
             "Vous ne disposez pas des droits nécessaires.",
             "error"
@@ -740,7 +734,7 @@ async function saveReport(event) {
 ========================================================= */
 
 async function deleteReport(report) {
-    if (!isAdmin) return;
+    if (!canManageReports) return;
 
     const confirmed = window.confirm(
         `Confirmer la suppression du rapport "${report.nom}" (#${report.id}) ?\n\nCette action est définitive.`
