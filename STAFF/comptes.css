@@ -733,3 +733,54 @@ select option {
         width: 100%;
     }
 }
+
+
+/* AFFECTATIONS DÉPARTEMENTALES */
+.department-assignment-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 13px;
+}
+.department-assignment-grid label,
+.secondary-assignment-row label {
+    display: grid;
+    gap: 7px;
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 700;
+}
+.department-assignment-grid label:last-child { grid-column: 1 / -1; }
+.secondary-assignment-list { display: grid; gap: 12px; }
+.secondary-assignment-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr) auto;
+    align-items: end;
+    gap: 10px;
+    padding: 15px;
+    background: #0b131d;
+    border: 1px solid var(--border);
+}
+.add-secondary-button {
+    justify-self: start;
+    padding: 11px 14px;
+    color: var(--blue-light);
+    background: rgba(71, 123, 169, .1);
+    border: 1px solid rgba(117, 169, 213, .35);
+    font-size: 10px;
+    font-weight: 700;
+}
+.remove-secondary-button {
+    padding: 11px 12px;
+    color: #ef858c;
+    background: rgba(184, 50, 60, .08);
+    border: 1px solid rgba(184, 50, 60, .35);
+    font-size: 9px;
+    font-weight: 700;
+}
+@media (max-width: 760px) {
+    .department-assignment-grid,
+    .secondary-assignment-row { grid-template-columns: 1fr; }
+    .department-assignment-grid label:last-child { grid-column: auto; }
+    .remove-secondary-button,
+    .add-secondary-button { width: 100%; }
+}
