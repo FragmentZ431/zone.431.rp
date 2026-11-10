@@ -201,70 +201,14 @@ async function checkAuthentication() {
 }
 
 async function resolvePermissions() {
-    state.isGlobalAdmin = state.roles.some(role =>
-        role.role_code === "ADMIN" &&
-        role.department_code === null
-    );
-
-    if (!state.isGlobalAdmin) {
-        const { data, error } = await supabaseClient.rpc("current_staff_role");
-
-        if (!error && data === "ADMINISTRATEUR") {
-            state.isGlobalAdmin = true;
-        }
-    }
-
-    if (state.isGlobalAdmin) {
-        state.canManage = true;
-        return;
-    }
-
-    const { data: overrides, error: overrideError } = await supabaseClient
-        .from("rp_member_permission_overrides")
-        .select("is_allowed")
-        .eq("user_id", state.user.id)
-        .eq("permission_code", MANAGE_PERMISSION)
-        .is("department_code", null)
-        .limit(1);
-
-    if (overrideError) {
-        console.error("Erreur dérogation :", overrideError);
-        throw new Error("Impossible de vérifier votre dérogation de permission.");
-    }
-
-    if (overrides && overrides.length > 0) {
-        state.canManage = overrides[0].is_allowed === true;
-        return;
-    }
-
-    const assignedRoles = state.roles
-        .map(role => role.role_code)
-        .filter(Boolean);
-
-    if (!assignedRoles.length) {
-        state.canManage = false;
-        return;
-    }
-
-    const { data: defaults, error: defaultsError } = await supabaseClient
-        .from("rp_role_permission_defaults")
-        .select("role_code, permission_code, is_allowed")
-        .in("role_code", assignedRoles)
-        .eq("permission_code", MANAGE_PERMISSION);
-
-    if (defaultsError) {
-        console.error("Erreur permissions par rôle :", defaultsError);
-        throw new Error("Impossible de vérifier les permissions de votre rôle.");
-    }
-
-    state.canManage = (defaults || []).some(permission =>
-        permission.is_allowed === true
-    );
+    const { data, error } = await supabaseClient.rpc("has_staff_module_permission", {
+        p_module_code: "blacklist",
+        p_action: "write"
+    });
+    if (error) throw new Error("Impossible de vérifier vos droits de gestion Blacklist : " + error.message);
+    state.canManage = data === true;
+    state.isGlobalAdmin = false;
 }
-
-/* =========================================================
-   CHARGEMENT DU REGISTRE
-========================================================= */
 
 async function loadEntries() {
     elements.loadingState.classList.remove("hidden");
