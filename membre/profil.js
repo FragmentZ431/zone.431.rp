@@ -28,8 +28,7 @@
 
         department: document.getElementById("profileDepartment"),
         grade: document.getElementById("profileGrade"),
-        personnelFunction: document.getElementById("profileFunction"),
-        integrationDate: document.getElementById("profileIntegrationDate"),
+        secondaryDepartments: document.getElementById("profileSecondaryDepartments"),
 
         roles: document.getElementById("profileRoles"),
 
@@ -46,6 +45,7 @@
         access: null,
         profile: null,
         roles: [],
+        departmentAssignments: [],
         publicationInProgress: false
     };
 
@@ -231,6 +231,53 @@
         });
     }
 
+    function renderDepartmentAssignments(profile) {
+        const primary = state.departmentAssignments.find(item => item.assignment_type === "primary");
+        if (primary) {
+            const division = primary.division_title
+                ? ` / ${primary.division_title}`
+                : "";
+            elements.department.textContent =
+                `${primary.department_code} — ${primary.department_name || primary.department_code}${division}`;
+            elements.grade.textContent = displayValue(primary.grade);
+        } else {
+            elements.department.textContent = displayValue(profile.department);
+            elements.grade.textContent = displayValue(profile.grade);
+        }
+
+        elements.secondaryDepartments.replaceChildren();
+        const secondary = state.departmentAssignments
+            .filter(item => item.assignment_type === "secondary")
+            .sort((a, b) => (a.position || 0) - (b.position || 0));
+
+        if (!secondary.length) {
+            const empty = document.createElement("p");
+            empty.className = "profile-secondary-empty";
+            empty.textContent = "Aucun département additionnel attribué.";
+            elements.secondaryDepartments.appendChild(empty);
+            return;
+        }
+
+        secondary.forEach((item, index) => {
+            const card = document.createElement("div");
+            card.className = "profile-secondary-item";
+
+            const heading = document.createElement("span");
+            heading.textContent = `DÉPARTEMENT SECONDAIRE #${index + 1}`;
+
+            const department = document.createElement("strong");
+            const division = item.division_title ? ` / ${item.division_title}` : "";
+            department.textContent =
+                `${item.department_code} — ${item.department_name || item.department_code}${division}`;
+
+            const grade = document.createElement("small");
+            grade.textContent = `GRADE : ${item.grade}`;
+
+            card.append(heading, department, grade);
+            elements.secondaryDepartments.appendChild(card);
+        });
+    }
+
     function renderProfile(profile, user) {
         const name = displayValue(profile.display_name, "Agent");
 
@@ -252,17 +299,7 @@
         elements.email.textContent =
             displayValue(user.email);
 
-        elements.department.textContent =
-            displayValue(profile.department);
-
-        elements.grade.textContent =
-            displayValue(profile.grade);
-
-        elements.personnelFunction.textContent =
-            displayValue(profile.personnel_function);
-
-        elements.integrationDate.textContent =
-            formatDate(profile.integration_date);
+        renderDepartmentAssignments(profile);
 
         renderAccountStatus(profile.status);
         renderPublicationStatus(profile.is_published);
@@ -412,6 +449,13 @@
             }
 
             state.roles = roles || [];
+
+            const { data: departmentAssignments, error: departmentAssignmentsError } =
+                await client.rpc("get_my_department_assignments");
+            if (departmentAssignmentsError) throw departmentAssignmentsError;
+            state.departmentAssignments = Array.isArray(departmentAssignments)
+                ? departmentAssignments
+                : [];
 
             renderProfile(profile, user);
 
