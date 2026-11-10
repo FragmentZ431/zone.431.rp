@@ -145,11 +145,11 @@ async function loadOrganization() {
 
     const editableCount = (isAdmin || canManageAllDepartments) ? "tous les éléments" : `${permissions.size} département(s)`;
 
-    $("permissionMessage").textContent = isAdmin
-        ? "Vous disposez des droits administrateur complets sur l'organisation."
+    $("permissionMessage").textContent = (isAdmin || canManageAllDepartments)
+        ? "Vous disposez des droits de modification complets sur l’organisation."
         : `Consultation générale. Modification autorisée pour : ${editableCount}.`;
 
-    $("addNodeButton").hidden = !isAdmin && permissions.size === 0;
+    $("addNodeButton").hidden = !isAdmin && !canManageAllDepartments && permissions.size === 0;
 }
 
 function renderOrganization() {
