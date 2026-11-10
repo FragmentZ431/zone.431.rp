@@ -41,6 +41,7 @@ const state = {
     canManageRP: false,
     canAccessStaff: false,
     canManageStaff: false,
+    canManageAssignments: false,
     toastTimeout: null
 };
 
@@ -165,8 +166,9 @@ async function initializeModule() {
             state.role = roleData || null;
         }
 
-        // Les permissions RP et STAFF sont gérées séparément.
-        state.canManageRP = state.role === "ADMINISTRATEUR";
+        // RP : la permission individuelle training/write autorise la gestion.
+        // STAFF : seul un administrateur STAFF peut consulter et gérer cet espace.
+        state.canManageAssignments = state.role === "ADMINISTRATEUR";
 
         const { data: staffAccess, error: staffAccessError } =
             await supabaseClient.rpc("has_staff_module_permission", {
@@ -188,8 +190,9 @@ async function initializeModule() {
             throw new Error("Vérification des droits de gestion Formations impossible : " + staffWriteError.message);
         }
 
-        state.canAccessStaff = staffAccess === true;
-        state.canManageStaff = state.canAccessStaff && staffWrite === true;
+        state.canManageRP = staffWrite === true;
+        state.canAccessStaff = state.canManageAssignments;
+        state.canManageStaff = state.canManageAssignments;
 
         $("accessLabel").textContent = state.role
             ? `ACCÈS STAFF — ${state.role}`
@@ -197,7 +200,7 @@ async function initializeModule() {
 
         await loadCatalog();
 
-        if (state.canManageRP) {
+        if (state.canManageAssignments) {
             $("assignmentPanel").classList.remove("hidden");
         }
 
@@ -1065,7 +1068,7 @@ async function toggleLessonProgress(lessonId) {
 async function saveMemberAssignments(event) {
     event.preventDefault();
 
-    if (!state.canManageRP) {
+    if (!state.canManageAssignments) {
         showToast("Seul un administrateur peut gérer les affectations.", true);
         return;
     }
