@@ -466,6 +466,24 @@ async function openAccountEditor(account) {
 }
 
 /* =========================================================
+   FERMETURE DU DOSSIER COMPTE
+   ========================================================= */
+
+function closeAccountModal(event) {
+    if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+    }
+
+    const modal = $("accountModal");
+    if (modal?.open) modal.close();
+
+    selectedAccount = null;
+    $("secondaryAssignments")?.replaceChildren();
+    $("selectionSummary").textContent = "Aucun rattachement sélectionné.";
+}
+
+/* =========================================================
    ENREGISTREMENT DU NOM RP
    ========================================================= */
 
