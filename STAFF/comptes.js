@@ -284,7 +284,14 @@ function renderAccounts() {
         editButton.className = "edit-button";
         editButton.type = "button";
         editButton.textContent = "GÉRER LE COMPTE";
-        editButton.addEventListener("click", () => openAccountEditor(account));
+        editButton.addEventListener("click", async () => {
+            try {
+                await openAccountEditor(account);
+            } catch (error) {
+                console.error("[ZONE-431] Ouverture du dossier impossible :", error);
+                showMessage(error.message || "Impossible de charger les affectations du compte.", true);
+            }
+        });
 
         actions.appendChild(editButton);
         card.append(main, actions);
