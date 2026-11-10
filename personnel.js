@@ -275,7 +275,7 @@ function createPersonnelCard(profile) {
 
     const category = document.createElement("span");
     category.className = "card-category";
-    category.textContent = profile.department;
+    category.textContent = `DPT : ${profile.department}`;
 
     const indicator = document.createElement("span");
     indicator.className = "card-indicator";
