@@ -12,6 +12,7 @@ const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 let currentUser = null;
 let currentRole = null;
 let isAdmin = false;
+let canManageAllDepartments = false;
 let departments = [];
 let nodes = [];
 let permissions = new Set();
@@ -44,7 +45,7 @@ function showMessage(message, isError = false) {
 }
 
 function canEditDepartment(code) {
-    return isAdmin || permissions.has(code);
+    return isAdmin || canManageAllDepartments || permissions.has(code);
 }
 
 
@@ -106,18 +107,19 @@ async function checkAccess() {
 
 async function loadPermissions() {
     permissions.clear();
-
-    if (isAdmin) return;
-
+    const { data: canWrite, error: writeError } = await db.rpc("has_staff_module_permission", {
+        p_module_code: "departments",
+        p_action: "write"
+    });
+    if (writeError) throw writeError;
+    canManageAllDepartments = canWrite === true;
+    if (isAdmin || canManageAllDepartments) return;
     for (const department of departments) {
         const { data, error } = await db.rpc("has_rp_permission", {
             p_permission_code: "department_info.manage",
             p_department_code: department.code
         });
-
-        if (!error && data === true) {
-            permissions.add(department.code);
-        }
+        if (!error && data === true) permissions.add(department.code);
     }
 }
 
@@ -141,7 +143,7 @@ async function loadOrganization() {
     await loadPermissions();
     renderOrganization();
 
-    const editableCount = isAdmin ? "tous les éléments" : `${permissions.size} département(s)`;
+    const editableCount = (isAdmin || canManageAllDepartments) ? "tous les éléments" : `${permissions.size} département(s)`;
 
     $("permissionMessage").textContent = isAdmin
         ? "Vous disposez des droits administrateur complets sur l'organisation."
@@ -220,7 +222,7 @@ function renderNodes() {
     container.replaceChildren();
 
     nodes.forEach(node => {
-        const editable = isAdmin ||
+        const editable = isAdmin || canManageAllDepartments ||
             (node.root_department_code && permissions.has(node.root_department_code));
 
         const parent = departments.find(item => item.code === node.parent_code)
