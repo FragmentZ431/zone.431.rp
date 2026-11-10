@@ -32,8 +32,7 @@ const elements = {
     profileName: document.getElementById("profileName"),
     profileId: document.getElementById("profileId"),
     profileDepartment: document.getElementById("profileDepartment"),
-    profileGrade: document.getElementById("profileGrade"),
-    profileFunction: document.getElementById("profileFunction")
+    profileGrade: document.getElementById("profileGrade")
 };
 
 document.addEventListener("DOMContentLoaded", initializePersonnelPage);
