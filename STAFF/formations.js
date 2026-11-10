@@ -318,6 +318,9 @@ function renderCatalogSelectors() {
    ========================================================= */
 
 function configureInterface() {
+    const staffTab = document.querySelector('.space-tab[data-space="staff"]');
+    if (staffTab) staffTab.classList.toggle("hidden", !state.canAccessStaff);
+
     $("createCourseButton").classList.toggle("hidden", !canManageCurrentSpace());
 
     $("spaceDescription").textContent = state.space === "rp"
@@ -336,7 +339,7 @@ async function switchSpace(space) {
     if (!["rp", "staff"].includes(space)) return;
 
     if (space === "staff" && !state.canAccessStaff) {
-        showToast("Votre compte ne dispose pas de la permission d'accès au module Formations STAFF.", true);
+        showToast("L'espace Formations STAFF est réservé aux administrateurs.", true);
         return;
     }
 
