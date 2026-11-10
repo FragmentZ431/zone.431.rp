@@ -178,26 +178,19 @@
 
     async function checkAccess() {
         if (!window.supabase || !window.supabase.createClient) {
-            throw new Error(
-                "La bibliothèque Supabase n'a pas pu être chargée."
-            );
+            throw new Error("La bibliothèque Supabase n'a pas pu être chargée.");
         }
 
-        state.client = window.supabase.createClient(
-            SUPABASE_URL,
-            SUPABASE_KEY
-        );
+        state.client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         const { data: sessionData, error: sessionError } =
             await state.client.auth.getSession();
 
-        if (sessionError) {
-            throw sessionError;
-        }
+        if (sessionError) throw sessionError;
 
         const session = sessionData?.session;
 
-        if (!session || !session.user) {
+        if (!session?.user) {
             throw new Error(
                 "Aucune session active. Connectez-vous avec votre compte Zone-431 avant d'accéder à cette interface."
             );
@@ -205,24 +198,31 @@
 
         state.user = session.user;
 
-        /*
-         * La permission est vérifiée côté serveur.
-         * Le contrôle visuel de la page ne remplace jamais
-         * les règles RLS de Supabase.
-         */
         const { data: permitted, error: permissionError } =
-            await state.client.rpc("has_rp_permission", {
-                p_permission_code: PERMISSION_CODE,
-                p_department_code: null
+            await state.client.rpc("has_staff_module_permission", {
+                p_module_code: "training_results",
+                p_action: "access"
             });
 
-        if (permissionError) {
-            throw permissionError;
-        }
+        if (permissionError) throw permissionError;
 
         if (permitted !== true) {
             throw new Error(
-                "Accès refusé. Votre compte ne possède pas la permission nécessaire pour gérer les résultats des formations."
+                "Accès refusé. Votre compte ne possède pas la permission d'accès au module Résultats des formations."
+            );
+        }
+
+        const { data: canWrite, error: writeError } =
+            await state.client.rpc("has_staff_module_permission", {
+                p_module_code: "training_results",
+                p_action: "write"
+            });
+
+        if (writeError) throw writeError;
+
+        if (canWrite !== true) {
+            throw new Error(
+                "Votre compte peut consulter ce module, mais ne dispose pas de la permission d'enregistrer les résultats."
             );
         }
     }
