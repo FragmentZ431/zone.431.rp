@@ -39,6 +39,7 @@ const state = {
     currentCourse: null,
     currentLessons: [],
     canManageRP: false,
+    canAccessStaff: false,
     canManageStaff: false,
     toastTimeout: null
 };
@@ -164,27 +165,35 @@ async function initializeModule() {
             state.role = roleData || null;
         }
 
+        // Les permissions RP et STAFF sont gérées séparément.
         state.canManageRP = state.role === "ADMINISTRATEUR";
-        state.canManageStaff = isManager();
 
-        const { data: staffProfile, error: staffProfileError } = await supabaseClient
-            .from("staff_members")
-            .select("pseudo_discord,pseudo_ig,role,active,auth_user_id")
-            .eq("auth_user_id", state.user.id)
-            .eq("active", true)
-            .maybeSingle();
+        const { data: staffAccess, error: staffAccessError } =
+            await supabaseClient.rpc("has_staff_module_permission", {
+                p_module_code: "training",
+                p_action: "access"
+            });
 
-        if (staffProfileError && state.role) {
-            console.warn("Profil STAFF :", staffProfileError.message);
+        if (staffAccessError) {
+            throw new Error("Vérification des droits Formations impossible : " + staffAccessError.message);
         }
 
-        if (state.role && !staffProfile && state.role !== "ADMINISTRATEUR") {
-            console.warn("Profil STAFF actif non retrouvé. Les règles RLS restent prioritaires.");
+        const { data: staffWrite, error: staffWriteError } =
+            await supabaseClient.rpc("has_staff_module_permission", {
+                p_module_code: "training",
+                p_action: "write"
+            });
+
+        if (staffWriteError) {
+            throw new Error("Vérification des droits de gestion Formations impossible : " + staffWriteError.message);
         }
+
+        state.canAccessStaff = staffAccess === true;
+        state.canManageStaff = state.canAccessStaff && staffWrite === true;
 
         $("accessLabel").textContent = state.role
             ? `ACCÈS STAFF — ${state.role}`
-            : "ACCÈS MEMBRE RP";
+            : "ACCÈS PAR AUTORISATION INDIVIDUELLE";
 
         await loadCatalog();
 
@@ -323,8 +332,8 @@ function configureInterface() {
 async function switchSpace(space) {
     if (!["rp", "staff"].includes(space)) return;
 
-    if (space === "staff" && !state.role) {
-        showToast("Cet espace est réservé aux membres STAFF actifs.", true);
+    if (space === "staff" && !state.canAccessStaff) {
+        showToast("Votre compte ne dispose pas de la permission d'accès au module Formations STAFF.", true);
         return;
     }
 
