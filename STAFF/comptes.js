@@ -631,6 +631,32 @@ async function performGlobalLogout() {
 }
 
 /* =========================================================
+   ACTUALISATION MANUELLE
+   ========================================================= */
+
+async function refreshAll() {
+    const button = $("refreshButton");
+    if (button.disabled) return;
+
+    button.disabled = true;
+    const previousLabel = button.textContent;
+    button.textContent = "ACTUALISATION...";
+
+    try {
+        await loadCatalog();
+        await loadAccounts();
+        await loadGlobalLogoutState();
+        showMessage("Les données des comptes ont été actualisées.");
+    } catch (error) {
+        console.error("[ZONE-431] Actualisation impossible :", error);
+        showMessage(error.message || "Impossible d'actualiser les données.", true);
+    } finally {
+        button.disabled = false;
+        button.textContent = previousLabel || "ACTUALISER";
+    }
+}
+
+/* =========================================================
    INITIALISATION
    ========================================================= */
 
