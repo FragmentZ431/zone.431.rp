@@ -221,140 +221,21 @@ async function loadAuthorizedProfile() {
 
 async function loadUserPermissions() {
     const userId = state.user.id;
-
-    const {
-        data: assignments,
-        error: assignmentError
-    } = await supabaseClient
+    const { data: assignments, error: assignmentError } = await supabaseClient
         .from("rp_member_role_assignments")
         .select("role_code, department_code")
         .eq("user_id", userId);
-
-    if (assignmentError) {
-        throw assignmentError;
-    }
-
+    if (assignmentError) throw assignmentError;
     state.roles = assignments || [];
-
-    /*
-       L'administrateur global est identifié par :
-       - ADMIN avec department_code = null
-       - ou l'ancien RPC current_staff_role() = ADMINISTRATEUR
-    */
-
-    const globalAdmin = state.roles.some(role =>
-        role.role_code === "ADMIN" &&
-        role.department_code === null
-    );
-
-    let legacyAdmin = false;
-
-    const {
-        data: legacyRole,
-        error: legacyRoleError
-    } = await supabaseClient.rpc("current_staff_role");
-
-    if (!legacyRoleError) {
-        legacyAdmin = normalizeRole(legacyRole) === "ADMINISTRATEUR";
-    }
-
-    state.isAdmin = globalAdmin || legacyAdmin;
-
-    if (state.isAdmin) {
-        state.canManage = true;
-        state.accessSource = "admin";
-        return;
-    }
-
-    /*
-       La permission roster.manage doit exister dans
-       rp_permission_catalog et être active.
-    */
-
-    const {
-        data: permission,
-        error: permissionError
-    } = await supabaseClient
-        .from("rp_permission_catalog")
-        .select("code, is_active")
-        .eq("code", "roster.manage")
-        .maybeSingle();
-
-    if (permissionError) {
-        throw permissionError;
-    }
-
-    if (!permission || permission.is_active !== true) {
-        state.canManage = false;
-        state.accessSource = "readonly";
-
-        showNotice(
-            "Permission non configurée",
-            "La permission roster.manage n'est pas encore disponible " +
-            "dans le catalogue Supabase. La consultation reste possible."
-        );
-
-        return;
-    }
-
-    /*
-       Pour le module global Roster, seules les dérogations
-       globales (department_code = null) sont prises en compte.
-       Une dérogation départementale ne donne pas automatiquement
-       accès à la gestion de tous les rosters.
-    */
-
-    const {
-        data: overrides,
-        error: overrideError
-    } = await supabaseClient
-        .from("rp_member_permission_overrides")
-        .select("is_allowed")
-        .eq("user_id", userId)
-        .eq("permission_code", "roster.manage")
-        .is("department_code", null)
-        .limit(1);
-
-    if (overrideError) {
-        throw overrideError;
-    }
-
-    if (overrides && overrides.length > 0) {
-        state.canManage = overrides[0].is_allowed === true;
-        state.accessSource = state.canManage ? "exception" : "readonly";
-        return;
-    }
-
-    /*
-       Sans dérogation individuelle, on vérifie les droits
-       hérités des rôles globaux du membre.
-    */
-
-    const globalRoles = state.roles
-        .filter(role => role.department_code === null)
-        .map(role => role.role_code);
-
-    if (!globalRoles.length) {
-        state.canManage = false;
-        state.accessSource = "readonly";
-        return;
-    }
-
-    const {
-        data: defaults,
-        error: defaultsError
-    } = await supabaseClient
-        .from("rp_role_permission_defaults")
-        .select("role_code, is_allowed")
-        .in("role_code", globalRoles)
-        .eq("permission_code", "roster.manage");
-
-    if (defaultsError) {
-        throw defaultsError;
-    }
-
-    state.canManage = (defaults || []).some(item => item.is_allowed === true);
-    state.accessSource = state.canManage ? "inherited" : "readonly";
+    const { data: legacyRole, error: legacyRoleError } = await supabaseClient.rpc("current_staff_role");
+    state.isAdmin = !legacyRoleError && normalizeRole(legacyRole) === "ADMINISTRATEUR";
+    const { data: canWrite, error: permissionError } = await supabaseClient.rpc("has_staff_module_permission", {
+        p_module_code: "roster",
+        p_action: "write"
+    });
+    if (permissionError) throw permissionError;
+    state.canManage = canWrite === true;
+    state.accessSource = state.canManage ? "staff-module" : "readonly";
 }
 
 function normalizeRole(value) {
