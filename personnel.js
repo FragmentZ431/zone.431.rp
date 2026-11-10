@@ -155,7 +155,7 @@ function safeString(value) {
 }
 
 function isValidPersonnel(profile) {
-    return Boolean(profile.name && profile.identifier && profile.department);
+    return Boolean(profile.name && profile.department);
 }
 
 function updateStatistics() {
@@ -291,7 +291,7 @@ function createPersonnelCard(profile) {
 
     const identifier = document.createElement("p");
     identifier.className = "card-identifier";
-    identifier.textContent = profile.identifier;
+    identifier.textContent = profile.identifier || "Identifiant non renseigné";
 
     const separator = document.createElement("div");
     separator.className = "card-separator";
@@ -340,7 +340,7 @@ function openProfile(profile) {
     if (!elements.modal) return;
 
     setText(elements.profileName, profile.name);
-    setText(elements.profileId, profile.identifier);
+    setText(elements.profileId, profile.identifier || "Identifiant non renseigné");
     setText(elements.profileDepartment, profile.department);
     setText(elements.profileGrade, profile.grade || "Non renseigné");
     setText(elements.profileFunction, profile.function || "Non renseignée");
