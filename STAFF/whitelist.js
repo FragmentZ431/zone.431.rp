@@ -5,22 +5,8 @@ const SUPABASE_KEY = "sb_publishable_iwAj_zFrWEsMcqUKNINwJw_Po3QAwDG";
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-const READ_ROLES = [
-    "ADMINISTRATEUR",
-    "MANAGER MOD",
-    "MANAGER ANIM",
-    "MODÉRATION",
-    "ANIMATION"
-];
-
-const MANAGE_ROLES = [
-    "ADMINISTRATEUR",
-    "MANAGER MOD",
-    "MANAGER ANIM"
-];
-
 let currentRole = null;
-let entries = [];
+let canManageWhitelist = false;
 let editingId = null;
 
 const elements = {
@@ -68,21 +54,22 @@ async function verifyAccess() {
         return false;
     }
 
-    const { data: roleData, error: roleError } = await db.rpc("current_staff_role");
+    const { data: access, error: accessError } = await db.rpc(
+        "has_staff_module_permission",
+        { p_module_code: "whitelist", p_action: "access" }
+    );
 
-    if (roleError) {
-        showMessage("Impossible de vérifier les autorisations du compte.", "error");
+    if (accessError) {
+        showMessage("Impossible de vérifier les droits du module Whitelist.", "error");
         return false;
     }
 
-    currentRole = normalizeRole(roleData);
-
-    if (!READ_ROLES.includes(currentRole)) {
+    if (access !== true) {
         document.body.innerHTML = `
             <main style="min-height:100vh;display:grid;place-items:center;background:#080e17;color:#e5ecf4;font-family:Arial,sans-serif;padding:24px;text-align:center">
                 <div>
                     <h1>ACCÈS REFUSÉ</h1>
-                    <p>Votre rôle actuel ne permet pas de consulter ce module.</p>
+                    <p>Votre compte ne dispose pas de la permission d'accès au module Whitelist.</p>
                     <a href="zone%20staff.html" style="color:#82a9d0">Retour au tableau de bord</a>
                 </div>
             </main>
@@ -90,21 +77,33 @@ async function verifyAccess() {
         return false;
     }
 
-    elements.role.textContent = currentRole;
+    const { data: write, error: writeError } = await db.rpc(
+        "has_staff_module_permission",
+        { p_module_code: "whitelist", p_action: "write" }
+    );
 
-    if (MANAGE_ROLES.includes(currentRole)) {
-        elements.add.classList.remove("hidden");
+    if (writeError) {
+        showMessage("Impossible de vérifier les droits de gestion de la Whitelist.", "error");
+        return false;
     }
+
+    canManageWhitelist = write === true;
+
+    const { data: roleData } = await db.rpc("current_staff_role");
+    currentRole = normalizeRole(roleData) || "ACCÈS INDIVIDUEL";
+
+    elements.role.textContent = currentRole;
+    elements.add.classList.toggle("hidden", !canManageWhitelist);
 
     return true;
 }
 
 function canManage() {
-    return MANAGE_ROLES.includes(currentRole);
+    return canManageWhitelist;
 }
 
 function canDelete() {
-    return currentRole === "ADMINISTRATEUR";
+    return canManageWhitelist;
 }
 
 function formatDate(value) {
