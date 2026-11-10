@@ -1,4 +1,46 @@
 
+
+function renderRoleAssignment() {
+    const account = state.selectedMember;
+    const host = $("roleAssignment");
+    if (!account || !host) return;
+    host.innerHTML = `
+        <div class="section-heading subsection-heading"><div><h3>Rôle STAFF</h3><p class="panel-description">Le rôle définit les permissions par défaut. Les dérogations individuelles restent prioritaires.</p></div></div>
+        <div class="form-group"><label for="assignedStaffRole">Rôle à attribuer</label><select class="select" id="assignedStaffRole">
+            ${state.roleDefinitions.map(role => `<option value="${escapeHTML(role.name)}" ${role.name === (account.role || "MEMBRE") ? "selected" : ""}>${escapeHTML(role.name)}</option>`).join("")}
+        </select></div>
+        ${account.staff_member_id ? "" : `
+            <div class="form-group"><label for="staffDiscordPseudo">Pseudo Discord</label><input class="search-input" id="staffDiscordPseudo" maxlength="100" placeholder="Pseudo Discord"></div>
+            <div class="form-group"><label for="staffRobloxPseudo">Pseudo Roblox</label><input class="search-input" id="staffRobloxPseudo" maxlength="100" placeholder="Pseudo Roblox"></div>
+            <p class="form-note">Ce compte n'a pas encore de fiche STAFF. Ces deux informations sont nécessaires pour la créer.</p>
+        `}
+        <button class="button button-primary" id="saveStaffRole" type="button">Enregistrer le rôle</button>`;
+    $("saveStaffRole").addEventListener("click", saveStaffRole);
+}
+
+async function saveStaffRole() {
+    const account = state.selectedMember;
+    if (!account) return;
+    const role = $("assignedStaffRole")?.value;
+    const discord = $("staffDiscordPseudo")?.value.trim() || null;
+    const roblox = $("staffRobloxPseudo")?.value.trim() || null;
+    if (!role) { showToast("Sélectionnez un rôle.", "error"); return; }
+    showLoading("Mise à jour du rôle STAFF...");
+    try {
+        const { error } = await supabaseClient.rpc("admin_set_staff_member_role", {
+            p_auth_user_id: account.auth_user_id,
+            p_role_name: role,
+            p_pseudo_discord: discord,
+            p_pseudo_ig: roblox
+        });
+        if (error) throw error;
+        await loadAccounts();
+        state.selectedMember = state.accounts.find(item => item.auth_user_id === account.auth_user_id) || null;
+        if (state.selectedMember) { renderSelectedMember(); renderIndividualPermissions(); }
+        showToast("Rôle STAFF enregistré.");
+    } catch (error) { handleError(error); }
+    finally { hideLoading(); }
+}
 "use strict";
 
 /* =========================================================
@@ -162,18 +204,14 @@ async function authenticate() {
 
     state.currentRole = role;
 
-    if (role !== "ADMINISTRATEUR") {
-        document.body.innerHTML = `
-            <main class="permissions-shell">
-                <section class="panel">
-                    <h2>Accès refusé</h2>
-                    <p>
-                        Seuls les administrateurs peuvent gérer les permissions STAFF.
-                    </p>
-                </section>
-            </main>
-        `;
-
+    const { data: canManage, error: permissionError } =
+        await supabaseClient.rpc("has_staff_module_permission", {
+            p_module_code: "permissions",
+            p_action: "write"
+        });
+    if (permissionError) throw permissionError;
+    if (canManage !== true) {
+        document.body.innerHTML = `<main class="permissions-shell"><section class="panel"><h2>Accès refusé</h2><p>La permission STAFF « permissions.write » est nécessaire.</p></section></main>`;
         return false;
     }
 
@@ -350,6 +388,8 @@ function renderSelectedMember() {
         : "COMPTE NON AFFECTÉ";
 
     el.memberStatus.classList.toggle("inactive", !isActive);
+
+    renderRoleAssignment();
 }
 
 function renderEmptyIndividualState(message) {
@@ -1218,7 +1258,7 @@ function bindEvents() {
 ========================================================= */
 
 async function initialize() {
-    showLoading("Vérification des accès administrateur...");
+    showLoading("Vérification de la permission permissions.write...");
 
     try {
         const authorized = await authenticate();
