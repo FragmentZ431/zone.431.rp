@@ -273,9 +273,32 @@
             state.access = access;
 
             const userId = access.user.id;
-            const primaryCode = normalizeCode(access.profile.department);
-
             const client = window.Zone431Auth.client;
+
+            /*
+             * Les départements sont désormais enregistrés dans
+             * rp_member_department_assignments par la gestion des comptes.
+             * Cette page doit lire cette même table pour récupérer
+             * le département principal et tous les départements additionnels.
+             */
+            const { data: assignments, error: assignmentsError } =
+                await client
+                    .from("rp_member_department_assignments")
+                    .select("assignment_type, department_code, position")
+                    .eq("user_id", userId)
+                    .order("position", { ascending: true });
+
+            if (assignmentsError) {
+                throw assignmentsError;
+            }
+
+            const primaryAssignment = (assignments || []).find(
+                (assignment) => assignment.assignment_type === "primary"
+            );
+
+            const primaryCode = normalizeCode(
+                primaryAssignment?.department_code || access.profile.department
+            );
 
             const accessibleCodes = new Set();
 
@@ -283,43 +306,7 @@
                 accessibleCodes.add(primaryCode);
             }
 
-            /*
-             * Accès départementaux secondaires.
-             */
-            const { data: secondaryAccess, error: secondaryError } =
-                await client
-                    .from("rp_member_department_access")
-                    .select("department_code")
-                    .eq("user_id", userId);
-
-            if (secondaryError) {
-                throw secondaryError;
-            }
-
-            (secondaryAccess || []).forEach((entry) => {
-                const code = normalizeCode(entry.department_code);
-
-                if (code) {
-                    accessibleCodes.add(code);
-                }
-            });
-
-            /*
-             * Les affectations départementales peuvent également
-             * indiquer un accès lié à une fonction.
-             */
-            const { data: roleAssignments, error: roleError } =
-                await client
-                    .from("rp_member_role_assignments")
-                    .select("department_code")
-                    .eq("user_id", userId)
-                    .not("department_code", "is", null);
-
-            if (roleError) {
-                throw roleError;
-            }
-
-            (roleAssignments || []).forEach((assignment) => {
+            (assignments || []).forEach((assignment) => {
                 const code = normalizeCode(assignment.department_code);
 
                 if (code) {
@@ -327,9 +314,8 @@
                 }
             });
 
-            state.departments = Array.from(accessibleCodes).sort(
-                (a, b) => a.localeCompare(b, "fr")
-            );
+            // Le département principal reste en premier dans la navigation.
+            state.departments = Array.from(accessibleCodes);
 
             elements.primaryDepartment.textContent =
                 primaryCode || "Département non renseigné";
