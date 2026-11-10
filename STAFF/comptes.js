@@ -388,8 +388,16 @@ function createSecondaryAssignment(data = {}) {
         fillSelect(divisionSelect, getDivisionsForDepartment(departmentSelect.value), "Aucune division");
     });
     row.append(departmentLabel, divisionLabel, gradeLabel, removeButton);
-    $("secondaryAssignments").appendChild(row);
+
+    const container = $("secondaryAssignments");
+    if (!container) {
+        throw new Error("La zone des départements additionnels est introuvable.");
+    }
+
+    container.style.display = "grid";
+    container.appendChild(row);
     updateSelectionSummary();
+    row.scrollIntoView({ behavior: "smooth", block: "nearest" });
 }
 function renderDepartmentSelection() {
     renderPrimaryDepartmentOptions();
@@ -425,6 +433,19 @@ async function openAccountEditor(account) {
     renderPrimaryDepartmentOptions(account.department || account.department_codes?.[0] || "");
     $("primaryGrade").value = account.grade || "";
     $("secondaryAssignments").replaceChildren();
+
+    const addSecondaryButton = $("addSecondaryButton");
+    addSecondaryButton.onclick = event => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        try {
+            createSecondaryAssignment();
+        } catch (error) {
+            console.error("[ZONE-431] Ajout du département additionnel impossible :", error);
+            showMessage(error.message || "Impossible d'ajouter le département.", true);
+        }
+    };
 
     const { data: assignmentData, error: assignmentError } = await db.rpc(
         "admin_get_member_department_assignments",
@@ -620,7 +641,6 @@ async function initialize() {
         $("statusFilter").addEventListener("change", renderAccounts);
 
         $("primaryDepartment").addEventListener("change", updateSelectionSummary);
-        $("addSecondaryButton").addEventListener("click", () => createSecondaryAssignment());
 
         $("globalLogoutButton").addEventListener("click", performGlobalLogout);
 
