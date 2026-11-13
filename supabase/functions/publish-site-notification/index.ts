@@ -145,7 +145,7 @@ Deno.serve(async (req: Request) => {
     if (isDocument) {
       const { data, error } = await adminClient
         .from("member_documents")
-        .select("id,title,summary,is_global,is_published,required_accreditation,updated_at")
+        .select("id,title,summary,category,is_global,is_published,required_accreditation,updated_at")
         .eq("id", sourceId)
         .maybeSingle();
       if (error) throw error;
