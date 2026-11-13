@@ -7,7 +7,7 @@
 
 const SUPABASE_URL = "https://pvtrlplsplyigvxiykce.supabase.co";
 const SUPABASE_KEY = "sb_publishable_iwAj_zFrWEsMcqUKNINwJw_Po3QAwDG";
-const PERSONNEL_RPC = "get_public_personnel_directory";
+const PERSONNEL_RPC = "get_public_personnel_directory_v2";
 
 let supabaseClient = null;
 let personnelData = [];
@@ -32,7 +32,8 @@ const elements = {
     profileName: document.getElementById("profileName"),
     profileId: document.getElementById("profileId"),
     profileDepartment: document.getElementById("profileDepartment"),
-    profileGrade: document.getElementById("profileGrade")
+    profileGrade: document.getElementById("profileGrade"),
+    profileAccreditation: document.getElementById("profileAccreditation")
 };
 
 document.addEventListener("DOMContentLoaded", initializePersonnelPage);
@@ -144,7 +145,8 @@ function normalizePersonnel(profile) {
         name: safeString(profile.display_name),
         identifier: safeString(profile.personnel_id),
         department: safeString(profile.department),
-        grade: safeString(profile.grade)
+        grade: safeString(profile.grade),
+        accreditation: safeString(profile.accreditation) || "ACC 0"
     };
 }
 
@@ -296,7 +298,8 @@ function createPersonnelCard(profile) {
     const details = document.createElement("div");
     details.className = "card-details";
     details.append(
-        createCardDetail("GRADE", profile.grade || "Non renseigné")
+        createCardDetail("GRADE", profile.grade || "Non renseigné"),
+        createCardDetail("ACCRÉDITATION", profile.accreditation || "ACC 0")
     );
 
     const action = document.createElement("button");
@@ -339,6 +342,7 @@ function openProfile(profile) {
     setText(elements.profileId, profile.identifier || "Identifiant non renseigné");
     setText(elements.profileDepartment, profile.department);
     setText(elements.profileGrade, profile.grade || "Non renseigné");
+    setText(elements.profileAccreditation, profile.accreditation || "ACC 0");
     setText(elements.profileInitials, getInitials(profile.name));
 
     try {
