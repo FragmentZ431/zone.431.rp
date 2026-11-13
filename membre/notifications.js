@@ -199,7 +199,19 @@
         toggle.setAttribute("aria-label", "Ouvrir les notifications");
         toggle.setAttribute("aria-expanded", "false");
 
-        const icon = createElement("i", "fa-solid fa-bell");
+        const icon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        icon.setAttribute("viewBox", "0 0 24 24");
+        icon.setAttribute("width", "19");
+        icon.setAttribute("height", "19");
+        icon.setAttribute("fill", "none");
+        icon.setAttribute("stroke", "currentColor");
+        icon.setAttribute("stroke-width", "1.8");
+        icon.setAttribute("stroke-linecap", "round");
+        icon.setAttribute("stroke-linejoin", "round");
+        icon.setAttribute("aria-hidden", "true");
+        const bellShape = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        bellShape.setAttribute("d", "M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4");
+        icon.appendChild(bellShape);
         badge = createElement("span", "notification-count", "0");
         badge.hidden = true;
         toggle.append(icon, badge);
