@@ -9,3 +9,38 @@ html.plan-embed .viewer-sidebar{padding:10px;min-height:0;overflow:auto}
 html.plan-embed .viewer-canvas-area,html.plan-embed .viewer-canvas-area .canvas-viewport{min-height:0}
 html.plan-embed .canvas-viewport svg{min-height:0}
 @media(max-width:650px){html.plan-embed .viewer-workspace{grid-template-columns:1fr;grid-template-rows:auto minmax(0,1fr);height:calc(100% - 48px)}html.plan-embed .viewer-sidebar{max-height:112px;overflow:auto}html.plan-embed .viewer-canvas-area{min-height:0}}
+
+
+/* Consultation intégrée : afficher uniquement la grille et le plan */
+html.plan-embed .notice,
+html.plan-embed .viewer-sidebar,
+html.plan-embed .canvas-head,
+html.plan-embed .canvas-foot {
+  display: none !important;
+}
+html.plan-embed .viewer-app {
+  height: 100%;
+  padding: 0;
+}
+html.plan-embed .viewer-workspace {
+  display: block;
+  height: 100%;
+  min-height: 0;
+}
+html.plan-embed .viewer-canvas-area {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  border: 0;
+}
+html.plan-embed .viewer-canvas-area .canvas-viewport {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  background: #08111a;
+}
+html.plan-embed .viewer-canvas-area .canvas-viewport svg {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+}
