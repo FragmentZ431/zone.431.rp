@@ -145,6 +145,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 .join(" · ");
         }
 
+        const accreditation = document.createElement("span");
+        accreditation.className = "documentation-card-accreditation";
+        accreditation.textContent = `ACCRÉDITATION REQUISE : ${doc.required_accreditation || "ACC 0"}`;
+
         const footer = document.createElement("div");
         footer.className = "documentation-card-footer";
 
@@ -163,7 +167,7 @@ document.addEventListener("DOMContentLoaded", () => {
         read.append(readText, arrow);
         footer.append(date, read);
 
-        content.append(category, title, summary, departmentLine, footer);
+        content.append(category, title, summary, departmentLine, accreditation, footer);
         link.append(icon, content);
 
         return link;
@@ -255,6 +259,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     slug,
                     category,
                     summary,
+                    required_accreditation,
                     is_global,
                     sort_order,
                     created_at,
