@@ -3,6 +3,7 @@
 const URL_BASE="https://pvtrlplsplyigvxiykce.supabase.co";
 const PUBLIC_KEY="sb_publishable_iwAj_zFrWEsMcqUKNINwJw_Po3QAwDG";
 const editor=document.body.dataset.mode==="editor";
+const publicMode=!editor&&new URLSearchParams(location.search).get("public")==="1";
 const db=window.supabase.createClient(URL_BASE,PUBLIC_KEY);
 const $=id=>document.getElementById(id);
 const state={plans:[],plan:null,selected:null,tool:"select",canWrite:false,snap:true,drag:null,pan:null,view:null};
@@ -39,9 +40,10 @@ function draw(){
  else{$("viewerTitle").textContent=state.plan.name+" — "+state.plan.level_name;$("viewerElementCount").textContent=(state.plan.elements||[]).length+" ÉLÉMENT(S)"}
 }
 function listPlans(){const target=$(editor?"planList":"viewerPlanList");target.innerHTML="";if(!state.plans.length){const p=document.createElement("p");p.className="empty-plans";p.textContent=editor?"Aucun plan. Créez votre premier niveau.":"Aucun plan n'est actuellement publié.";target.append(p);return}state.plans.forEach(p=>{const b=document.createElement("button");b.className="plan-item"+(state.plan&&state.plan.id===p.id?" active":"");const strong=document.createElement("strong"),small=document.createElement("small");strong.textContent=p.name;small.textContent=p.level_name+(editor?(p.is_published?" • PUBLIÉ":" • BROUILLON"):"");b.append(strong,small);b.addEventListener("click",()=>choose(p.id));target.append(b)})}
-async function loadPlans(){const result=await db.from("facility_plans").select("*").order("sort_order").order("created_at");if(result.error)throw result.error;state.plans=result.data||[];listPlans();if(state.plans.length)choose(state.plans[0].id);else if(editor)$("workspace").hidden=false}
+async function loadPlans(){let query=db.from("facility_plans").select(publicMode?"id,name,description,level_name,sort_order,is_published,canvas_width_cm,canvas_height_cm,elements,updated_at":"*");if(publicMode)query=query.eq("is_published",true);const result=await query.order("sort_order").order("created_at");if(result.error)throw result.error;state.plans=result.data||[];listPlans();if(state.plans.length)choose(state.plans[0].id);else if(editor)$("workspace").hidden=false}
 function choose(planId){state.plan=state.plans.find(p=>p.id===planId)||null;state.selected=null;if(!state.plan)return;listPlans();if(editor){$("savePlan").disabled=!state.canWrite;$("publishPlan").disabled=!state.canWrite;$("deletePlan").disabled=!state.canWrite;$("planName").value=state.plan.name;$("levelName").value=state.plan.level_name;$("snapTolerance").value=state.plan.snap_tolerance_cm||25;$("publishPlan").textContent=state.plan.is_published?"DÉPUBLIER":"PUBLIER"}resetView()}
 async function access(){
+ if(publicMode){await loadPlans();$("viewerWorkspace").hidden=false;notify(state.plans.length?"Consultation publique : seuls les plans publiés sont affichés. Utilisez la molette ou les commandes pour zoomer, puis faites glisser pour déplacer le plan.":"Aucun plan n'est actuellement publié.");return}
  const s=await db.auth.getSession();if(s.error)throw s.error;if(!s.data.session)throw new Error("Connectez-vous à votre compte membre.");
  const u=await db.auth.getUser();if(u.error||!u.data.user)throw new Error("Session invalide.");
  if(editor){const a=await db.rpc("has_staff_module_permission",{p_module_code:"facility_plan",p_action:"access"});if(a.error)throw a.error;if(a.data!==true)throw new Error("Votre compte ne dispose pas de l'autorisation d'accès à l'éditeur.");const w=await db.rpc("has_staff_module_permission",{p_module_code:"facility_plan",p_action:"write"});if(w.error)throw w.error;state.canWrite=w.data===true;$("accessBadge").textContent=state.canWrite?"ÉDITION AUTORISÉE":"CONSULTATION STAFF"}
