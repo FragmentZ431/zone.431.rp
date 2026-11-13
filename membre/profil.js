@@ -601,7 +601,16 @@
                 ? departmentAssignments
                 : [];
 
-            await refreshPasswordChangeStatus(client);
+            try {
+                await refreshPasswordChangeStatus(client);
+            } catch (passwordStatusError) {
+                console.warn("[ZONE-431] Vérification du délai de changement de mot de passe impossible :", passwordStatusError);
+                state.passwordChangeAvailable = false;
+                elements.passwordCooldownInfo.textContent =
+                    "Le contrôle du délai de sécurité est temporairement indisponible. Réessayez plus tard.";
+                elements.requestPasswordCodeBtn.disabled = true;
+            }
+
             renderProfile(profile, user);
 
         } catch (error) {
