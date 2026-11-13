@@ -753,7 +753,7 @@ select option {
 .secondary-assignment-list { display: grid; gap: 12px; }
 .secondary-assignment-row {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr) auto;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) auto;
     align-items: end;
     gap: 10px;
     padding: 15px;
