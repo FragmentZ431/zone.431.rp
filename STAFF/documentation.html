@@ -433,7 +433,33 @@
                             <textarea id="templateTrainingUpdated" maxlength="1900" rows="6"></textarea>
                         </label>
                     </section>
-                </div>
+                
+                    <section class="notification-template-card">
+                        <div class="notification-template-title"><strong>Résultat publié</strong><span>Publication d'un résultat de formation</span></div>
+                        <label class="checkbox-line"><input id="templateResultPublishedEnabled" type="checkbox"><span><strong>Envoi activé</strong><small>Prévenir le membre de la publication de son résultat.</small></span></label>
+                        <label class="form-group"><span>Message Discord</span><textarea id="templateResultPublished" maxlength="1900" rows="6"></textarea></label>
+                    </section>
+                    <section class="notification-template-card">
+                        <div class="notification-template-title"><strong>Résultat modifié</strong><span>Mise à jour d'un résultat de formation</span></div>
+                        <label class="checkbox-line"><input id="templateResultUpdatedEnabled" type="checkbox"><span><strong>Envoi activé</strong><small>Prévenir le membre de la modification de son résultat.</small></span></label>
+                        <label class="form-group"><span>Message Discord</span><textarea id="templateResultUpdated" maxlength="1900" rows="6"></textarea></label>
+                    </section>
+                    <section class="notification-template-card">
+                        <div class="notification-template-title"><strong>Compte autorisé</strong><span>Activation d'un compte membre</span></div>
+                        <label class="checkbox-line"><input id="templateAccountAuthorizedEnabled" type="checkbox"><span><strong>Envoi activé</strong><small>Prévenir le membre lorsque son compte est autorisé.</small></span></label>
+                        <label class="form-group"><span>Message Discord</span><textarea id="templateAccountAuthorized" maxlength="1900" rows="6"></textarea></label>
+                    </section>
+                    <section class="notification-template-card">
+                        <div class="notification-template-title"><strong>Département modifié</strong><span>Changement d'affectation principale</span></div>
+                        <label class="checkbox-line"><input id="templateAccountDepartmentChangedEnabled" type="checkbox"><span><strong>Envoi activé</strong><small>Prévenir le membre de son changement de département.</small></span></label>
+                        <label class="form-group"><span>Message Discord</span><textarea id="templateAccountDepartmentChanged" maxlength="1900" rows="6"></textarea></label>
+                    </section>
+                    <section class="notification-template-card">
+                        <div class="notification-template-title"><strong>Accréditation modifiée</strong><span>Changement du niveau d'accréditation</span></div>
+                        <label class="checkbox-line"><input id="templateAccountAccreditationChangedEnabled" type="checkbox"><span><strong>Envoi activé</strong><small>Prévenir le membre de son changement d'accréditation.</small></span></label>
+                        <label class="form-group"><span>Message Discord</span><textarea id="templateAccountAccreditationChanged" maxlength="1900" rows="6"></textarea></label>
+                    </section>
+</div>
 
                 <div class="modal-footer">
                     <button id="cancelNotificationSettingsBtn" class="button button-secondary" type="button">Annuler</button>
