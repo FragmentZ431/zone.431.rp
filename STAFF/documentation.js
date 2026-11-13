@@ -22,6 +22,7 @@ let currentRole = null;
 
 let documents = [];
 let departments = [];
+let assignedDepartments = [];
 let manageableDepartments = [];
 
 let isAdmin = false;
@@ -245,17 +246,9 @@ async function initialize() {
                 "Agent autorisé";
         }
 
-        const { data: moduleWrite, error: writeError } = await supabaseClient.rpc(
-            "has_staff_module_permission",
-            { p_module_code: "documentation", p_action: "write" }
-        );
-
-        if (writeError) throw writeError;
-
         await loadDepartments();
 
         canManageDocuments =
-            moduleWrite === true ||
             isAdmin ||
             manageableDepartments.length > 0;
 
@@ -331,32 +324,48 @@ async function loadDepartments() {
     departments = data || [];
 
     if (isAdmin) {
+        assignedDepartments = departments.map(item => item.code);
         manageableDepartments = departments.map(item => item.code);
         return;
     }
 
+    const { data: assignments, error: assignmentsError } = await supabaseClient
+        .from("rp_member_department_assignments")
+        .select("department_code,assignment_type")
+        .eq("user_id", currentUser.id)
+        .in("assignment_type", ["primary", "additional"]);
+
+    if (assignmentsError) throw assignmentsError;
+
+    const knownDepartmentCodes = new Set(
+        departments.map(item => item.code)
+    );
+
+    assignedDepartments = [...new Set(
+        (assignments || [])
+            .map(item => item.department_code)
+            .filter(code => code && knownDepartmentCodes.has(code))
+    )];
+
     const permissions = await Promise.all(
-        departments.map(async department => {
+        assignedDepartments.map(async code => {
             const { data: allowed, error: permissionError } =
                 await supabaseClient.rpc("has_rp_permission", {
                     p_permission_code: DEPARTMENT_PERMISSION,
-                    p_department_code: department.code
+                    p_department_code: code
                 });
 
             if (permissionError) {
                 console.error(
-                    `Vérification de la permission ${department.code} :`,
+                    `Vérification de la permission ${code} :`,
                     permissionError
                 );
 
-                return {
-                    code: department.code,
-                    allowed: false
-                };
+                return { code, allowed: false };
             }
 
             return {
-                code: department.code,
+                code,
                 allowed: allowed === true
             };
         })
@@ -758,8 +767,9 @@ function renderDepartmentChoices(selectedCodes = []) {
     if (availableDepartments.length === 0) {
         const message = document.createElement("span");
         message.className = "muted-text";
-        message.textContent =
-            "Aucun département ne vous est attribué pour la gestion documentaire.";
+        message.textContent = assignedDepartments.length > 0
+            ? "Vous êtes affecté à un département, mais vous ne disposez pas de la permission nécessaire pour gérer ses documents."
+            : "Aucun département ne vous est attribué.";
 
         elements.departmentChoices.appendChild(message);
         return;
