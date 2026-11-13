@@ -1242,6 +1242,31 @@ const notificationTemplateFields = [
         key: "training_updated",
         content: "templateTrainingUpdated",
         enabled: "templateTrainingUpdatedEnabled"
+    },
+    {
+        key: "result_published",
+        content: "templateResultPublished",
+        enabled: "templateResultPublishedEnabled"
+    },
+    {
+        key: "result_updated",
+        content: "templateResultUpdated",
+        enabled: "templateResultUpdatedEnabled"
+    },
+    {
+        key: "account_authorized",
+        content: "templateAccountAuthorized",
+        enabled: "templateAccountAuthorizedEnabled"
+    },
+    {
+        key: "account_department_changed",
+        content: "templateAccountDepartmentChanged",
+        enabled: "templateAccountDepartmentChangedEnabled"
+    },
+    {
+        key: "account_accreditation_changed",
+        content: "templateAccountAccreditationChanged",
+        enabled: "templateAccountAccreditationChangedEnabled"
     }
 ];
 
