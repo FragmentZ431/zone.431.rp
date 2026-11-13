@@ -122,6 +122,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 password,
 
                 options: {
+                    // Après confirmation, retour direct sur le site GitHub Pages.
+                    emailRedirectTo: "https://fragmentz431.github.io/zone.431.rp/accueil.html",
                     data: {
                         display_name: roblox,
                         roblox_username: roblox,
