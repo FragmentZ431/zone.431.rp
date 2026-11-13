@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="comptes.css?v=20261113-1">
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="comptes.js?v=20261113-2" defer></script>
+    <script src="comptes.js?v=20261113-3" defer></script>
 </head>
 
 <body>
@@ -177,6 +177,22 @@
                     Ce nom sera utilisé pour identifier le membre dans les résultats
                     des formations. Il est indépendant de son pseudo Roblox.
                 </p>
+
+                <div class="form-divider"><span>ACCRÉDITATION</span></div>
+                <label>
+                    Niveau d’accréditation obligatoire
+                    <select id="accountAccreditation" required>
+                        <option value="">Sélectionner un niveau</option>
+                        <option value="ACC 0">ACC 0</option>
+                        <option value="ACC 1">ACC 1</option>
+                        <option value="ACC 2">ACC 2</option>
+                        <option value="ACC 3">ACC 3</option>
+                        <option value="ACC 4">ACC 4</option>
+                        <option value="ACC 5">ACC 5</option>
+                        <option value="O5">O5</option>
+                    </select>
+                </label>
+                <p class="section-help">Le niveau attribué détermine les documents auxquels le membre peut accéder.</p>
 
                 <div class="form-divider">
                     <span>ÉTAT DU COMPTE</span>
