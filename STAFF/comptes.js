@@ -516,6 +516,19 @@ async function saveRpName(userId, rpName) {
     if (error) throw error;
 }
 
+async function dispatchAccountNotification(eventName, userId) {
+    try {
+        const { data, error } = await db.functions.invoke("publish-site-notification", {
+            body: { event: eventName, sourceId: userId }
+        });
+        if (error || data?.error) {
+            console.warn("[ZONE-431] Notification de compte non envoyée :", error || data?.error);
+        }
+    } catch (error) {
+        console.warn("[ZONE-431] Notification de compte non envoyée :", error);
+    }
+}
+
 /* =========================================================
    ENREGISTREMENT DU DOSSIER ET DES AFFECTATIONS
    ========================================================= */
@@ -538,6 +551,9 @@ async function saveAccount(event) {
         const rpName = $("accountRpName").value.trim();
         const accreditation = $("accountAccreditation").value;
         const status = $("accountStatus").value;
+        const previousStatus = selectedAccount.status;
+        const previousDepartment = selectedAccount.department || selectedAccount.department_codes?.[0] || null;
+        const previousAccreditation = selectedAccount.accreditation || "ACC 0";
 
         if (!ACCREDITATION_LEVELS.includes(accreditation)) {
             throw new Error("Le niveau d’accréditation est obligatoire.");
@@ -613,6 +629,16 @@ async function saveAccount(event) {
             p_accreditation: accreditation
         });
         if (accreditationError) throw accreditationError;
+
+        if (previousStatus !== "authorized" && status === "authorized") {
+            await dispatchAccountNotification("account_authorized", userId);
+        }
+        if (previousDepartment && previousDepartment !== primaryDepartment) {
+            await dispatchAccountNotification("account_department_changed", userId);
+        }
+        if (previousAccreditation !== accreditation) {
+            await dispatchAccountNotification("account_accreditation_changed", userId);
+        }
 
         $("accountModal").close();
         showMessage("Le dossier du compte a été mis à jour.");
