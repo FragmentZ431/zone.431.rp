@@ -62,6 +62,7 @@ const elements = {
     documentOrder: document.getElementById("documentOrder"),
     documentSummary: document.getElementById("documentSummary"),
     documentContent: document.getElementById("documentContent"),
+    documentAccreditation: document.getElementById("documentAccreditation"),
     documentGlobal: document.getElementById("documentGlobal"),
     documentPublished: document.getElementById("documentPublished"),
 
@@ -78,6 +79,7 @@ const elements = {
     detailsCategory: document.getElementById("detailsCategory"),
     detailsStatus: document.getElementById("detailsStatus"),
     detailsUpdated: document.getElementById("detailsUpdated"),
+    detailsAccreditation: document.getElementById("detailsAccreditation"),
     detailsSummary: document.getElementById("detailsSummary"),
     detailsDepartments: document.getElementById("detailsDepartments"),
     detailsContent: document.getElementById("detailsContent"),
@@ -388,7 +390,8 @@ async function loadDocuments() {
                 updated_by,
                 created_at,
                 updated_at,
-                is_global
+                is_global,
+                required_accreditation
             `)
             .order("sort_order", { ascending: true })
             .order("updated_at", { ascending: false });
@@ -620,6 +623,11 @@ function renderDocuments() {
             });
         }
 
+        const accreditation = document.createElement("span");
+        accreditation.className = "department-tag";
+        accreditation.textContent = `ACCÈS : ${doc.required_accreditation || "ACC 0"}`;
+        meta.appendChild(accreditation);
+
         const date = document.createElement("span");
         date.className = "document-date";
         date.textContent = formatShortDate(getDocumentDate(doc));
@@ -683,6 +691,8 @@ function openDetails(doc) {
 
     elements.detailsUpdated.textContent =
         `Mis à jour : ${formatTimestamp(getDocumentDate(doc))}`;
+    elements.detailsAccreditation.textContent =
+        `ACCRÉDITATION REQUISE : ${doc.required_accreditation || "ACC 0"}`;
 
     elements.detailsSummary.textContent =
         doc.summary || "Aucun résumé renseigné.";
@@ -792,6 +802,7 @@ function openCreateModal() {
 
     elements.documentId.value = "";
     elements.documentOrder.value = "0";
+    elements.documentAccreditation.value = "ACC 0";
     elements.documentGlobal.checked = false;
     elements.documentPublished.checked = false;
 
@@ -833,6 +844,7 @@ function openEditModal(doc) {
         doc.summary || "";
     elements.documentContent.value =
         doc.content || "";
+    elements.documentAccreditation.value = doc.required_accreditation || "ACC 0";
     elements.documentGlobal.checked =
         isAdmin && doc.is_global;
     elements.documentPublished.checked =
@@ -919,11 +931,17 @@ async function saveDocument(event) {
     const category = elements.documentCategory.value;
     const summary = elements.documentSummary.value.trim();
     const content = elements.documentContent.value.trim();
+    const requiredAccreditation = elements.documentAccreditation.value;
 
     const isGlobal = isAdmin && elements.documentGlobal.checked;
     const selectedDepartments = isGlobal
         ? []
         : getSelectedDepartments();
+
+    if (!["ACC 0", "ACC 1", "ACC 2", "ACC 3", "ACC 4", "ACC 5", "O5"].includes(requiredAccreditation)) {
+        showToast("Sélectionnez une accréditation valide.", "error");
+        return;
+    }
 
     if (!title || !content) {
         showToast(
@@ -963,6 +981,7 @@ async function saveDocument(event) {
         sort_order: Math.max(0, Number(elements.documentOrder.value) || 0),
         is_published: elements.documentPublished.checked,
         is_global: isGlobal,
+        required_accreditation: requiredAccreditation,
         updated_by: currentUser.id,
         updated_at: new Date().toISOString()
     };
