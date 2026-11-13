@@ -612,3 +612,127 @@
     color: var(--member-green-light);
     font-size: .68rem;
 }
+
+
+/* CHANGEMENT DU MOT DE PASSE */
+.profile-password-panel {
+    margin-top: 18px;
+    padding: 24px;
+    background: var(--member-panel);
+    border: 1px solid var(--member-border);
+    border-left: 2px solid var(--member-danger);
+    border-radius: var(--member-radius);
+}
+.profile-password-heading {
+    display: flex;
+    align-items: flex-start;
+    gap: 13px;
+    margin-bottom: 18px;
+}
+.profile-password-heading h2 {
+    margin: 0 0 7px;
+    font-size: 0.88rem;
+}
+.profile-password-heading p:last-child {
+    max-width: 720px;
+    font-size: 0.74rem;
+    line-height: 1.65;
+}
+.password-change-info {
+    margin: 0 0 16px;
+    color: var(--member-muted);
+    font-size: 0.74rem;
+    line-height: 1.6;
+}
+.password-change-fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+}
+.password-change-fields label,
+.password-otp-step label {
+    display: grid;
+    gap: 7px;
+    color: var(--member-muted);
+    font-size: 0.7rem;
+    font-weight: 700;
+}
+.password-change-fields input,
+.password-otp-step input {
+    width: 100%;
+    min-height: 42px;
+    padding: 10px 12px;
+    border: 1px solid var(--member-border);
+    border-radius: var(--member-radius);
+    outline: none;
+    background: var(--member-bg-soft);
+    color: var(--member-text);
+    font: inherit;
+}
+.password-change-fields input:focus,
+.password-otp-step input:focus {
+    border-color: var(--member-danger);
+    box-shadow: 0 0 0 3px rgba(168, 76, 76, 0.12);
+}
+.password-change-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    min-height: 42px;
+    margin-top: 15px;
+    padding: 10px 15px;
+    border: 1px solid rgba(168, 76, 76, 0.5);
+    border-radius: var(--member-radius);
+    background: rgba(168, 76, 76, 0.13);
+    color: #e3a0a0;
+    cursor: pointer;
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+}
+.password-change-button:hover:not(:disabled) {
+    background: rgba(168, 76, 76, 0.22);
+    border-color: var(--member-danger);
+    color: #fff;
+}
+.password-change-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+.password-otp-step {
+    display: grid;
+    grid-template-columns: minmax(180px, 260px) auto;
+    align-items: end;
+    gap: 12px;
+    margin-top: 18px;
+    padding-top: 17px;
+    border-top: 1px solid var(--member-border);
+}
+.password-otp-step[hidden] {
+    display: none !important;
+}
+.password-otp-step .password-change-button {
+    margin: 0;
+}
+.password-change-feedback {
+    min-height: 18px;
+    margin-top: 12px;
+    font-size: 0.72rem;
+    line-height: 1.55;
+}
+.password-change-feedback.success {
+    color: var(--member-success);
+}
+.password-change-feedback.error {
+    color: #D58A8A;
+}
+@media (max-width: 680px) {
+    .password-change-fields,
+    .password-otp-step {
+        grid-template-columns: 1fr;
+    }
+    .password-otp-step .password-change-button {
+        width: 100%;
+    }
+}
