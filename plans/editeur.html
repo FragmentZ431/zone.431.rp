@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#080e17">
 <title>Éditeur architectural | ZONE-431</title>
-<link rel="stylesheet" href="plans.css?v=20261113-6">
+<link rel="stylesheet" href="plans.css?v=20261113-7">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body data-mode="editor">
@@ -105,10 +105,10 @@
       <div id="canvasViewport" class="canvas-viewport">
         <svg id="planCanvas" xmlns="http://www.w3.org/2000/svg" aria-label="Éditeur architectural">
           <defs>
-            <pattern id="minorGrid" width="50" height="50" patternUnits="userSpaceOnUse"><path d="M50 0H0V50" fill="none" stroke="#1b2c3b" stroke-width="2"/></pattern>
-            <pattern id="majorGrid" width="250" height="250" patternUnits="userSpaceOnUse"><rect width="250" height="250" fill="url(#minorGrid)"/><path d="M250 0H0V250" fill="none" stroke="#31485b" stroke-width="4"/></pattern>
+            <pattern id="minorGrid" width="100" height="100" patternUnits="userSpaceOnUse"><path d="M100 0H0V100" fill="none" stroke="#1b2c3b" stroke-width="3"/></pattern>
+            <pattern id="majorGrid" width="500" height="500" patternUnits="userSpaceOnUse"><rect width="500" height="500" fill="url(#minorGrid)"/><path d="M500 0H0V500" fill="none" stroke="#31485b" stroke-width="5"/></pattern>
           </defs>
-          <rect id="canvasBackground" width="3000" height="2000" fill="url(#majorGrid)"/>
+          <rect id="canvasBackground" width="6000" height="4000" fill="url(#majorGrid)"/>
         </svg>
       </div>
       <div class="canvas-foot"><span>UNITÉS : CENTIMÈTRES</span><span id="cursorPosition">X : — / Y : —</span><span id="elementCount">0 ÉLÉMENT</span></div>
@@ -126,11 +126,11 @@
     </section>
     <aside class="plan-sidebar">
       <div class="sidebar-heading"><div><span class="eyebrow">ARCHITECTURE</span><h2>PLANS DISPONIBLES</h2></div><button id="newPlan" class="square-button">+</button></div>
-      <div id="planList" class="plan-list"></div>
+      <div class="rooms-section"><div class="sidebar-heading"><div><span class="eyebrow">ESPACES DÉTECTÉS</span><h2>LISTE DES PIÈCES</h2></div><span class="library-count" id="roomCount">AUTO</span></div><div id="roomList" class="room-list"></div></div><div class="rooms-section"><div class="sidebar-heading"><div><span class="eyebrow">NIVEAUX</span><h2>PLANS DISPONIBLES</h2></div></div><div id="planList" class="plan-list"></div></div>
       <div class="sidebar-foot"><strong>PIÈCES AUTOMATIQUES</strong><p>Fermez un contour avec des murs connectés. Les pièces sont détectées automatiquement, même si une porte ou une fenêtre est posée sur un mur.</p><p>Double-cliquez sur le nom au centre d'une pièce pour le modifier.</p></div>
     </aside>
   </section>
 </main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.102.0"></script>
-<script src="plans.js?v=20261113-6"></script>
+<script src="plans.js?v=20261113-7"></script>
 </body></html>
