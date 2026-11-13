@@ -1,1 +1,136 @@
-<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#080e17"><title>Éditeur des plans | ZONE-431</title><link rel="stylesheet" href="plans.css?v=20261113-1"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"></head><body data-mode="editor"><header class="topbar"><a class="brand" href="../STAFF/zone%20staff.html"><span class="brand-mark">Z431</span><span><b>ZONE-431</b><small>ÉDITEUR ARCHITECTURAL</small></span></a><div class="topbar-status"><i></i> MODULE STAFF / PLANS</div><a class="back-link" href="../STAFF/zone%20staff.html">← RETOUR STAFF</a></header><main class="app"><section class="page-heading"><div><p class="eyebrow">CONCEPTION DE L'INSTALLATION</p><h1>ÉDITEUR DES PLANS</h1><p>Construisez et organisez les différents niveaux de Zone-431.</p></div><div id="accessBadge" class="access-badge">VÉRIFICATION...</div></section><div id="notice" class="notice">Vérification des autorisations...</div><section id="workspace" class="workspace" hidden><aside class="plan-sidebar"><div class="sidebar-heading"><div><span class="eyebrow">ARCHITECTURE</span><h2>PLANS DISPONIBLES</h2></div><button id="newPlan" class="square-button">+</button></div><div id="planList" class="plan-list"></div><div class="sidebar-foot">Chaque plan représente un niveau ou une zone indépendante.</div></aside><section class="editor-area"><div class="plan-toolbar"><div class="plan-fields"><input id="planName" placeholder="Nom du plan" maxlength="90"><input id="levelName" placeholder="Niveau / secteur" maxlength="60"></div><div class="toolbar-actions"><button id="publishPlan" class="action-button">PUBLIER</button><button id="deletePlan" class="danger-button">SUPPRIMER LE PLAN</button><button id="savePlan" class="action-button primary">ENREGISTRER</button></div></div><div class="drawing-tools" id="drawingTools"><button class="tool active" data-tool="select">↖ Sélection</button><button class="tool" data-tool="room">Pièce</button><button class="tool" data-tool="corridor">Couloir</button><button class="tool" data-tool="wall">Mur</button><button class="tool" data-tool="door">Porte</button><button class="tool" data-tool="gate">Gate / sas</button><button class="tool" data-tool="furniture">Mobilier</button><button class="tool" data-tool="camera">Caméra</button><button class="tool" data-tool="stairs">Escalier</button></div><div class="canvas-shell"><div class="canvas-head"><span id="canvasTitle">AUCUN PLAN SÉLECTIONNÉ</span><div class="canvas-controls"><label class="snap-control"><input id="snapEnabled" type="checkbox" checked> ACCROCHAGE</label><label class="snap-distance">SEUIL <input id="snapTolerance" type="number" min="0" max="500" value="25"> cm</label><button id="zoomOut" class="square-button">−</button><button id="zoomIn" class="square-button">+</button><button id="fitView" class="square-button">CADRER</button></div></div><div id="canvasViewport" class="canvas-viewport"><svg id="planCanvas" xmlns="http://www.w3.org/2000/svg" aria-label="Zone de dessin"><defs><pattern id="minorGrid" width="100" height="100" patternUnits="userSpaceOnUse"><path d="M100 0H0V100" fill="none" stroke="#263746" stroke-width="2"/></pattern><pattern id="majorGrid" width="500" height="500" patternUnits="userSpaceOnUse"><rect width="500" height="500" fill="url(#minorGrid)"/><path d="M500 0H0V500" fill="none" stroke="#344b5e" stroke-width="4"/></pattern></defs><rect id="canvasBackground" width="3000" height="2000" fill="url(#majorGrid)"/></svg></div><div class="canvas-foot"><span>UNITÉS : CENTIMÈTRES</span><span id="cursorPosition">X : — / Y : —</span><span id="elementCount">0 ÉLÉMENT</span></div></div><div class="properties-panel"><div class="properties-heading"><div><span class="eyebrow">INSPECTEUR</span><h2>PROPRIÉTÉS DE L'ÉLÉMENT</h2></div><button id="deleteElement" class="danger-button" disabled>SUPPRIMER</button></div><div id="emptySelection" class="empty-selection">Sélectionnez un élément sur le plan pour modifier ses propriétés.</div><div id="elementProperties" class="property-grid" hidden><label>NOM<input id="elementName"></label><label>TYPE<select id="elementType"><option value="room">Pièce</option><option value="corridor">Couloir</option><option value="wall">Mur</option><option value="door">Porte</option><option value="gate">Gate / sas</option><option value="furniture">Mobilier</option><option value="camera">Caméra</option><option value="stairs">Escalier</option></select></label><label>X (cm)<input id="elementX" type="number"></label><label>Y (cm)<input id="elementY" type="number"></label><label>LARGEUR (cm)<input id="elementW" type="number"></label><label>HAUTEUR (cm)<input id="elementH" type="number"></label><label>ROTATION<input id="elementRotation" type="number" step="90"></label></div></div></section></section></main><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.102.0"></script><script src="plans.js?v=20261113-4"></script></body></html>
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#080e17">
+<title>Éditeur architectural | ZONE-431</title>
+<link rel="stylesheet" href="plans.css?v=20261113-5">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body data-mode="editor">
+<header class="topbar">
+  <a class="brand" href="../STAFF/zone%20staff.html"><span class="brand-mark">Z431</span><span><b>ZONE-431</b><small>CONCEPTION ARCHITECTURALE</small></span></a>
+  <div class="topbar-status"><i></i> MODULE STAFF / PLANS</div>
+  <a class="back-link" href="../STAFF/zone%20staff.html">← RETOUR STAFF</a>
+</header>
+<main class="app">
+  <section class="page-heading">
+    <div><p class="eyebrow">INGÉNIERIE · CARTOGRAPHIE · INFRASTRUCTURE</p><h1>ÉDITEUR DES PLANS</h1><p>Construisez les niveaux de l'installation avec des murs, ouvertures et équipements positionnés librement.</p></div>
+    <div id="accessBadge" class="access-badge">VÉRIFICATION...</div>
+  </section>
+  <div id="notice" class="notice">Vérification des autorisations...</div>
+  <section id="workspace" class="workspace" hidden>
+    <aside class="library-panel">
+      <div class="panel-title"><div><span class="eyebrow">BIBLIOTHÈQUE</span><h2>ÉLÉMENTS À PLACER</h2></div><span class="library-count">30+</span></div>
+      <div class="library-group">
+        <h3>STRUCTURE</h3>
+        <div class="tool-grid">
+          <button class="tool active" data-tool="select"><i class="fa-solid fa-arrow-pointer"></i><span>Sélection</span></button>
+          <button class="tool" data-tool="wall"><i class="fa-solid fa-grip-lines"></i><span>Mur</span></button>
+          <button class="tool" data-tool="reinforced"><i class="fa-solid fa-shield-halved"></i><span>Mur renforcé</span></button>
+          <button class="tool" data-tool="block"><i class="fa-solid fa-cubes"></i><span>Parpaings</span></button>
+          <button class="tool" data-tool="partition"><i class="fa-solid fa-grip"></i><span>Cloison</span></button>
+          <button class="tool" data-tool="glasswall"><i class="fa-solid fa-border-all"></i><span>Mur vitré</span></button>
+          <button class="tool" data-tool="fence"><i class="fa-solid fa-bars"></i><span>Clôture</span></button>
+          <button class="tool" data-tool="mesh"><i class="fa-solid fa-border-none"></i><span>Grillage</span></button>
+          <button class="tool" data-tool="barrier"><i class="fa-solid fa-road-barrier"></i><span>Barrière béton</span></button>
+        </div>
+      </div>
+      <div class="library-group">
+        <h3>OUVERTURES <small>À GLISSER SUR UN MUR</small></h3>
+        <div class="tool-grid">
+          <button class="tool" data-tool="door"><i class="fa-solid fa-door-closed"></i><span>Porte</span></button>
+          <button class="tool" data-tool="doubleDoor"><i class="fa-solid fa-door-open"></i><span>Porte double</span></button>
+          <button class="tool" data-tool="armoredDoor"><i class="fa-solid fa-vault"></i><span>Porte blindée</span></button>
+          <button class="tool" data-tool="gate"><i class="fa-solid fa-lock"></i><span>Portail / sas</span></button>
+          <button class="tool" data-tool="window"><i class="fa-regular fa-window-maximize"></i><span>Fenêtre</span></button>
+          <button class="tool" data-tool="securityGlass"><i class="fa-solid fa-shield"></i><span>Vitre sécurisée</span></button>
+          <button class="tool" data-tool="porthole"><i class="fa-regular fa-circle"></i><span>Hublot</span></button>
+        </div>
+      </div>
+      <div class="library-group">
+        <h3>CIRCULATION</h3>
+        <div class="tool-grid">
+          <button class="tool" data-tool="stairs"><i class="fa-solid fa-stairs"></i><span>Escalier</span></button>
+          <button class="tool" data-tool="ladder"><i class="fa-solid fa-grip-lines-vertical"></i><span>Échelle</span></button>
+          <button class="tool" data-tool="elevator"><i class="fa-solid fa-elevator"></i><span>Ascenseur</span></button>
+          <button class="tool" data-tool="ramp"><i class="fa-solid fa-ramp-loading"></i><span>Rampe</span></button>
+        </div>
+      </div>
+      <div class="library-group">
+        <h3>ÉQUIPEMENTS</h3>
+        <div class="tool-grid">
+          <button class="tool" data-tool="camera"><i class="fa-solid fa-video"></i><span>Caméra</span></button>
+          <button class="tool" data-tool="thermal"><i class="fa-solid fa-eye"></i><span>Caméra IR</span></button>
+          <button class="tool" data-tool="reader"><i class="fa-solid fa-id-card"></i><span>Lecteur badge</span></button>
+          <button class="tool" data-tool="alarm"><i class="fa-solid fa-bell"></i><span>Alarme</span></button>
+          <button class="tool" data-tool="light"><i class="fa-solid fa-lightbulb"></i><span>Éclairage</span></button>
+          <button class="tool" data-tool="ventilation"><i class="fa-solid fa-fan"></i><span>Ventilation</span></button>
+          <button class="tool" data-tool="panel"><i class="fa-solid fa-bolt"></i><span>Armoire électrique</span></button>
+          <button class="tool" data-tool="terminal"><i class="fa-solid fa-computer"></i><span>Terminal</span></button>
+          <button class="tool" data-tool="generator"><i class="fa-solid fa-gears"></i><span>Générateur</span></button>
+          <button class="tool" data-tool="extinguisher"><i class="fa-solid fa-fire-extinguisher"></i><span>Extincteur</span></button>
+        </div>
+      </div>
+      <div class="library-group">
+        <h3>MOBILIER & LOCAUX</h3>
+        <div class="tool-grid">
+          <button class="tool" data-tool="desk"><i class="fa-solid fa-chair"></i><span>Bureau</span></button>
+          <button class="tool" data-tool="table"><i class="fa-solid fa-table"></i><span>Table</span></button>
+          <button class="tool" data-tool="bed"><i class="fa-solid fa-bed"></i><span>Lit</span></button>
+          <button class="tool" data-tool="locker"><i class="fa-solid fa-box"></i><span>Casier</span></button>
+          <button class="tool" data-tool="shelf"><i class="fa-solid fa-boxes-stacked"></i><span>Étagère</span></button>
+          <button class="tool" data-tool="medical"><i class="fa-solid fa-kit-medical"></i><span>Équipement médical</span></button>
+          <button class="tool" data-tool="decon"><i class="fa-solid fa-shower"></i><span>Décontamination</span></button>
+          <button class="tool" data-tool="text"><i class="fa-solid fa-font"></i><span>Annotation</span></button>
+        </div>
+      </div>
+    </aside>
+
+    <section class="editor-area">
+      <div class="plan-toolbar">
+        <div class="plan-fields"><input id="planName" placeholder="Nom du plan" maxlength="90"><input id="levelName" placeholder="Niveau / secteur" maxlength="60"></div>
+        <div class="toolbar-actions"><button id="publishPlan" class="action-button">PUBLIER</button><button id="deletePlan" class="danger-button">SUPPRIMER</button><button id="savePlan" class="action-button primary">ENREGISTRER</button></div>
+      </div>
+      <div class="canvas-head">
+        <span id="canvasTitle">AUCUN PLAN SÉLECTIONNÉ</span>
+        <div class="canvas-controls">
+          <label class="snap-control"><input id="snapEnabled" type="checkbox" checked> ACCROCHAGE</label>
+          <label class="snap-distance">GRILLE <input id="gridSize" type="number" min="5" max="200" value="25"> cm</label>
+          <button id="undoButton" class="square-button" title="Annuler (Ctrl+Z)">↶</button><button id="redoButton" class="square-button" title="Rétablir (Ctrl+Y)">↷</button>
+          <button id="zoomOut" class="square-button">−</button><button id="zoomIn" class="square-button">+</button><button id="fitView" class="square-button">CADRER</button>
+        </div>
+      </div>
+      <div id="canvasViewport" class="canvas-viewport">
+        <svg id="planCanvas" xmlns="http://www.w3.org/2000/svg" aria-label="Éditeur architectural">
+          <defs>
+            <pattern id="minorGrid" width="50" height="50" patternUnits="userSpaceOnUse"><path d="M50 0H0V50" fill="none" stroke="#1b2c3b" stroke-width="2"/></pattern>
+            <pattern id="majorGrid" width="250" height="250" patternUnits="userSpaceOnUse"><rect width="250" height="250" fill="url(#minorGrid)"/><path d="M250 0H0V250" fill="none" stroke="#31485b" stroke-width="4"/></pattern>
+          </defs>
+          <rect id="canvasBackground" width="3000" height="2000" fill="url(#majorGrid)"/>
+        </svg>
+      </div>
+      <div class="canvas-foot"><span>UNITÉS : CENTIMÈTRES</span><span id="cursorPosition">X : — / Y : —</span><span id="elementCount">0 ÉLÉMENT</span></div>
+      <div class="properties-panel">
+        <div class="properties-heading"><div><span class="eyebrow">INSPECTEUR</span><h2>PROPRIÉTÉS DE L'ÉLÉMENT</h2></div><button id="deleteElement" class="danger-button" disabled>SUPPRIMER</button></div>
+        <div id="emptySelection" class="empty-selection">Sélectionnez un élément ou une ouverture pour modifier ses propriétés. Double-cliquez dans une pièce pour la renommer.</div>
+        <div id="elementProperties" class="property-grid" hidden>
+          <label>NOM<input id="elementName" maxlength="70"></label>
+          <label>TYPE<input id="elementType" disabled></label>
+          <label>X (cm)<input id="elementX" type="number"></label><label>Y (cm)<input id="elementY" type="number"></label>
+          <label>LARGEUR<input id="elementW" type="number"></label><label>HAUTEUR<input id="elementH" type="number"></label>
+          <label>ROTATION<input id="elementRotation" type="number" step="15"></label>
+        </div>
+      </div>
+    </section>
+    <aside class="plan-sidebar">
+      <div class="sidebar-heading"><div><span class="eyebrow">ARCHITECTURE</span><h2>PLANS DISPONIBLES</h2></div><button id="newPlan" class="square-button">+</button></div>
+      <div id="planList" class="plan-list"></div>
+      <div class="sidebar-foot"><strong>PIÈCES AUTOMATIQUES</strong><p>Fermez un contour avec des murs connectés. Les pièces sont détectées automatiquement, même si une porte ou une fenêtre est posée sur un mur.</p><p>Double-cliquez sur le nom au centre d'une pièce pour le modifier.</p></div>
+    </aside>
+  </section>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.102.0"></script>
+<script src="plans.js?v=20261113-5"></script>
+</body></html>
