@@ -55,15 +55,15 @@ function renderDiscordTemplate(
 }
 
 const DEFAULT_DISCORD_TEMPLATES: Record<string, string> = {
-  document_published: "**NOUVEAU DOCUMENT PUBLIÉ**\\n\\n**{titre}**\\n{resume}\\n\\n[Consulter le document]({lien})",
-  document_updated: "**DOCUMENT MIS À JOUR**\\n\\n**{titre}**\\n{resume}\\n\\n[Consulter le document]({lien})",
-  training_published: "**NOUVELLE FORMATION DISPONIBLE**\\n\\n**{titre}**\\n{resume}\\n\\n[Accéder à la formation]({lien})",
-  training_updated: "**FORMATION MISE À JOUR**\\n\\n**{titre}**\\n{resume}\\n\\n[Accéder à la formation]({lien})",
-  result_published: "**NOUVEAU RÉSULTAT PUBLIÉ**\\n\\n**{titre}**\\n{resume}\\n\\n[Consulter mes formations]({lien})",
-  result_updated: "**RÉSULTAT MODIFIÉ**\\n\\n**{titre}**\\n{resume}\\n\\n[Consulter mes formations]({lien})",
-  account_authorized: "**NOUVEAU COMPTE AUTORISÉ**\\n\\n**{titre}**\\n{resume}\\n\\n[Profil du membre]({lien})",
-  account_department_changed: "**AFFECTATION MODIFIÉE**\\n\\n**{titre}**\\n{resume}\\n\\n[Profil du membre]({lien})",
-  account_accreditation_changed: "**ACCRÉDITATION MODIFIÉE**\\n\\n**{titre}**\\n{resume}\\n\\n[Profil du membre]({lien})",
+  document_published: "**NOUVEAU DOCUMENT PUBLIÉ**\n\n**{titre}**\n{resume}\n\n[Consulter le document]({lien})",
+  document_updated: "**DOCUMENT MIS À JOUR**\n\n**{titre}**\n{resume}\n\n[Consulter le document]({lien})",
+  training_published: "**NOUVELLE FORMATION DISPONIBLE**\n\n**{titre}**\n{resume}\n\n[Accéder à la formation]({lien})",
+  training_updated: "**FORMATION MISE À JOUR**\n\n**{titre}**\n{resume}\n\n[Accéder à la formation]({lien})",
+  result_published: "**NOUVEAU RÉSULTAT PUBLIÉ**\n\n**{titre}**\n{resume}\n\n[Consulter mes formations]({lien})",
+  result_updated: "**RÉSULTAT MODIFIÉ**\n\n**{titre}**\n{resume}\n\n[Consulter mes formations]({lien})",
+  account_authorized: "**NOUVEAU COMPTE AUTORISÉ**\n\n**{titre}**\n{resume}\n\n[Profil du membre]({lien})",
+  account_department_changed: "**AFFECTATION MODIFIÉE**\n\n**{titre}**\n{resume}\n\n[Profil du membre]({lien})",
+  account_accreditation_changed: "**ACCRÉDITATION MODIFIÉE**\n\n**{titre}**\n{resume}\n\n[Profil du membre]({lien})",
 };
 
 Deno.serve(async (req: Request) => {
