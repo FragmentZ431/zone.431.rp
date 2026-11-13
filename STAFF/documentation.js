@@ -39,6 +39,12 @@ const elements = {
 
     newDocumentBtn: document.getElementById("newDocumentBtn"),
     refreshBtn: document.getElementById("refreshBtn"),
+    notificationSettingsBtn: document.getElementById("notificationSettingsBtn"),
+    notificationSettingsModal: document.getElementById("notificationSettingsModal"),
+    notificationSettingsForm: document.getElementById("notificationSettingsForm"),
+    closeNotificationSettingsBtn: document.getElementById("closeNotificationSettingsBtn"),
+    cancelNotificationSettingsBtn: document.getElementById("cancelNotificationSettingsBtn"),
+    saveNotificationSettingsBtn: document.getElementById("saveNotificationSettingsBtn"),
 
     searchInput: document.getElementById("searchInput"),
     categoryFilter: document.getElementById("categoryFilter"),
@@ -259,6 +265,7 @@ async function initialize() {
                 : "CONSULTATION UNIQUEMENT";
 
         elements.newDocumentBtn.hidden = !canManageDocuments;
+        elements.notificationSettingsBtn.hidden = !isAdmin;
 
         setupEvents();
         await loadDocuments();
@@ -1210,11 +1217,158 @@ function closeDetailsModal() {
     setModalVisible(elements.detailsModal, false);
 }
 
+
+/* =========================================================
+   MODÈLES DES NOTIFICATIONS DISCORD
+========================================================= */
+
+const notificationTemplateFields = [
+    {
+        key: "document_published",
+        content: "templateDocumentPublished",
+        enabled: "templateDocumentPublishedEnabled"
+    },
+    {
+        key: "document_updated",
+        content: "templateDocumentUpdated",
+        enabled: "templateDocumentUpdatedEnabled"
+    },
+    {
+        key: "training_published",
+        content: "templateTrainingPublished",
+        enabled: "templateTrainingPublishedEnabled"
+    },
+    {
+        key: "training_updated",
+        content: "templateTrainingUpdated",
+        enabled: "templateTrainingUpdatedEnabled"
+    }
+];
+
+async function openNotificationSettings() {
+    if (!isAdmin) return;
+
+    elements.notificationSettingsBtn.disabled = true;
+
+    try {
+        const { data, error } = await supabaseClient
+            .from("site_notification_templates")
+            .select("event_key,discord_content,enabled")
+            .order("event_key", { ascending: true });
+
+        if (error) throw error;
+
+        const templates = new Map(
+            (data || []).map(row => [row.event_key, row])
+        );
+
+        notificationTemplateFields.forEach(field => {
+            const row = templates.get(field.key);
+            const content = document.getElementById(field.content);
+            const enabled = document.getElementById(field.enabled);
+
+            if (!row || !content || !enabled) {
+                throw new Error("Un modèle de notification est manquant : " + field.key);
+            }
+
+            content.value = row.discord_content || "";
+            enabled.checked = row.enabled === true;
+        });
+
+        setModalVisible(elements.notificationSettingsModal, true);
+    } catch (error) {
+        console.error("Chargement des modèles Discord :", error);
+        showToast(
+            error.message || "Impossible de charger les modèles Discord.",
+            "error"
+        );
+    } finally {
+        elements.notificationSettingsBtn.disabled = false;
+    }
+}
+
+function closeNotificationSettings() {
+    setModalVisible(elements.notificationSettingsModal, false);
+}
+
+async function saveNotificationSettings(event) {
+    event.preventDefault();
+
+    if (!isAdmin) {
+        showToast("Seuls les administrateurs peuvent modifier ces modèles.", "error");
+        return;
+    }
+
+    const entries = notificationTemplateFields.map(field => ({
+        key: field.key,
+        content: document.getElementById(field.content).value.trim(),
+        enabled: document.getElementById(field.enabled).checked
+    }));
+
+    for (const entry of entries) {
+        if (entry.enabled && !entry.content) {
+            showToast("Un message activé ne peut pas être vide.", "error");
+            return;
+        }
+
+        if (entry.content.length > 1900) {
+            showToast("Un message dépasse la limite de 1 900 caractères.", "error");
+            return;
+        }
+    }
+
+    elements.saveNotificationSettingsBtn.disabled = true;
+    elements.saveNotificationSettingsBtn.textContent = "Enregistrement...";
+
+    try {
+        for (const entry of entries) {
+            const { data, error } = await supabaseClient
+                .from("site_notification_templates")
+                .update({
+                    discord_content: entry.content,
+                    enabled: entry.enabled,
+                    updated_at: new Date().toISOString(),
+                    updated_by: currentUser.id
+                })
+                .eq("event_key", entry.key)
+                .select("event_key")
+                .single();
+
+            if (error) throw error;
+            if (!data) throw new Error("Le modèle n'a pas été enregistré : " + entry.key);
+        }
+
+        showToast("Les messages Discord ont été enregistrés.", "success");
+        closeNotificationSettings();
+    } catch (error) {
+        console.error("Enregistrement des modèles Discord :", error);
+        showToast(
+            error.message || "Impossible d'enregistrer les messages Discord.",
+            "error"
+        );
+    } finally {
+        elements.saveNotificationSettingsBtn.disabled = false;
+        elements.saveNotificationSettingsBtn.textContent = "Enregistrer les messages";
+    }
+}
+
 /* =========================================================
    ÉVÈNEMENTS
 ========================================================= */
 
 function setupEvents() {
+    if (isAdmin && elements.notificationSettingsBtn) {
+        elements.notificationSettingsBtn.addEventListener("click", openNotificationSettings);
+        elements.closeNotificationSettingsBtn.addEventListener("click", closeNotificationSettings);
+        elements.cancelNotificationSettingsBtn.addEventListener("click", closeNotificationSettings);
+        elements.notificationSettingsForm.addEventListener("submit", saveNotificationSettings);
+        elements.notificationSettingsModal.addEventListener("click", event => {
+            if (event.target === elements.notificationSettingsModal) {
+                closeNotificationSettings();
+            }
+        });
+    }
+
     elements.newDocumentBtn.addEventListener(
         "click",
         openCreateModal
@@ -1305,6 +1459,10 @@ function setupEvents() {
 
     document.addEventListener("keydown", event => {
         if (event.key !== "Escape") return;
+
+        if (!elements.notificationSettingsModal.hidden) {
+            closeNotificationSettings();
+        }
 
         if (!elements.documentModal.hidden) {
             closeDocumentModal();
