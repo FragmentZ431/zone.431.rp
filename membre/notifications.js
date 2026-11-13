@@ -187,9 +187,12 @@
         const header = document.querySelector(
             ".member-header, .results-header, .page-header, .main-header, .topbar"
         );
-        if (!header || widget) return;
+        if (widget) return;
 
         widget = createElement("div", "notification-widget");
+        if (!header) {
+            widget.classList.add("notification-widget-floating");
+        }
 
         const toggle = createElement("button", "notification-toggle");
         toggle.type = "button";
@@ -236,6 +239,11 @@
         document.addEventListener("keydown", event => {
             if (event.key === "Escape") closePanel();
         });
+
+        if (!header) {
+            document.body.appendChild(widget);
+            return;
+        }
 
         if (header.classList.contains("topbar")) {
             const right = header.querySelector(".topbar-right") || header;
