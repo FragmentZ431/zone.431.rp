@@ -55,10 +55,10 @@ function renderDiscordTemplate(
 }
 
 const DEFAULT_DISCORD_TEMPLATES: Record<string, string> = {
-  document_published: "**NOUVEAU DOCUMENT PUBLIÉ**\\n\\n**{titre}**\\n{resume}\\n\\n[Consulter le document]({lien})",
-  document_updated: "**DOCUMENT MIS À JOUR**\\n\\n**{titre}**\\n{resume}\\n\\n[Consulter le document]({lien})",
-  training_published: "**NOUVELLE FORMATION DISPONIBLE**\\n\\n**{titre}**\\n{resume}\\n\\n[Accéder à la formation]({lien})",
-  training_updated: "**FORMATION MISE À JOUR**\\n\\n**{titre}**\\n{resume}\\n\\n[Accéder à la formation]({lien})",
+  document_published: "**NOUVEAU DOCUMENT PUBLIÉ**\n\n**{titre}**\n{resume}\n\n[Consulter le document]({lien})",
+  document_updated: "**DOCUMENT MIS À JOUR**\n\n**{titre}**\n{resume}\n\n[Consulter le document]({lien})",
+  training_published: "**NOUVELLE FORMATION DISPONIBLE**\n\n**{titre}**\n{resume}\n\n[Accéder à la formation]({lien})",
+  training_updated: "**FORMATION MISE À JOUR**\n\n**{titre}**\n{resume}\n\n[Accéder à la formation]({lien})",
 };
 
 Deno.serve(async (req: Request) => {
@@ -317,7 +317,7 @@ Deno.serve(async (req: Request) => {
 
     let discordSent = false;
     let discordConfigured = false;
-    if (discordText) {
+    if (discordText && discordEnabled) {
       const webhook = Deno.env.get("DISCORD_WEBHOOK_SITE");
       discordConfigured = Boolean(webhook);
       if (webhook) {
@@ -325,7 +325,7 @@ Deno.serve(async (req: Request) => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            content: discordText + "\n[Consulter la bibliothèque documentaire](https://fragmentz431.github.io/zone.431.rp/membre/documentation.html)",
+            content: discordText,
             allowed_mentions: { parse: [] },
           }),
         });
