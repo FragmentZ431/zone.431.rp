@@ -4,7 +4,7 @@ const URL_BASE="https://pvtrlplsplyigvxiykce.supabase.co";
 const PUBLIC_KEY="sb_publishable_iwAj_zFrWEsMcqUKNINwJw_Po3QAwDG";
 const db=window.supabase.createClient(URL_BASE,PUBLIC_KEY);
 const $=id=>document.getElementById(id),NS="http://www.w3.org/2000/svg";
-const state={plans:[],plan:null,selected:null,tool:"select",canWrite:false,snap:true,drag:null,pan:null,view:null,history:[],future:[]};
+const state={plans:[],plan:null,selected:null,tool:"select",canWrite:false,snap:true,drag:null,pan:null,view:null,history:[],future:[],wallStart:null};
 const catalog={
 wall:["Mur","wall",280,22,"#8496a3"],reinforced:["Mur renforcé","wall",280,34,"#b2bbc1"],block:["Mur en parpaings","wall",280,28,"#9a8f80"],partition:["Cloison","wall",220,12,"#778d9e"],glasswall:["Mur vitré","wall",260,16,"#5aa7c9"],fence:["Clôture","wall",260,16,"#b58e55"],mesh:["Grillage","wall",260,12,"#91a6b4"],barrier:["Barrière béton","rect",150,55,"#827e79"],
 door:["Porte","opening",100,18,"#58a8d5"],doubleDoor:["Porte double","opening",170,20,"#58a8d5"],armoredDoor:["Porte blindée","opening",120,24,"#bd777c"],gate:["Portail / sas","opening",190,25,"#bd777c"],window:["Fenêtre","opening",110,14,"#65bad2"],securityGlass:["Vitre sécurisée","opening",130,16,"#7bc9db"],porthole:["Hublot","opening",65,16,"#7bc9db"],
@@ -102,6 +102,18 @@ function createElement(tool,p){const c=catalog[tool];if(!c)return null;const [na
 function nearestWall(e,p){return attachToWall(e,p)}
 function canvasDown(ev){
  if(!state.plan)return;const p=point(ev),target=ev.target.closest("[data-element-id]"),svg=$("planCanvas");
+ const wallTools=["wall","reinforced","block","partition","glasswall","fence","mesh"];
+ if(ev.pointerType==="touch"&&wallTools.includes(state.tool)){
+  ev.preventDefault();if(!state.canWrite)return;
+  const current={x:snapValue(p.x),y:snapValue(p.y)};
+  if(!state.wallStart){state.wallStart=current;notify("Début du mur défini. Touchez une deuxième fois le plan pour définir son extrémité.");return}
+  const start=state.wallStart;state.wallStart=null;remember();
+  const dx=current.x-start.x,dy=current.y-start.y;
+  const end=Math.abs(dx)>=Math.abs(dy)?{x:current.x,y:start.y}:{x:start.x,y:current.y};
+  if(Math.hypot(end.x-start.x,end.y-start.y)<20){notify("Mur trop court. Touchez à nouveau pour recommencer.",true);return}
+  const c=catalog[state.tool],e={id:uid(),type:"wall",style:state.tool,name:c[0],x:start.x,y:start.y,x2:end.x,y2:end.y};
+  state.plan.elements.push(e);state.selected=e.id;draw();notify("Mur placé. Touchez à nouveau pour commencer le mur suivant.");return
+ }
  if(ev.button===1||(state.tool==="select"&&ev.target.id==="canvasBackground")){state.pan={sx:ev.clientX,sy:ev.clientY,view:{...state.view}};$("canvasViewport").classList.add("panning");svg.setPointerCapture(ev.pointerId);return}
  if(!state.canWrite)return;svg.setPointerCapture(ev.pointerId);
  if(state.tool==="select"){
@@ -127,7 +139,7 @@ function editRoom(ev){const target=ev.target.closest("[data-room-key]");if(!targ
 function bindProperty(id,key,convert){$(id).addEventListener("change",()=>{const e=state.plan&&(state.plan.elements||[]).find(x=>x.id===state.selected);if(!e||!state.canWrite)return;remember();e[key]=convert?convert($(id).value):$(id).value;if(e.type==="opening"&&e.wallId)syncOpening(e);draw()})}
 function init(){
  $("newPlan").addEventListener("click",()=>createPlan().catch(e=>notify(e.message,true)));$("savePlan").addEventListener("click",()=>save().catch(e=>notify(e.message,true)));$("publishPlan").addEventListener("click",()=>publish().catch(e=>notify(e.message,true)));$("deletePlan").addEventListener("click",()=>deletePlan().catch(e=>notify(e.message,true)));
- document.querySelectorAll(".tool").forEach(b=>b.addEventListener("click",()=>{state.tool=b.dataset.tool;document.querySelectorAll(".tool").forEach(x=>x.classList.toggle("active",x===b))}));
+ document.querySelectorAll(".tool").forEach(b=>b.addEventListener("click",()=>{state.wallStart=null;state.tool=b.dataset.tool;document.querySelectorAll(".tool").forEach(x=>x.classList.toggle("active",x===b))}));
  const svg=$("planCanvas");svg.addEventListener("pointerdown",canvasDown);svg.addEventListener("pointermove",canvasMove);svg.addEventListener("pointerup",canvasUp);svg.addEventListener("pointercancel",canvasUp);svg.addEventListener("dblclick",editRoom);
  $("canvasViewport").addEventListener("wheel",e=>{e.preventDefault();zoom(e.deltaY<0?1.12:.89)},{passive:false});
  $("canvasViewport").addEventListener("pointerdown",e=>{if(e.button===1){$("canvasViewport").setPointerCapture(e.pointerId)}});
