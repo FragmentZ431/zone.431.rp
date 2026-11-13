@@ -290,8 +290,6 @@ Deno.serve(async (req: Request) => {
         const nodeMatch = nodeTargets.some((code: string) => nodeByUser.get(p.user_id)?.has(code));
         if (departmentMatch || nodeMatch) recipients.add(p.user_id);
       }
-    }
-
     } else if (isResult) {
       const { data, error } = await adminClient
         .from("training_results")
