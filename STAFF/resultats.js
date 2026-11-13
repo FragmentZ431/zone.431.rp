@@ -579,6 +579,8 @@
                 updated_at: new Date().toISOString()
             };
 
+            let savedResultId = existing?.id || null;
+
             if (existing) {
                 const { error } = await state.client
                     .from("training_results")
@@ -588,16 +590,40 @@
                 if (error) throw error;
 
             } else {
-                const { error } = await state.client
+                const { data: insertedResult, error } = await state.client
                     .from("training_results")
                     .insert({
                         user_id: member.user_id,
                         course_id: course.id,
                         ...resultData,
                         created_by: state.user.id
-                    });
+                    })
+                    .select("id")
+                    .single();
 
                 if (error) throw error;
+                savedResultId = insertedResult?.id || null;
+            }
+
+            if (status !== "missing" && savedResultId) {
+                try {
+                    const { data: notificationData, error: notificationError } =
+                        await state.client.functions.invoke("publish-site-notification", {
+                            body: {
+                                event: existing ? "result_updated" : "result_published",
+                                sourceId: savedResultId
+                            }
+                        });
+
+                    if (notificationError || notificationData?.error) {
+                        console.warn(
+                            "[ZONE-431] Notification de résultat non envoyée :",
+                            notificationError || notificationData?.error
+                        );
+                    }
+                } catch (notificationError) {
+                    console.warn("[ZONE-431] Notification de résultat non envoyée :", notificationError);
+                }
             }
 
             await loadCourseResults(course.id);
