@@ -55,10 +55,15 @@ function renderDiscordTemplate(
 }
 
 const DEFAULT_DISCORD_TEMPLATES: Record<string, string> = {
-  document_published: "**NOUVEAU DOCUMENT PUBLIÉ**\n\n**{titre}**\n{resume}\n\n[Consulter le document]({lien})",
-  document_updated: "**DOCUMENT MIS À JOUR**\n\n**{titre}**\n{resume}\n\n[Consulter le document]({lien})",
-  training_published: "**NOUVELLE FORMATION DISPONIBLE**\n\n**{titre}**\n{resume}\n\n[Accéder à la formation]({lien})",
-  training_updated: "**FORMATION MISE À JOUR**\n\n**{titre}**\n{resume}\n\n[Accéder à la formation]({lien})",
+  document_published: "**NOUVEAU DOCUMENT PUBLIÉ**\\n\\n**{titre}**\\n{resume}\\n\\n[Consulter le document]({lien})",
+  document_updated: "**DOCUMENT MIS À JOUR**\\n\\n**{titre}**\\n{resume}\\n\\n[Consulter le document]({lien})",
+  training_published: "**NOUVELLE FORMATION DISPONIBLE**\\n\\n**{titre}**\\n{resume}\\n\\n[Accéder à la formation]({lien})",
+  training_updated: "**FORMATION MISE À JOUR**\\n\\n**{titre}**\\n{resume}\\n\\n[Accéder à la formation]({lien})",
+  result_published: "**NOUVEAU RÉSULTAT PUBLIÉ**\\n\\n**{titre}**\\n{resume}\\n\\n[Consulter mes formations]({lien})",
+  result_updated: "**RÉSULTAT MODIFIÉ**\\n\\n**{titre}**\\n{resume}\\n\\n[Consulter mes formations]({lien})",
+  account_authorized: "**NOUVEAU COMPTE AUTORISÉ**\\n\\n**{titre}**\\n{resume}\\n\\n[Profil du membre]({lien})",
+  account_department_changed: "**AFFECTATION MODIFIÉE**\\n\\n**{titre}**\\n{resume}\\n\\n[Profil du membre]({lien})",
+  account_accreditation_changed: "**ACCRÉDITATION MODIFIÉE**\\n\\n**{titre}**\\n{resume}\\n\\n[Profil du membre]({lien})",
 };
 
 Deno.serve(async (req: Request) => {
@@ -107,15 +112,30 @@ Deno.serve(async (req: Request) => {
 
     const isDocument = ["document_published", "document_updated"].includes(event);
     const isTraining = ["training_published", "training_updated"].includes(event);
-    if (!isDocument && !isTraining) return json({ error: "Type de notification invalide." }, 400);
+    const isResult = ["result_published", "result_updated"].includes(event);
+    const isAccount = [
+      "account_authorized",
+      "account_department_changed",
+      "account_accreditation_changed",
+    ].includes(event);
+    if (!isDocument && !isTraining && !isResult && !isAccount) {
+      return json({ error: "Type de notification invalide." }, 400);
+    }
 
-    const moduleCode = isDocument ? "documentation" : "training";
-    const { data: canWrite, error: permissionError } = await userClient.rpc(
-      "has_staff_module_permission",
-      { p_module_code: moduleCode, p_action: "write" },
-    );
-    if (permissionError || canWrite !== true) {
-      return json({ error: "Vous ne disposez pas des droits de publication nécessaires." }, 403);
+    if (isAccount) {
+      const { data: staffRole, error: staffRoleError } = await userClient.rpc("current_staff_role");
+      if (staffRoleError || staffRole !== "ADMINISTRATEUR") {
+        return json({ error: "Seuls les administrateurs peuvent publier ces notifications." }, 403);
+      }
+    } else {
+      const moduleCode = isDocument ? "documentation" : isTraining ? "training" : "training_results";
+      const { data: canWrite, error: permissionError } = await userClient.rpc(
+        "has_staff_module_permission",
+        { p_module_code: moduleCode, p_action: "write" },
+      );
+      if (permissionError || canWrite !== true) {
+        return json({ error: "Vous ne disposez pas des droits de publication nécessaires." }, 403);
+      }
     }
 
     const adminClient = createClient(supabaseUrl, secretKey, {
@@ -124,7 +144,7 @@ Deno.serve(async (req: Request) => {
 
     let source: Record<string, unknown>;
     let recipients = new Set<string>();
-    let notificationType: "document" | "training";
+    let notificationType: "document" | "training" | "result" | "account";
     let title: string;
     let message: string;
     let href: string;
@@ -198,7 +218,7 @@ Deno.serve(async (req: Request) => {
           });
         }
       }
-    } else {
+    } else if (isTraining) {
       const { data, error } = await adminClient
         .from("training_courses")
         .select("id,title,summary,is_published,updated_at")
@@ -270,6 +290,86 @@ Deno.serve(async (req: Request) => {
         const nodeMatch = nodeTargets.some((code: string) => nodeByUser.get(p.user_id)?.has(code));
         if (departmentMatch || nodeMatch) recipients.add(p.user_id);
       }
+    }
+
+    } else if (isResult) {
+      const { data, error } = await adminClient
+        .from("training_results")
+        .select("id,user_id,course_id,score,status,updated_at")
+        .eq("id", sourceId)
+        .maybeSingle();
+      if (error) throw error;
+      if (!data || data.status === "missing") {
+        return json({ success: true, skipped: true, reason: "Résultat non publié." });
+      }
+
+      const { data: course, error: courseError } = await adminClient
+        .from("training_courses")
+        .select("id,title,summary,category,is_published")
+        .eq("id", data.course_id)
+        .maybeSingle();
+      if (courseError) throw courseError;
+      if (!course || course.is_published !== true) {
+        return json({ success: true, skipped: true, reason: "Formation non publiée." });
+      }
+
+      const recipient = profileRows.find((p: any) => p.user_id === data.user_id);
+      if (!recipient) {
+        return json({ success: true, skipped: true, reason: "Membre non autorisé." });
+      }
+
+      source = { ...data, title: course.title, summary: course.summary, category: course.category };
+      recipients.add(data.user_id);
+      notificationType = "result";
+      title = event === "result_published" ? "Nouveau résultat publié" : "Résultat mis à jour";
+      const scoreText = data.score ? "Note : " + safeText(data.score, 30) : "Aucune note chiffrée.";
+      const statusText = data.status === "validated"
+        ? "Résultat : validé."
+        : data.status === "refused"
+          ? "Résultat : non validé."
+          : "Résultat enregistré.";
+      message = "Votre résultat pour « " + safeText(course.title, 180) + " » a été " +
+        (event === "result_published" ? "publié" : "mis à jour") + ". " + scoreText + " " + statusText;
+      href = "formations.html";
+      sourceCategory = safeText(course.category, 100);
+      discordLink = "https://fragmentz431.github.io/zone.431.rp/membre/" + href;
+    } else {
+      const { data, error } = await adminClient
+        .from("rp_member_profiles")
+        .select("user_id,rp_name,display_name,department,accreditation,status,updated_at")
+        .eq("user_id", sourceId)
+        .maybeSingle();
+      if (error) throw error;
+      if (!data || data.status !== "authorized") {
+        return json({ success: true, skipped: true, reason: "Compte non autorisé." });
+      }
+
+      source = {
+        ...data,
+        title: safeText(data.rp_name || data.display_name, 180),
+        summary: "",
+        category: "",
+      };
+      recipients.add(data.user_id);
+      notificationType = "account";
+      href = "profil.html";
+      discordLink = "https://fragmentz431.github.io/zone.431.rp/membre/" + href;
+
+      if (event === "account_authorized") {
+        title = "Compte autorisé";
+        message = "Votre compte Zone-431 a été autorisé. Vous pouvez désormais accéder à votre espace membre.";
+        sourceCategory = "Autorisation du compte";
+      } else if (event === "account_department_changed") {
+        title = "Affectation modifiée";
+        message = "Votre département principal a été modifié : " + safeText(data.department, 100) + ".";
+        sourceCategory = "Affectation";
+      } else {
+        title = "Accréditation modifiée";
+        message = "Votre niveau d'accréditation a été modifié : " + safeText(data.accreditation, 30) + ".";
+        sourceCategory = "Accréditation";
+      }
+      source.summary = message;
+      source.category = sourceCategory;
     }
 
     const { data: templateRow, error: templateError } = await adminClient
