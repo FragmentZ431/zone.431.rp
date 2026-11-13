@@ -299,3 +299,12 @@
         transition: none;
     }
 }
+
+
+/* Affichage universel sur les pages sans en-tête standard */
+.notification-widget-floating {
+    position: fixed;
+    top: 20px;
+    right: 22px;
+    z-index: 2000;
+}
