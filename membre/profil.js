@@ -15,6 +15,7 @@
         retry: document.getElementById("profileRetry"),
         signOut: document.getElementById("profileSignOut"),
         passwordCooldownInfo: document.getElementById("passwordCooldownInfo"),
+        currentPassword: document.getElementById("currentPassword"),
         newPassword: document.getElementById("newPassword"),
         confirmNewPassword: document.getElementById("confirmNewPassword"),
         requestPasswordCodeBtn: document.getElementById("requestPasswordCodeBtn"),
@@ -207,8 +208,20 @@
         const password = elements.newPassword.value;
         const confirmation = elements.confirmNewPassword.value;
 
+        const currentPassword = elements.currentPassword.value;
+
+        if (!currentPassword) {
+            setPasswordFeedback("Saisissez votre ancien mot de passe pour continuer.", "error");
+            elements.currentPassword.focus();
+            return;
+        }
         if (password.length < 8) {
-            setPasswordFeedback("Le mot de passe doit contenir au moins 8 caractères.", "error");
+            setPasswordFeedback("Le nouveau mot de passe doit contenir au moins 8 caractères.", "error");
+            elements.newPassword.focus();
+            return;
+        }
+        if (!/\p{L}/u.test(password) || !/[0-9]/.test(password)) {
+            setPasswordFeedback("Le nouveau mot de passe doit contenir au moins une lettre et un chiffre.", "error");
             elements.newPassword.focus();
             return;
         }
@@ -266,12 +279,14 @@
         try {
             const client = window.Zone431Auth.client;
             const { error } = await client.auth.updateUser({
+                current_password: elements.currentPassword.value,
                 password: state.pendingPassword,
                 nonce
             });
             if (error) throw error;
 
             state.pendingPassword = null;
+            elements.currentPassword.value = "";
             elements.passwordOtpStep.hidden = true;
             elements.passwordEmailCode.value = "";
             await refreshPasswordChangeStatus(client);
@@ -282,10 +297,13 @@
         } catch (error) {
             console.error("[ZONE-431] Changement du mot de passe impossible :", error);
             const message = String(error.message || "");
+            const code = String(error.code || "");
             setPasswordFeedback(
                 message.includes("PASSWORD_CHANGE_COOLDOWN")
                     ? "Le délai de 15 jours n'est pas encore écoulé."
-                    : (error.message || "Le code est invalide ou le changement a échoué."),
+                    : (code === "invalid_credentials" || code === "current_password_mismatch"
+                        ? "L'ancien mot de passe est incorrect. Vérifiez-le puis réessayez."
+                        : (error.message || "Le code est invalide ou le changement a échoué.")),
                 "error"
             );
         } finally {
