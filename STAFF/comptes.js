@@ -15,6 +15,8 @@ let departments = [];
 let nodes = [];
 let selectedAccount = null;
 
+const ACCREDITATION_LEVELS = ["ACC 0", "ACC 1", "ACC 2", "ACC 3", "ACC 4", "ACC 5", "O5"];
+
 const $ = id => document.getElementById(id);
 
 const STATUS_LABELS = {
@@ -121,13 +123,15 @@ async function loadAccounts() {
      * cela évite que les règles RLS de lecture directe masquent
      * les profils RP ou leurs noms dans la liste.
      */
-    const [membersResult, namesResult] = await Promise.all([
+    const [membersResult, namesResult, accreditationResult] = await Promise.all([
         db.rpc("admin_list_rp_members"),
-        db.rpc("admin_list_rp_member_names")
+        db.rpc("admin_list_rp_member_names"),
+        db.rpc("admin_list_rp_member_accreditations")
     ]);
 
     if (membersResult.error) throw membersResult.error;
     if (namesResult.error) throw namesResult.error;
+    if (accreditationResult.error) throw accreditationResult.error;
 
     const rpNames = new Map(
         (namesResult.data || []).map(profile => [
@@ -136,9 +140,17 @@ async function loadAccounts() {
         ])
     );
 
+    const accreditationByUser = new Map(
+        (accreditationResult.data || []).map(profile => [
+            profile.user_id,
+            profile.accreditation || "ACC 0"
+        ])
+    );
+
     accounts = (membersResult.data || []).map(account => ({
         ...account,
         rp_name: rpNames.get(account.user_id) || "",
+        accreditation: accreditationByUser.get(account.user_id) || "ACC 0",
         status: normalizeStatus(account.status),
         department_codes: Array.isArray(account.department_codes)
             ? account.department_codes
@@ -251,7 +263,11 @@ function renderAccounts() {
         const discord = document.createElement("span");
         discord.textContent = `DISCORD : ${account.discord_username || "Non renseigné"}`;
 
-        identifiers.append(rpName, roblox, discord);
+        const accreditation = document.createElement("span");
+        accreditation.className = "account-accreditation";
+        accreditation.textContent = `ACCRÉDITATION : ${account.accreditation || "ACC 0"}`;
+
+        identifiers.append(rpName, roblox, discord, accreditation);
 
         const meta = document.createElement("div");
         meta.className = "account-meta";
@@ -431,6 +447,7 @@ async function openAccountEditor(account) {
     $("accountCreatedAt").textContent = formatDate(account.created_at);
 
     $("accountRpName").value = account.rp_name || "";
+    $("accountAccreditation").value = account.accreditation || "ACC 0";
     $("accountStatus").value = account.status;
 
     renderPrimaryDepartmentOptions(account.department || account.department_codes?.[0] || "");
@@ -519,7 +536,12 @@ async function saveAccount(event) {
 
         const userId = $("accountUserId").value;
         const rpName = $("accountRpName").value.trim();
+        const accreditation = $("accountAccreditation").value;
         const status = $("accountStatus").value;
+
+        if (!ACCREDITATION_LEVELS.includes(accreditation)) {
+            throw new Error("Le niveau d’accréditation est obligatoire.");
+        }
 
         if (rpName.length > 100) {
             throw new Error("Le nom RP ne peut pas dépasser 100 caractères.");
@@ -585,6 +607,12 @@ async function saveAccount(event) {
             p_secondary: secondaryAssignments
         });
         if (assignmentSaveError) throw assignmentSaveError;
+
+        const { error: accreditationError } = await db.rpc("admin_set_rp_member_accreditation", {
+            p_user_id: userId,
+            p_accreditation: accreditation
+        });
+        if (accreditationError) throw accreditationError;
 
         $("accountModal").close();
         showMessage("Le dossier du compte a été mis à jour.");
