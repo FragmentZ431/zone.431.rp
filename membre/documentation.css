@@ -225,6 +225,19 @@
     font-size: 0.7rem;
 }
 
+.documentation-card-accreditation {
+    display: inline-block;
+    margin-top: 12px;
+    padding: 5px 8px;
+    color: var(--member-green-light);
+    background: rgba(82, 111, 67, 0.10);
+    border: 1px solid var(--member-green-dark);
+    border-radius: 3px;
+    font-size: 0.62rem;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+}
+
 /* CARTES DOCUMENTAIRES */
 
 .documentation-grid {
@@ -331,6 +344,11 @@
 
 .documentation-card-read i {
     transition: transform var(--member-transition);
+}
+
+.document-accreditation {
+    color: var(--member-green-light);
+    font-weight: 800;
 }
 
 /* ÉTATS VIDES ET ERREURS */
