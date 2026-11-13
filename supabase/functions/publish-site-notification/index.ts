@@ -240,9 +240,12 @@ Deno.serve(async (req: Request) => {
         });
       }
 
-      eligibleLoop: for (const p of profileRows) {
-        const departmentMatch = departmentTargets.includes(p.department) ||
-          departmentTargets.some((code: string) => extraByUser.get(p.user_id)?.has(code));
+      for (const p of profileRows) {
+        // Les cours RP suivent strictement la règle RLS :
+        // accès départemental explicite ou accès à une division/filière.
+        const departmentMatch = departmentTargets.some(
+          (code: string) => extraByUser.get(p.user_id)?.has(code)
+        );
         const nodeMatch = nodeTargets.some((code: string) => nodeByUser.get(p.user_id)?.has(code));
         if (departmentMatch || nodeMatch) recipients.add(p.user_id);
       }
