@@ -270,10 +270,13 @@
             department.textContent =
                 `${item.department_code} — ${item.department_name || item.department_code}${division}`;
 
-            const grade = document.createElement("small");
-            grade.textContent = `GRADE : ${item.grade}`;
+            const rpName = document.createElement("small");
+            rpName.textContent = `NOM RP : ${item.rp_name || "Non renseigné"}`;
 
-            card.append(heading, department, grade);
+            const grade = document.createElement("small");
+            grade.textContent = `GRADE : ${item.grade || "Non renseigné"}`;
+
+            card.append(heading, department, rpName, grade);
             elements.secondaryDepartments.appendChild(card);
         });
     }
