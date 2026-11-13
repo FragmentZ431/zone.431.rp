@@ -49,6 +49,10 @@
     function setUnreadCount(count) {
         const value = Number(count) || 0;
         badge.textContent = value > 99 ? "99+" : String(value);
+        widget.querySelector(".notification-toggle")?.setAttribute(
+            "aria-label",
+            value > 0 ? `Ouvrir les notifications, ${value} non lue${value > 1 ? "s" : ""}` : "Ouvrir les notifications"
+        );
         badge.hidden = value === 0;
         widget.classList.toggle("has-unread", value > 0);
     }
@@ -172,6 +176,7 @@
         if (!panel || !widget) return;
         panel.hidden = true;
         widget.querySelector(".notification-toggle")?.setAttribute("aria-expanded", "false");
+        widget.querySelector(".notification-toggle")?.setAttribute("aria-label", "Ouvrir les notifications");
     }
 
     function buildWidget() {
@@ -185,7 +190,7 @@
         toggle.setAttribute("aria-label", "Ouvrir les notifications");
         toggle.setAttribute("aria-expanded", "false");
 
-        const icon = createElement("i", "fa-regular fa-bell");
+        const icon = createElement("i", "fa-solid fa-bell");
         badge = createElement("span", "notification-count", "0");
         badge.hidden = true;
         toggle.append(icon, badge);
@@ -214,6 +219,7 @@
             const opening = panel.hidden;
             panel.hidden = !opening;
             toggle.setAttribute("aria-expanded", String(opening));
+            toggle.setAttribute("aria-label", opening ? "Fermer les notifications" : "Ouvrir les notifications");
             if (opening) loadNotifications();
         });
 
