@@ -25,6 +25,7 @@ document.addEventListener("DOMContentLoaded", () => {
         title: document.getElementById("documentTitle"),
         summary: document.getElementById("documentSummary"),
         date: document.getElementById("documentDate"),
+        accreditation: document.getElementById("documentAccreditation"),
         content: document.getElementById("documentContent")
     };
 
@@ -90,6 +91,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     category,
                     summary,
                     content,
+                    required_accreditation,
                     created_at,
                     updated_at
                 `)
@@ -116,6 +118,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
             elements.summary.textContent =
                 data.summary || "";
+            elements.accreditation.textContent =
+                `ACCRÉDITATION REQUISE : ${data.required_accreditation || "ACC 0"}`;
 
             elements.date.innerHTML =
                 `<i class="fa-regular fa-calendar"></i> ${formatDate(data.created_at)}`;
