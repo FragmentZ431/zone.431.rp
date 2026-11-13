@@ -14,6 +14,14 @@
         content: document.getElementById("profileContent"),
         retry: document.getElementById("profileRetry"),
         signOut: document.getElementById("profileSignOut"),
+        passwordCooldownInfo: document.getElementById("passwordCooldownInfo"),
+        newPassword: document.getElementById("newPassword"),
+        confirmNewPassword: document.getElementById("confirmNewPassword"),
+        requestPasswordCodeBtn: document.getElementById("requestPasswordCodeBtn"),
+        passwordOtpStep: document.getElementById("passwordOtpStep"),
+        passwordEmailCode: document.getElementById("passwordEmailCode"),
+        confirmPasswordChangeBtn: document.getElementById("confirmPasswordChangeBtn"),
+        passwordChangeFeedback: document.getElementById("passwordChangeFeedback"),
 
         monogram: document.getElementById("profileMonogram"),
         displayName: document.getElementById("profileDisplayName"),
@@ -46,7 +54,9 @@
         profile: null,
         roles: [],
         departmentAssignments: [],
-        publicationInProgress: false
+        publicationInProgress: false,
+        passwordChangeAvailable: false,
+        pendingPassword: null
     };
 
     const roleLabels = {
@@ -150,6 +160,137 @@
 
         if (type) {
             elements.publicationFeedback.classList.add(type);
+        }
+    }
+
+    function setPasswordFeedback(message = "", type = "") {
+        elements.passwordChangeFeedback.textContent = message;
+        elements.passwordChangeFeedback.classList.remove("success", "error");
+        if (type) elements.passwordChangeFeedback.classList.add(type);
+    }
+
+    function formatDateTime(value) {
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) return "date indisponible";
+        return new Intl.DateTimeFormat("fr-FR", {
+            dateStyle: "long",
+            timeStyle: "short"
+        }).format(date);
+    }
+
+    async function refreshPasswordChangeStatus(client) {
+        const { data, error } = await client.rpc("get_my_password_change_status");
+        if (error) throw error;
+
+        const status = Array.isArray(data) ? data[0] : data;
+        if (!status) {
+            state.passwordChangeAvailable = true;
+            elements.passwordCooldownInfo.textContent =
+                "Vous pouvez modifier votre mot de passe. Un code de confirmation sera envoyé par e-mail.";
+        } else if (status.can_change === true) {
+            state.passwordChangeAvailable = true;
+            elements.passwordCooldownInfo.textContent =
+                "Le délai de sécurité est écoulé. Vous pouvez modifier votre mot de passe.";
+        } else {
+            state.passwordChangeAvailable = false;
+            elements.passwordCooldownInfo.textContent =
+                "Prochain changement possible à partir du " +
+                formatDateTime(status.next_change_at) + ".";
+        }
+
+        elements.requestPasswordCodeBtn.disabled = !state.passwordChangeAvailable;
+    }
+
+    async function requestPasswordChangeCode() {
+        if (!state.passwordChangeAvailable || state.pendingPassword) return;
+
+        const password = elements.newPassword.value;
+        const confirmation = elements.confirmNewPassword.value;
+
+        if (password.length < 8) {
+            setPasswordFeedback("Le mot de passe doit contenir au moins 8 caractères.", "error");
+            elements.newPassword.focus();
+            return;
+        }
+        if (password !== confirmation) {
+            setPasswordFeedback("Les deux mots de passe ne correspondent pas.", "error");
+            elements.confirmNewPassword.focus();
+            return;
+        }
+
+        const button = elements.requestPasswordCodeBtn;
+        button.disabled = true;
+        button.textContent = "ENVOI DU CODE...";
+
+        try {
+            const client = window.Zone431Auth.client;
+            const { error } = await client.auth.reauthenticate();
+            if (error) throw error;
+
+            state.pendingPassword = password;
+            elements.newPassword.value = "";
+            elements.confirmNewPassword.value = "";
+            elements.passwordOtpStep.hidden = false;
+            elements.passwordEmailCode.value = "";
+            elements.passwordEmailCode.focus();
+            setPasswordFeedback(
+                "Un code de confirmation vient d'être envoyé à l'adresse e-mail de votre compte. Saisissez-le pour valider le changement.",
+                "success"
+            );
+        } catch (error) {
+            console.error("[ZONE-431] Envoi du code de sécurité impossible :", error);
+            setPasswordFeedback(
+                error.message || "Impossible d'envoyer le code de confirmation.",
+                "error"
+            );
+        } finally {
+            button.textContent = "ENVOYER LE CODE DE CONFIRMATION";
+            button.disabled = !state.passwordChangeAvailable || Boolean(state.pendingPassword);
+        }
+    }
+
+    async function confirmPasswordChange() {
+        if (!state.pendingPassword) return;
+
+        const nonce = elements.passwordEmailCode.value.trim();
+        if (!/^[0-9]{6}$/.test(nonce)) {
+            setPasswordFeedback("Saisissez le code à 6 chiffres reçu par e-mail.", "error");
+            elements.passwordEmailCode.focus();
+            return;
+        }
+
+        const button = elements.confirmPasswordChangeBtn;
+        button.disabled = true;
+        button.textContent = "VÉRIFICATION...";
+
+        try {
+            const client = window.Zone431Auth.client;
+            const { error } = await client.auth.updateUser({
+                password: state.pendingPassword,
+                nonce
+            });
+            if (error) throw error;
+
+            state.pendingPassword = null;
+            elements.passwordOtpStep.hidden = true;
+            elements.passwordEmailCode.value = "";
+            await refreshPasswordChangeStatus(client);
+            setPasswordFeedback(
+                "Votre mot de passe a été modifié avec succès. Le prochain changement sera possible dans 15 jours.",
+                "success"
+            );
+        } catch (error) {
+            console.error("[ZONE-431] Changement du mot de passe impossible :", error);
+            const message = String(error.message || "");
+            setPasswordFeedback(
+                message.includes("PASSWORD_CHANGE_COOLDOWN")
+                    ? "Le délai de 15 jours n'est pas encore écoulé."
+                    : (error.message || "Le code est invalide ou le changement a échoué."),
+                "error"
+            );
+        } finally {
+            button.disabled = false;
+            button.textContent = "CONFIRMER LE CHANGEMENT";
         }
     }
 
@@ -460,6 +601,7 @@
                 ? departmentAssignments
                 : [];
 
+            await refreshPasswordChangeStatus(client);
             renderProfile(profile, user);
 
         } catch (error) {
@@ -502,6 +644,8 @@
     }
 
     elements.retry.addEventListener("click", loadProfile);
+    elements.requestPasswordCodeBtn.addEventListener("click", requestPasswordChangeCode);
+    elements.confirmPasswordChangeBtn.addEventListener("click", confirmPasswordChange);
     elements.signOut.addEventListener("click", signOut);
     elements.publicationButton.addEventListener("click", togglePublication);
 
