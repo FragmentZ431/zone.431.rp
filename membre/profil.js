@@ -298,10 +298,15 @@
             console.error("[ZONE-431] Changement du mot de passe impossible :", error);
             const message = String(error.message || "");
             const code = String(error.code || "");
+            const currentPasswordError =
+                code === "invalid_credentials" ||
+                code === "current_password_mismatch" ||
+                /current password/i.test(message);
+
             setPasswordFeedback(
                 message.includes("PASSWORD_CHANGE_COOLDOWN")
                     ? "Le délai de 15 jours n'est pas encore écoulé."
-                    : (code === "invalid_credentials" || code === "current_password_mismatch"
+                    : (currentPasswordError
                         ? "L'ancien mot de passe est incorrect. Vérifiez-le puis réessayez."
                         : (error.message || "Le code est invalide ou le changement a échoué.")),
                 "error"
