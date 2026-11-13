@@ -43,6 +43,24 @@ function safeText(value: unknown, max = 500): string {
   return String(value ?? "").trim().slice(0, max);
 }
 
+function renderDiscordTemplate(
+  template: string,
+  values: Record<string, string>,
+): string {
+  let output = template;
+  for (const [key, value] of Object.entries(values)) {
+    output = output.replaceAll(`{${key}}`, value);
+  }
+  return output.trim().slice(0, 1900);
+}
+
+const DEFAULT_DISCORD_TEMPLATES: Record<string, string> = {
+  document_published: "**NOUVEAU DOCUMENT PUBLIÉ**\\n\\n**{titre}**\\n{resume}\\n\\n[Consulter le document]({lien})",
+  document_updated: "**DOCUMENT MIS À JOUR**\\n\\n**{titre}**\\n{resume}\\n\\n[Consulter le document]({lien})",
+  training_published: "**NOUVELLE FORMATION DISPONIBLE**\\n\\n**{titre}**\\n{resume}\\n\\n[Accéder à la formation]({lien})",
+  training_updated: "**FORMATION MISE À JOUR**\\n\\n**{titre}**\\n{resume}\\n\\n[Accéder à la formation]({lien})",
+};
+
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
     const origin = req.headers.get("Origin") || "";
@@ -111,6 +129,9 @@ Deno.serve(async (req: Request) => {
     let message: string;
     let href: string;
     let discordText: string | null = null;
+    let discordEnabled = true;
+    let discordLink = "";
+    let sourceCategory = "";
 
     const { data: profiles, error: profilesError } = await adminClient
       .from("rp_member_profiles")
@@ -140,9 +161,8 @@ Deno.serve(async (req: Request) => {
         ? "Le document « " + safeText(data.title, 180) + " » est maintenant disponible."
         : "Le document « " + safeText(data.title, 180) + " » a été mis à jour.";
       href = "document.html?id=" + encodeURIComponent(sourceId);
-      discordText = event === "document_published"
-        ? "Un nouveau document interne a été publié dans la bibliothèque documentaire."
-        : "Un document interne a été mis à jour dans la bibliothèque documentaire.";
+      sourceCategory = safeText(data.category, 100);
+      discordLink = "https://fragmentz431.github.io/zone.431.rp/membre/" + href;
 
       const requiredRank = accreditationRank(data.required_accreditation);
       const eligibleProfiles = profileRows.filter(
@@ -197,6 +217,7 @@ Deno.serve(async (req: Request) => {
         ? "La formation « " + safeText(data.title, 180) + " » est maintenant disponible."
         : "La formation « " + safeText(data.title, 180) + " » a été mise à jour.";
       href = "formations.html";
+      discordLink = "https://fragmentz431.github.io/zone.431.rp/membre/" + href;
 
       const { data: targets, error: targetsError } = await adminClient
         .from("rp_training_course_targets")
@@ -249,6 +270,27 @@ Deno.serve(async (req: Request) => {
         const nodeMatch = nodeTargets.some((code: string) => nodeByUser.get(p.user_id)?.has(code));
         if (departmentMatch || nodeMatch) recipients.add(p.user_id);
       }
+    }
+
+    const { data: templateRow, error: templateError } = await adminClient
+      .from("site_notification_templates")
+      .select("discord_content,enabled")
+      .eq("event_key", event)
+      .maybeSingle();
+    if (templateError) throw templateError;
+
+    discordEnabled = templateRow?.enabled !== false;
+    if (discordEnabled) {
+      const template = safeText(
+        templateRow?.discord_content || DEFAULT_DISCORD_TEMPLATES[event],
+        1900,
+      );
+      discordText = renderDiscordTemplate(template, {
+        titre: safeText(source.title, 180),
+        resume: safeText(source.summary, 450) || "Aucun résumé renseigné.",
+        categorie: sourceCategory,
+        lien: discordLink,
+      });
     }
 
     const sourceUpdatedAt = safeText(source.updated_at, 80) || new Date().toISOString();
