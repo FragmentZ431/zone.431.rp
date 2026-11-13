@@ -251,7 +251,7 @@
                     <div>
                         <p class="section-eyebrow">SÉCURITÉ DU COMPTE</p>
                         <h2>MODIFIER MON MOT DE PASSE</h2>
-                        <p>Un code de confirmation sera envoyé à l'adresse électronique associée à votre compte. Le changement est limité à une fois tous les 15 jours.</p>
+                        <p>Votre ancien mot de passe est obligatoire. Le nouveau doit contenir au moins 8 caractères, une lettre et un chiffre. Un code de confirmation sera envoyé par e-mail. Le changement est limité à une fois tous les 15 jours.</p>
                     </div>
                 </div>
 
@@ -259,8 +259,12 @@
 
                 <div class="password-change-fields">
                     <label>
+                        <span>Ancien mot de passe</span>
+                        <input id="currentPassword" type="password" autocomplete="current-password" placeholder="Saisir le mot de passe actuel" required>
+                    </label>
+                    <label>
                         <span>Nouveau mot de passe</span>
-                        <input id="newPassword" type="password" minlength="8" autocomplete="new-password" placeholder="8 caractères minimum">
+                        <input id="newPassword" type="password" minlength="8" autocomplete="new-password" placeholder="8 caractères, lettre et chiffre">
                     </label>
                     <label>
                         <span>Confirmer le nouveau mot de passe</span>
@@ -339,7 +343,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="auth.js"></script>
     <script src="notifications.js?v=20261113-3"></script>
-    <script src="profil.js?v=20261113-3"></script>
+    <script src="profil.js?v=20261113-4"></script>
 
 </body>
 </html>
