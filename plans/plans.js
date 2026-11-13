@@ -5,6 +5,7 @@ const PUBLIC_KEY="sb_publishable_iwAj_zFrWEsMcqUKNINwJw_Po3QAwDG";
 const db=window.supabase.createClient(URL_BASE,PUBLIC_KEY);
 const $=id=>document.getElementById(id),NS="http://www.w3.org/2000/svg";
 const state={plans:[],plan:null,selected:null,tool:"select",canWrite:false,snap:true,drag:null,pan:null,view:null,history:[],future:[],wallStart:null};
+let roomCache=[];
 const catalog={
 wall:["Mur","wall",280,22,"#8496a3"],reinforced:["Mur renforcé","wall",280,34,"#b2bbc1"],block:["Mur en parpaings","wall",280,28,"#9a8f80"],partition:["Cloison","wall",220,12,"#778d9e"],glasswall:["Mur vitré","wall",260,16,"#5aa7c9"],fence:["Clôture","wall",260,16,"#b58e55"],mesh:["Grillage","wall",260,12,"#91a6b4"],barrier:["Barrière béton","rect",150,55,"#827e79"],
 door:["Porte","opening",100,18,"#58a8d5"],doubleDoor:["Porte double","opening",170,20,"#58a8d5"],armoredDoor:["Porte blindée","opening",120,24,"#bd777c"],gate:["Portail / sas","opening",190,25,"#bd777c"],window:["Fenêtre","opening",110,14,"#65bad2"],securityGlass:["Vitre sécurisée","opening",130,16,"#7bc9db"],porthole:["Hublot","opening",65,16,"#7bc9db"],
@@ -76,9 +77,10 @@ function shape(e,selected){
  if(selected)g.append(node("rect",{x:-7,y:-7,width:w+14,height:h+14,fill:"none",stroke:"#e4bd67","stroke-width":3,"stroke-dasharray":"8 6"}));
  return g
 }
-function draw(){
+function draw(rebuildRooms=true){
  if(!state.plan)return;const svg=$("planCanvas"),bg=$("canvasBackground"),d=dims();bg.setAttribute("width",d.w);bg.setAttribute("height",d.h);svg.querySelectorAll("[data-element-id],.room-fill,.room-name").forEach(n=>n.remove());
- const rooms=detectRooms();
+ if(rebuildRooms)roomCache=detectRooms();
+ const rooms=roomCache;
  rooms.forEach(r=>{svg.append(node("rect",{x:r.x,y:r.y,width:r.w,height:r.h,class:"room-fill"}));const t=node("text",{x:r.cx,y:r.cy,class:"room-name","data-room-key":r.key});t.textContent=roomName(r);svg.append(t)});
  (state.plan.elements||[]).filter(e=>e.type!=="roomName").forEach(e=>{if(e.type==="opening"&&e.wallId)syncOpening(e);svg.append(shape(e,state.selected===e.id))});
  viewBox();$("canvasTitle").textContent=state.plan.name+" — "+state.plan.level_name;$("elementCount").textContent=(state.plan.elements||[]).filter(e=>e.type!=="roomName").length+" ÉLÉMENT(S) · "+rooms.length+" PIÈCE(S)";inspector()
@@ -132,7 +134,7 @@ function canvasMove(ev){
  if(d.kind==="wall"){const dx=p.x-d.start.x,dy=p.y-d.start.y;if(Math.abs(dx)>=Math.abs(dy)){e.x=snapValue(d.start.x);e.y=snapValue(d.start.y);e.x2=snapValue(p.x);e.y2=e.y}else{e.x=snapValue(d.start.x);e.y=snapValue(d.start.y);e.x2=e.x;e.y2=snapValue(p.y)}}
  else if(d.kind==="opening"){nearestWall(e,p);if(e.wallId)e.t=Math.max(0,Math.min(1,((p.x-wallGeom(state.plan.elements.find(w=>w.id===e.wallId)).x1)*(wallGeom(state.plan.elements.find(w=>w.id===e.wallId)).x2-wallGeom(state.plan.elements.find(w=>w.id===e.wallId)).x1)+(p.y-wallGeom(state.plan.elements.find(w=>w.id===e.wallId)).y1)*(wallGeom(state.plan.elements.find(w=>w.id===e.wallId)).y2-wallGeom(state.plan.elements.find(w=>w.id===e.wallId)).y1))/Math.pow(Math.hypot(wallGeom(state.plan.elements.find(w=>w.id===e.wallId)).x2-wallGeom(state.plan.elements.find(w=>w.id===e.wallId)).x1,wallGeom(state.plan.elements.find(w=>w.id===e.wallId)).y2-wallGeom(state.plan.elements.find(w=>w.id===e.wallId)).y1),2)));syncOpening(e)}
  else if(d.kind==="move"||d.kind==="moveNew"){if(e.type==="wall"){const dx=p.x-d.start.x,dy=p.y-d.start.y;e.x=d.origin.x+dx;e.y=d.origin.y+dy;e.x2=d.origin.x2+dx;e.y2=d.origin.y2+dy}else{e.x=d.origin.x+p.x-d.start.x;e.y=d.origin.y+p.y-d.start.y;if(e.type==="opening"&&e.wallId){const w=state.plan.elements.find(x=>x.id===e.wallId);if(w){const g=wallGeom(w),dx=g.x2-g.x1,dy=g.y2-g.y1;e.t=Math.max(0,Math.min(1,((p.x-g.x1)*dx+(p.y-g.y1)*dy)/(dx*dx+dy*dy)));syncOpening(e)}}}}
- draw()
+ draw(false)
 }
 function canvasUp(){if(state.drag){const e=state.plan.elements.find(x=>x.id===state.drag.id);if(e&&e.type==="wall"&&Math.hypot(e.x2-e.x,e.y2-e.y)<20){state.plan.elements=state.plan.elements.filter(x=>x.id!==e.id);state.selected=null}if(e&&e.type==="opening"&&!e.wallId)notify("Ouverture posée sans mur associé : déplacez-la sur un mur pour l'y accrocher.",true);draw()}$("canvasViewport").classList.remove("panning");state.drag=null;state.pan=null}
 function editRoom(ev){const target=ev.target.closest("[data-room-key]");if(!target||!state.canWrite)return;const key=target.dataset.roomKey,old=roomName({key}),name=prompt("Nom de cette pièce :",old==="PIÈCE SANS NOM"?"":old);if(name===null)return;remember();let item=state.plan.elements.find(e=>e.type==="roomName"&&e.key===key);if(!item){item={id:uid(),type:"roomName",key,name};state.plan.elements.push(item)}else item.name=name.trim()||"PIÈCE SANS NOM";draw()}
