@@ -184,7 +184,9 @@
     }
 
     function buildWidget() {
-        const header = document.querySelector(".member-header");
+        const header = document.querySelector(
+            ".member-header, .results-header, .page-header, .main-header, .topbar"
+        );
         if (!header || widget) return;
 
         widget = createElement("div", "notification-widget");
@@ -235,8 +237,18 @@
             if (event.key === "Escape") closePanel();
         });
 
-        const backLink = header.querySelector(".header-back");
-        if (backLink) header.insertBefore(widget, backLink);
+        if (header.classList.contains("topbar")) {
+            const right = header.querySelector(".topbar-right") || header;
+            const avatar = right.querySelector(".user-avatar");
+            if (avatar) right.insertBefore(widget, avatar);
+            else right.appendChild(widget);
+            return;
+        }
+
+        const anchor = header.querySelector(
+            ".header-back, .member-access, .nav-staff, .header-status"
+        );
+        if (anchor) header.insertBefore(widget, anchor);
         else header.appendChild(widget);
     }
 
