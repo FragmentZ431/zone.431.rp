@@ -617,6 +617,23 @@ async function openEditCourse(courseId) {
     openModal("courseModal");
 }
 
+async function dispatchTrainingNotification(eventName, courseId) {
+    try {
+        const { data, error } = await supabaseClient.functions.invoke(
+            "publish-site-notification",
+            { body: { event: eventName, sourceId: courseId } }
+        );
+
+        if (error) throw error;
+        if (data?.error) throw new Error(data.error);
+
+        return data;
+    } catch (error) {
+        console.warn("[ZONE-431] Notification de formation non envoyée :", error);
+        return null;
+    }
+}
+
 async function saveCourse(event) {
     event.preventDefault();
 
@@ -627,6 +644,7 @@ async function saveCourse(event) {
 
     const tables = currentTables();
     const courseId = $("courseId").value;
+    const previousCourse = state.courses.find((course) => course.id === courseId) || null;
 
     const title = $("courseTitle").value.trim();
     const category = $("courseCategory").value.trim();
@@ -728,6 +746,14 @@ async function saveCourse(event) {
             showToast("Formation enregistrée, mais les publics n'ont pas pu être enregistrés.", true);
             return;
         }
+    }
+
+    if (state.space === "rp" && savedCourse.is_published) {
+        const notificationEvent = !courseId || previousCourse?.is_published !== true
+            ? "training_published"
+            : "training_updated";
+
+        await dispatchTrainingNotification(notificationEvent, savedCourse.id);
     }
 
     closeModal("courseModal");
