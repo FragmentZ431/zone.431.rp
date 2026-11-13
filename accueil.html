@@ -191,110 +191,19 @@
                 </p>
             </div>
 
-            <div class="map-interface">
-
-                <div class="map-toolbar">
-
-                    <div class="map-toolbar-title">
-                        <span class="status-dot"></span>
-                        CARTOGRAPHIE Z431
-                    </div>
-
-                    <div class="map-controls">
-                        <button type="button" id="mapRotateLeft" aria-label="Tourner à gauche">
-                            ↶
-                        </button>
-
-                        <button type="button" id="mapRotateRight" aria-label="Tourner à droite">
-                            ↷
-                        </button>
-
-                        <button type="button" id="mapZoomIn" aria-label="Zoomer">
-                            +
-                        </button>
-
-                        <button type="button" id="mapZoomOut" aria-label="Dézoomer">
-                            −
-                        </button>
-
-                        <button type="button" id="mapReset" aria-label="Réinitialiser le plan">
-                            RÉINITIALISER
-                        </button>
-                    </div>
-
-                </div>
-
-                <div class="map-viewport" id="mapViewport">
-
-                    <div class="map-scene" id="mapScene">
-
-                        <!--
-                            Le plan sera intégré ici.
-                            Il pourra être manipulé à la souris :
-                            rotation, déplacement et zoom.
-                        -->
-
-                        <div class="map-placeholder" id="mapPlaceholder">
-
-                            <div class="map-placeholder-content">
-                                <span class="map-placeholder-symbol">Z431</span>
-                                <strong>PLAN DE L'INSTALLATION</strong>
-                                <small>PLAN INTERACTIF EN COURS D'INTÉGRATION</small>
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                    <div class="map-overlay map-overlay-top">
-                        <span>VUE GÉNÉRALE</span>
-                        <span>MODE CARTOGRAPHIQUE</span>
-                    </div>
-
-                    <div class="map-overlay map-overlay-bottom">
-                        <span>UTILISEZ LA SOURIS POUR EXPLORER</span>
-                        <span id="mapCoordinates">X: --- / Y: ---</span>
-                    </div>
-
-                </div>
-
-                <aside class="map-information">
-
-                    <div class="map-information-header">
-                        <span class="section-index">INFORMATIONS</span>
-                        <h3 id="mapSelectedTitle">INSTALLATION ZONE-431</h3>
-                    </div>
-
-                    <p id="mapSelectedDescription">
-                        Sélectionnez une zone sur le plan pour afficher
-                        ses informations.
-                    </p>
-
-                    <div class="map-legend">
-                        <div>
-                            <span class="legend-point normal"></span>
-                            Zone principale
-                        </div>
-
-                        <div>
-                            <span class="legend-point heavy"></span>
-                            Confinement lourd
-                        </div>
-
-                        <div>
-                            <span class="legend-point biohazard"></span>
-                            Zone biologique
-                        </div>
-                    </div>
-
-                </aside>
-
+            <div class="map-public-interface">
+                <iframe
+                    src="plans/consultation.html?public=1&amp;embed=public"
+                    title="Plan interactif public de l'installation Zone-431"
+                    loading="lazy"
+                    allowfullscreen>
+                </iframe>
             </div>
 
         </section>
 
 
-        <!-- PERSONNEL -->
+                <!-- PERSONNEL -->
 
         <section class="personnel-section" id="personnel">
 
