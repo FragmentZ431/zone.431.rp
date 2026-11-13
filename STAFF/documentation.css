@@ -1027,3 +1027,77 @@ button:disabled {
         flex-direction: column;
     }
 }
+
+
+/* =========================================================
+   PARAMÈTRES DES NOTIFICATIONS DISCORD
+========================================================= */
+
+.notification-settings-form {
+    padding: 22px 25px 25px;
+}
+
+.notification-template-intro {
+    margin-bottom: 18px;
+    line-height: 1.7;
+}
+
+.notification-template-intro code {
+    padding: 2px 5px;
+    border: 1px solid rgba(133, 161, 190, 0.18);
+    border-radius: 3px;
+    background: #0b1521;
+    color: #e0a0a3;
+    font-size: 10px;
+}
+
+.notification-template-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.notification-template-card {
+    min-width: 0;
+    padding: 15px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: rgba(7, 15, 24, 0.55);
+}
+
+.notification-template-title {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-bottom: 13px;
+}
+
+.notification-template-title strong {
+    color: #e8eef5;
+    font-size: 12px;
+}
+
+.notification-template-title span {
+    color: var(--text-soft);
+    font-size: 10px;
+}
+
+.notification-template-card .checkbox-line {
+    margin-bottom: 13px;
+}
+
+.notification-template-card .form-group textarea {
+    min-height: 145px;
+    font-family: Consolas, "Courier New", monospace;
+    font-size: 11px;
+}
+
+@media (max-width: 700px) {
+    .notification-settings-form {
+        padding: 18px;
+    }
+
+    .notification-template-grid {
+        grid-template-columns: 1fr;
+    }
+}
