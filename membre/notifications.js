@@ -78,9 +78,13 @@
             const iconWrap = createElement("span", "notification-item-icon");
             const iconName = item.notification_type === "training"
                 ? "fa-graduation-cap"
-                : item.notification_type === "announcement"
-                    ? "fa-bullhorn"
-                    : "fa-file-lines";
+                : item.notification_type === "result"
+                    ? "fa-award"
+                    : item.notification_type === "account"
+                        ? "fa-user-check"
+                        : item.notification_type === "announcement"
+                            ? "fa-bullhorn"
+                            : "fa-file-lines";
             iconWrap.appendChild(createElement("i", "fa-solid " + iconName));
 
             const content = createElement("span", "notification-item-content");
