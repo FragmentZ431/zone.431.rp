@@ -8,8 +8,8 @@
 
     <title>Profil personnel | ZONE-431</title>
 
-    <link rel="stylesheet" href="membre.css"
-    <link rel="stylesheet" href="notifications.css?v=20261113-2">
+    <link rel="stylesheet" href="membre.css">
+    <link rel="stylesheet" href="notifications.css?v=20261113-3">
     <link rel="stylesheet" href="profil.css?v=20261110-2">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
@@ -243,6 +243,47 @@
                     </p>
                 </article>
 
+            </section>
+
+            <section class="profile-password-panel">
+                <div class="profile-password-heading">
+                    <div class="profile-panel-icon"><i class="fa-solid fa-key"></i></div>
+                    <div>
+                        <p class="section-eyebrow">SÉCURITÉ DU COMPTE</p>
+                        <h2>MODIFIER MON MOT DE PASSE</h2>
+                        <p>Un code de confirmation sera envoyé à l'adresse électronique associée à votre compte. Le changement est limité à une fois tous les 15 jours.</p>
+                    </div>
+                </div>
+
+                <p id="passwordCooldownInfo" class="password-change-info" aria-live="polite">Vérification du délai de sécurité...</p>
+
+                <div class="password-change-fields">
+                    <label>
+                        <span>Nouveau mot de passe</span>
+                        <input id="newPassword" type="password" minlength="8" autocomplete="new-password" placeholder="8 caractères minimum">
+                    </label>
+                    <label>
+                        <span>Confirmer le nouveau mot de passe</span>
+                        <input id="confirmNewPassword" type="password" minlength="8" autocomplete="new-password" placeholder="Saisir à nouveau le mot de passe">
+                    </label>
+                </div>
+
+                <button type="button" id="requestPasswordCodeBtn" class="password-change-button">
+                    <i class="fa-solid fa-envelope"></i>
+                    ENVOYER LE CODE DE CONFIRMATION
+                </button>
+
+                <div id="passwordOtpStep" class="password-otp-step" hidden>
+                    <label>
+                        <span>Code reçu par e-mail</span>
+                        <input id="passwordEmailCode" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" placeholder="Code à 6 chiffres">
+                    </label>
+                    <button type="button" id="confirmPasswordChangeBtn" class="password-change-button">
+                        CONFIRMER LE CHANGEMENT
+                    </button>
+                </div>
+
+                <p id="passwordChangeFeedback" class="password-change-feedback" aria-live="polite"></p>
             </section>
 
             <section class="profile-account-panel">
