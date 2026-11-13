@@ -98,21 +98,15 @@ async function validateSession() {
    ========================================================= */
 
 async function loadCatalog() {
-    const [departmentResult, nodeResult] = await Promise.all([
-        db.from("rp_departments")
-            .select("code,name,description")
-            .order("code"),
+    const { data, error } = await db.rpc("admin_get_rp_department_catalog");
+    if (error) throw error;
 
-        db.from("rp_organization_nodes")
-            .select("code,parent_code,root_department_code,node_type,title,sort_order")
-            .order("sort_order")
-    ]);
+    departments = Array.isArray(data?.departments) ? data.departments : [];
+    nodes = Array.isArray(data?.nodes) ? data.nodes : [];
 
-    if (departmentResult.error) throw departmentResult.error;
-    if (nodeResult.error) throw nodeResult.error;
-
-    departments = departmentResult.data || [];
-    nodes = nodeResult.data || [];
+    if (!departments.length) {
+        throw new Error("Le catalogue des départements est vide ou inaccessible.");
+    }
 
     renderDepartmentSelection();
 }
@@ -123,22 +117,20 @@ async function loadCatalog() {
 
 async function loadAccounts() {
     /*
-     * La liste des comptes continue de provenir de la RPC
-     * existante. Les noms RP sont chargés séparément depuis
-     * rp_member_profiles pour ne pas modifier cette RPC.
+     * Les données administratives sont chargées par RPC sécurisées :
+     * cela évite que les règles RLS de lecture directe masquent
+     * les profils RP ou leurs noms dans la liste.
      */
-    const [membersResult, profilesResult] = await Promise.all([
+    const [membersResult, namesResult] = await Promise.all([
         db.rpc("admin_list_rp_members"),
-
-        db.from("rp_member_profiles")
-            .select("user_id,rp_name")
+        db.rpc("admin_list_rp_member_names")
     ]);
 
     if (membersResult.error) throw membersResult.error;
-    if (profilesResult.error) throw profilesResult.error;
+    if (namesResult.error) throw namesResult.error;
 
     const rpNames = new Map(
-        (profilesResult.data || []).map(profile => [
+        (namesResult.data || []).map(profile => [
             profile.user_id,
             profile.rp_name || ""
         ])
