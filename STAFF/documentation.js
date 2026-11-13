@@ -914,6 +914,23 @@ async function synchronizeDepartments(documentId, selectedDepartments) {
     if (insertError) throw insertError;
 }
 
+async function dispatchSiteNotification(eventName, sourceId) {
+    try {
+        const { data, error } = await supabaseClient.functions.invoke(
+            "publish-site-notification",
+            { body: { event: eventName, sourceId } }
+        );
+
+        if (error) throw error;
+        if (data?.error) throw new Error(data.error);
+
+        return data;
+    } catch (error) {
+        console.warn("[ZONE-431] Notification non envoyée :", error);
+        return null;
+    }
+}
+
 async function saveDocument(event) {
     event.preventDefault();
 
@@ -926,6 +943,8 @@ async function saveDocument(event) {
     }
 
     const documentId = elements.documentId.value;
+    const previousDocument = documents.find(doc => doc.id === documentId) || null;
+    const wasPublished = previousDocument?.is_published === true;
 
     const title = elements.documentTitle.value.trim();
     const category = elements.documentCategory.value;
@@ -1019,6 +1038,14 @@ async function saveDocument(event) {
             selectedDepartments
         );
 
+        if (payload.is_published) {
+            const notificationEvent = !documentId || !wasPublished
+                ? "document_published"
+                : "document_updated";
+
+            await dispatchSiteNotification(notificationEvent, savedDocumentId);
+        }
+
         closeDocumentModal();
 
         showToast(
@@ -1083,6 +1110,10 @@ async function togglePublication(doc) {
             .eq("id", doc.id);
 
         if (error) throw error;
+
+        if (nextState) {
+            await dispatchSiteNotification("document_published", doc.id);
+        }
 
         showToast(
             nextState
