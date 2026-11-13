@@ -360,6 +360,17 @@ function createSecondaryAssignment(data = {}) {
     fillSelect(divisionSelect, getDivisionsForDepartment(departmentSelect.value), "Aucune division", data.division_code || "");
     divisionLabel.appendChild(divisionSelect);
 
+    const rpNameLabel = document.createElement("label");
+    rpNameLabel.textContent = "Nom RP dans ce département (obligatoire)";
+    const rpNameInput = document.createElement("input");
+    rpNameInput.className = "secondary-rp-name";
+    rpNameInput.type = "text";
+    rpNameInput.maxLength = 100;
+    rpNameInput.required = true;
+    rpNameInput.placeholder = "Nom RP pour ce département";
+    rpNameInput.value = data.rp_name || "";
+    rpNameLabel.appendChild(rpNameInput);
+
     const gradeLabel = document.createElement("label");
     gradeLabel.textContent = "Grade (obligatoire)";
     const gradeInput = document.createElement("input");
@@ -379,7 +390,7 @@ function createSecondaryAssignment(data = {}) {
     departmentSelect.addEventListener("change", () => {
         fillSelect(divisionSelect, getDivisionsForDepartment(departmentSelect.value), "Aucune division");
     });
-    row.append(departmentLabel, divisionLabel, gradeLabel, removeButton);
+    row.append(departmentLabel, divisionLabel, rpNameLabel, gradeLabel, removeButton);
 
     const container = $("secondaryAssignments");
     if (!container) {
@@ -522,10 +533,14 @@ async function saveAccount(event) {
         const secondaryAssignments = [...document.querySelectorAll(".secondary-assignment-row")].map(row => ({
             department_code: row.querySelector(".secondary-department").value,
             division_code: row.querySelector(".secondary-division").value || null,
-            grade: row.querySelector(".secondary-grade").value.trim()
+            grade: row.querySelector(".secondary-grade").value.trim(),
+            rp_name: row.querySelector(".secondary-rp-name").value.trim()
         }));
-        if (secondaryAssignments.some(item => !item.department_code || !item.grade)) {
-            throw new Error("Chaque département additionnel doit avoir un département et un grade.");
+        if (secondaryAssignments.some(item => !item.department_code || !item.grade || !item.rp_name)) {
+            throw new Error("Chaque département additionnel doit avoir un département, un nom RP et un grade.");
+        }
+        if (secondaryAssignments.some(item => item.rp_name.length > 100)) {
+            throw new Error("Le nom RP d'un département additionnel ne peut pas dépasser 100 caractères.");
         }
         const departmentCodes = [
             primaryDepartment,
