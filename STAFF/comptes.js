@@ -723,6 +723,18 @@ async function initialize() {
 
         $("globalLogoutButton").addEventListener("click", performGlobalLogout);
 
+        // Actualise automatiquement les nouvelles demandes sans recharger la page.
+        // On évite de rafraîchir pendant l'édition d'un dossier pour ne pas perturber le formulaire.
+        window.setInterval(async () => {
+            if (selectedAccount) return;
+
+            try {
+                await loadAccounts();
+            } catch (error) {
+                console.warn("[ZONE-431] Actualisation automatique des demandes impossible :", error);
+            }
+        }, 30000);
+
         console.info("[ZONE-431] Gestion des comptes initialisée.");
     } catch (error) {
         console.error("[ZONE-431] Initialisation impossible :", error);
