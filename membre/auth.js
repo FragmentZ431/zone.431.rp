@@ -131,3 +131,14 @@ const { data: profile, error: profileError } = await client
         subscribe
     };
 })();
+
+
+/* Chargement du pied de page juridique commun */
+(() => {
+  const current = document.currentScript;
+  if (!current) return;
+  const legal = document.createElement("script");
+  legal.src = new URL("../mentions-legales.js", current.src).href;
+  legal.defer = true;
+  document.head.appendChild(legal);
+})();
