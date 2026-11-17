@@ -156,3 +156,13 @@ function init(){
 }
 document.addEventListener("DOMContentLoaded",async()=>{init();try{await access()}catch(e){console.error("[ZONE-431 PLANS]",e);notify(e.message||"Impossible de charger les plans.",true);$("workspace").hidden=true}});
 })();
+
+/* Chargement du pied de page juridique commun */
+(() => {
+  const current = document.currentScript;
+  if (!current) return;
+  const legal = document.createElement("script");
+  legal.src = new URL("../mentions-legales.js", current.src).href;
+  legal.defer = true;
+  document.head.appendChild(legal);
+})();
