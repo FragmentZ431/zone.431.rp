@@ -118,7 +118,7 @@
       </div></details>
 
       <details id="z431-legal-contact"><summary>6. Contact, réclamations et signalements</summary><div>
-        <p>Contact général : <strong><a href="mailto:zone.431.rp@gmail.com">zone.431.rp@gmail.com</a></strong>.<br>Données personnelles : <strong><a href="mailto:zone.431.rp@gmail.com">zone.431.rp@gmail.com</a></strong>.<br>Signalement de contenu ou sécurité : <strong>[CONTACT DE SIGNALEMENT]</strong>.<br>Propriété intellectuelle : <strong>[CONTACT DROITS D'AUTEUR]</strong>.</p>
+        <p>Contact général : <strong><a href="mailto:zone.431.rp@gmail.com">zone.431.rp@gmail.com</a></strong>.<br>Données personnelles : <strong><a href="mailto:zone.431.rp@gmail.com">zone.431.rp@gmail.com</a></strong>.<br>Signalement de contenu ou sécurité : <strong><a href="mailto:zone.431.rp@gmail.com">zone.431.rp@gmail.com</a></strong>.<br>Propriété intellectuelle : <strong><a href="mailto:zone.431.rp@gmail.com">zone.431.rp@gmail.com</a></strong>.</p>
         <p>En cas de demande, indiquez le sujet, l'URL concernée et les informations strictement nécessaires à son traitement. Évitez de transmettre des mots de passe, pièces d'identité ou données sensibles sauf nécessité légale vérifiée et canal adapté.</p>
       </div></details>
 
