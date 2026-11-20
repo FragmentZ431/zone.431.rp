@@ -54,14 +54,14 @@
         const template = config?.message_template ||
             "**INSCRIPTION À UNE FORMATION**\n\n{pseudo} a bien été inscrit à la {formation}.";
         return `
-            <article class="discord-webhook-card" data-department="${code}">
+            <article class="discord-webhook-card" data-department="${code}" data-has-webhook="${config?.has_webhook ? "true" : "false"}">
                 <span class="department-code">${code}</span>
                 <h2>${name}</h2>
                 <form class="discord-webhook-form">
                     <label class="field full">
                         <span>URL du webhook Discord</span>
-                        <input name="webhook_url" type="password" autocomplete="off" placeholder="https://discord.com/api/webhooks/..." value="${escapeHTML(config?.webhook_url || "")}">
-                        <small>Masquée dans le formulaire. Seuls les administrateurs peuvent modifier cette valeur.</small>
+                        <input name="webhook_url" type="password" autocomplete="new-password" placeholder="${config?.has_webhook ? "Laisser vide pour conserver le webhook actuel" : "https://discord.com/api/webhooks/..."}" value="">
+                        <small>Le secret reste côté serveur. Laissez vide pour conserver le webhook déjà enregistré.</small>
                     </label>
                     <label class="field">
                         <span>Nom affiché du bot</span>
@@ -88,7 +88,7 @@
                         Activer les notifications pour ce département
                     </label>
                     <div class="discord-form-actions">
-                        <p class="discord-webhook-status">${config?.webhook_url ? "Webhook configuré" : "Aucun webhook enregistré"}</p>
+                        <p class="discord-webhook-status">${config?.has_webhook ? "Webhook configuré" : "Aucun webhook enregistré"}</p>
                         <button class="button button-primary" type="submit">Enregistrer la configuration</button>
                     </div>
                 </form>
@@ -106,18 +106,16 @@
             if (roleError) throw roleError;
             if (role !== "ADMINISTRATEUR") throw new Error("Ce module est réservé aux administrateurs.");
 
-            const [departmentsResult, configsResult] = await Promise.all([
-                client.from("rp_departments").select("code,name").order("code"),
-                client.from("department_discord_webhooks")
-                    .select("department_code,webhook_url,enabled,message_template,webhook_username,avatar_url,embed_color")
-            ]);
-            if (departmentsResult.error) throw departmentsResult.error;
-            if (configsResult.error) throw configsResult.error;
+            const { data, error } = await client.functions.invoke("manage-department-webhook", {
+                body: { action: "list" }
+            });
+            if (error) throw error;
+            if (!data?.success) throw new Error(data?.error || "Impossible de charger les configurations.");
 
             const configByDepartment = new Map(
-                (configsResult.data || []).map(config => [config.department_code, config])
+                (data.configs || []).map(config => [config.department_code, config])
             );
-            list.innerHTML = (departmentsResult.data || [])
+            list.innerHTML = (data.departments || [])
                 .map(department => renderDepartment(department, configByDepartment.get(department.code)))
                 .join("") || '<div class="empty-state">Aucun département configuré.</div>';
 
@@ -144,7 +142,7 @@
         const username = String(values.get("webhook_username") || "ZONE-431").trim();
         const color = String(values.get("embed_color") || "#a52c33");
 
-        if (!webhookUrl || !validWebhook(webhookUrl)) {
+        if ((!webhookUrl && card.dataset.hasWebhook !== "true") || !validWebhook(webhookUrl)) {
             toast("Renseignez une URL de webhook Discord valide.", true);
             return;
         }
@@ -162,20 +160,26 @@
         button.textContent = "ENREGISTREMENT...";
 
         try {
-            const { error } = await client.from("department_discord_webhooks").upsert({
-                department_code: departmentCode,
-                webhook_url: webhookUrl,
-                enabled: form.elements.enabled.checked,
-                message_template: template,
-                webhook_username: username,
-                avatar_url: avatarUrl,
-                embed_color: parseInt(color.slice(1), 16),
-                updated_at: new Date().toISOString()
-            }, { onConflict: "department_code" });
+            const { data, error } = await client.functions.invoke("manage-department-webhook", {
+                body: {
+                    action: "save",
+                    department_code: departmentCode,
+                    webhook_url: webhookUrl,
+                    enabled: form.elements.enabled.checked,
+                    message_template: template,
+                    webhook_username: username,
+                    avatar_url: avatarUrl,
+                    embed_color: parseInt(color.slice(1), 16)
+                }
+            });
             if (error) throw error;
+            if (!data?.success) throw new Error(data?.error || "Enregistrement impossible.");
 
+            card.dataset.hasWebhook = "true";
+            form.elements.webhook_url.value = "";
+            form.elements.webhook_url.placeholder = "Laisser vide pour conserver le webhook actuel";
             const status = card.querySelector(".discord-webhook-status");
-            status.textContent = "Configuration enregistrée";
+            status.textContent = "Configuration enregistrée — webhook sécurisé";
             toast("Configuration Discord enregistrée pour " + departmentCode + ".");
         } catch (error) {
             console.error("[ZONE-431] Enregistrement webhook :", error);
