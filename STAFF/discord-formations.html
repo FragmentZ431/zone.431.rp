@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#080e17">
+    <title>Zone-431 | Notifications Discord</title>
+    <link rel="stylesheet" href="formations.css">
+    <link rel="stylesheet" href="discord-formations.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../membre/auth.js"></script>
+    <script src="discord-formations.js" defer></script>
+</head>
+<body>
+<main class="formations-shell discord-settings-shell">
+    <header class="page-header">
+        <div>
+            <span class="eyebrow">ZONE-431 // CONFIGURATION DES INTÉGRATIONS</span>
+            <h1>Notifications Discord</h1>
+            <p class="subtitle">Configuration des messages envoyés lors des inscriptions aux formations RP.</p>
+        </div>
+        <a class="button button-secondary" href="zone%20staff.html">Retour au STAFF</a>
+    </header>
+
+    <section id="accessDenied" class="panel access-denied hidden">
+        <h2>Accès non autorisé</h2>
+        <p>Ce module est réservé aux administrateurs de Zone-431.</p>
+    </section>
+
+    <section id="settingsContent" class="hidden">
+        <div class="panel discord-intro">
+            <span class="eyebrow">FONCTIONNEMENT</span>
+            <h2>Un webhook par département</h2>
+            <p>Lorsqu'un membre s'inscrit à une formation, le système identifie les départements et les rattachements concernés, puis envoie le message dans les salons Discord configurés.</p>
+            <p class="discord-security-note">Les URL des webhooks sont stockées dans Supabase et utilisées uniquement par la fonction serveur. Elles ne sont jamais intégrées au code public du site.</p>
+            <p class="discord-template-help">Variables disponibles : <code>{pseudo}</code>, <code>{formation}</code>, <code>{departement}</code>.</p>
+        </div>
+
+        <div id="departmentWebhookList" class="discord-webhook-list">
+            <div class="empty-state">Chargement des départements...</div>
+        </div>
+    </section>
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+</main>
+</body>
+</html>
