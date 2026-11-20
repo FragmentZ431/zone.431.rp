@@ -381,7 +381,10 @@ function createSecondaryAssignment(data = {}) {
     const accreditationSelect = document.createElement("select");
     accreditationSelect.className = "secondary-accreditation";
     accreditationSelect.required = true;
-    fillSelect(accreditationSelect, ACCREDITATION_LEVELS.map(level => ({ code: level, name: level })), "Sélectionner un niveau", data.accreditation || "ACC 0");
+    fillSelect(accreditationSelect, ACCREDITATION_LEVELS.map(level => ({ code: level, name: "" })), "Sélectionner un niveau", data.accreditation || "ACC 0");
+    [...accreditationSelect.options].forEach(option => {
+        option.textContent = option.value || "Sélectionner un niveau";
+    });
     accreditationLabel.appendChild(accreditationSelect);
 
     const rpNameLabel = document.createElement("label");
