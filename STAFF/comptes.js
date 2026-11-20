@@ -376,6 +376,14 @@ function createSecondaryAssignment(data = {}) {
     fillSelect(divisionSelect, getDivisionsForDepartment(departmentSelect.value), "Aucune division", data.division_code || "");
     divisionLabel.appendChild(divisionSelect);
 
+    const accreditationLabel = document.createElement("label");
+    accreditationLabel.textContent = "Accréditation (obligatoire)";
+    const accreditationSelect = document.createElement("select");
+    accreditationSelect.className = "secondary-accreditation";
+    accreditationSelect.required = true;
+    fillSelect(accreditationSelect, ACCREDITATION_LEVELS.map(level => ({ code: level, name: level })), "Sélectionner un niveau", data.accreditation || "ACC 0");
+    accreditationLabel.appendChild(accreditationSelect);
+
     const rpNameLabel = document.createElement("label");
     rpNameLabel.textContent = "Nom RP dans ce département (obligatoire)";
     const rpNameInput = document.createElement("input");
@@ -406,7 +414,7 @@ function createSecondaryAssignment(data = {}) {
     departmentSelect.addEventListener("change", () => {
         fillSelect(divisionSelect, getDivisionsForDepartment(departmentSelect.value), "Aucune division");
     });
-    row.append(departmentLabel, divisionLabel, rpNameLabel, gradeLabel, removeButton);
+    row.append(departmentLabel, divisionLabel, accreditationLabel, rpNameLabel, gradeLabel, removeButton);
 
     const container = $("secondaryAssignments");
     if (!container) {
@@ -571,11 +579,12 @@ async function saveAccount(event) {
         const secondaryAssignments = [...document.querySelectorAll(".secondary-assignment-row")].map(row => ({
             department_code: row.querySelector(".secondary-department").value,
             division_code: row.querySelector(".secondary-division").value || null,
+            accreditation: row.querySelector(".secondary-accreditation").value,
             grade: row.querySelector(".secondary-grade").value.trim(),
             rp_name: row.querySelector(".secondary-rp-name").value.trim()
         }));
-        if (secondaryAssignments.some(item => !item.department_code || !item.grade || !item.rp_name)) {
-            throw new Error("Chaque département additionnel doit avoir un département, un nom RP et un grade.");
+        if (secondaryAssignments.some(item => !item.department_code || !item.accreditation || !ACCREDITATION_LEVELS.includes(item.accreditation) || !item.grade || !item.rp_name)) {
+            throw new Error("Chaque département additionnel doit avoir un département, une accréditation, un nom RP et un grade valides.");
         }
         if (secondaryAssignments.some(item => item.rp_name.length > 100)) {
             throw new Error("Le nom RP d'un département additionnel ne peut pas dépasser 100 caractères.");
