@@ -437,10 +437,13 @@
             const rpName = document.createElement("small");
             rpName.textContent = `NOM RP : ${item.rp_name || "Non renseigné"}`;
 
+            const accreditation = document.createElement("small");
+            accreditation.textContent = `ACCRÉDITATION : ${item.accreditation || "ACC 0"}`;
+
             const grade = document.createElement("small");
             grade.textContent = `GRADE : ${item.grade || "Non renseigné"}`;
 
-            card.append(heading, department, rpName, grade);
+            card.append(heading, department, accreditation, rpName, grade);
             elements.secondaryDepartments.appendChild(card);
         });
     }
