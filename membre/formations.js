@@ -43,6 +43,7 @@
         lessons: [],
         progress: [],
         results: [],
+        enrollments: [],
         selectedCourseId: null,
         selectedLessonId: null
     };
@@ -486,6 +487,7 @@
         elements.selectedSummary.textContent =
             course.summary || course.description || "";
 
+        renderEnrollmentState(courseId);
         renderProgress();
         renderLessonList();
         renderCourseResult(courseId);
@@ -525,6 +527,93 @@
 
         renderLessonList();
         renderLessonReader(lesson);
+    }
+
+
+    /* =====================================================
+       INSCRIPTIONS AUX FORMATIONS
+       ===================================================== */
+
+    function getEnrollment(courseId) {
+        return state.enrollments.find(item => item.course_id === courseId) || null;
+    }
+
+    function renderEnrollmentState(courseId) {
+        const button = document.getElementById("registerTrainingButton");
+        const status = document.getElementById("trainingEnrollmentStatus");
+        if (!button || !status) return;
+
+        const enrollment = getEnrollment(courseId);
+        button.disabled = false;
+        button.hidden = false;
+
+        if (enrollment && enrollment.status === "registered") {
+            button.textContent = "INSCRIPTION ENREGISTRÉE";
+            button.disabled = true;
+            button.classList.add("is-registered");
+            status.textContent = "Vous êtes inscrit à cette formation.";
+            status.className = "training-enrollment-status success";
+        } else if (enrollment && enrollment.status === "completed") {
+            button.textContent = "FORMATION TERMINÉE";
+            button.disabled = true;
+            button.classList.add("is-registered");
+            status.textContent = "Votre inscription est clôturée : formation terminée.";
+            status.className = "training-enrollment-status success";
+        } else {
+            button.textContent = "S'INSCRIRE À CETTE FORMATION";
+            button.classList.remove("is-registered");
+            status.textContent = enrollment && enrollment.status === "cancelled"
+                ? "Votre ancienne inscription est annulée. Vous pouvez vous réinscrire."
+                : "Inscription réservée aux membres autorisés correspondant aux affectations de cette formation.";
+            status.className = "training-enrollment-status";
+        }
+    }
+
+    async function registerForSelectedCourse() {
+        const courseId = state.selectedCourseId;
+        const button = document.getElementById("registerTrainingButton");
+        const status = document.getElementById("trainingEnrollmentStatus");
+        if (!courseId || !state.user || !button) return;
+
+        button.disabled = true;
+        button.textContent = "INSCRIPTION EN COURS...";
+
+        try {
+            const client = window.Zone431Auth.client;
+            const { data, error } = await client.functions.invoke("register-training", {
+                body: { courseId }
+            });
+
+            if (error) throw error;
+            if (!data || !data.success) {
+                throw new Error(data?.error || "L'inscription n'a pas pu être enregistrée.");
+            }
+
+            if (!data.alreadyRegistered) {
+                const existing = getEnrollment(courseId);
+                if (existing) {
+                    existing.status = "registered";
+                } else {
+                    state.enrollments.push({ course_id: courseId, status: "registered" });
+                }
+            }
+
+            renderEnrollmentState(courseId);
+            if (status && data.alreadyRegistered) {
+                status.textContent = data.message || "Vous êtes déjà inscrit à cette formation.";
+            } else if (status) {
+                status.textContent = "Inscription enregistrée. Notification Discord envoyée aux départements configurés.";
+                status.className = "training-enrollment-status success";
+            }
+        } catch (error) {
+            console.error("[ZONE-431] Inscription impossible :", error);
+            button.disabled = false;
+            renderEnrollmentState(courseId);
+            if (status) {
+                status.textContent = error.message || "Une erreur est survenue lors de l'inscription.";
+                status.className = "training-enrollment-status error";
+            }
+        }
     }
 
     /* =====================================================
@@ -638,6 +727,14 @@
 
             state.courses = courses || [];
 
+            const { data: enrollments, error: enrollmentsError } = await client
+                .from("training_enrollments")
+                .select("course_id,status")
+                .eq("user_id", state.user.id);
+
+            if (enrollmentsError) throw enrollmentsError;
+            state.enrollments = enrollments || [];
+
             if (!state.courses.length) {
                 state.lessons = [];
                 state.progress = [];
@@ -733,6 +830,7 @@
        ===================================================== */
 
     elements.retryButton.addEventListener("click", loadTraining);
+    document.getElementById("registerTrainingButton")?.addEventListener("click", registerForSelectedCourse);
 
     loadTraining();
 
