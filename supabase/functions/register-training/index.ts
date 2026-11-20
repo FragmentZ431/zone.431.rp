@@ -153,7 +153,9 @@ Deno.serve(async (req: Request) => {
     if (departmentAccess.error) throw departmentAccess.error;
     if (nodeAccess.error) throw nodeAccess.error;
 
-    if (!(departmentAccess.data || []).length && !(nodeAccess.data || []).length) {
+    const hasDepartmentAccess = (departmentAccess.data || []).length > 0;
+    const hasNodeAccess = (nodeAccess.data || []).length > 0;
+    if (!hasDepartmentAccess && !hasNodeAccess) {
       return json({ error: "Cette formation n'est pas destinée à votre affectation." }, 403);
     }
 
@@ -194,15 +196,22 @@ Deno.serve(async (req: Request) => {
       enrollment = data;
     }
 
-    const departmentCodes = new Set<string>(departmentTargets);
+    const departmentCodes = new Set<string>(
+      (departmentAccess.data || []).map((row: any) => row.department_code)
+    );
     if (nodeTargets.length) {
       const { data: nodes, error: nodesError } = await adminClient
         .from("rp_organization_nodes")
         .select("code,root_department_code")
         .in("code", nodeTargets);
       if (nodesError) throw nodesError;
+      const matchedNodeCodes = new Set(
+        (nodeAccess.data || []).map((row: any) => row.node_code)
+      );
       (nodes || []).forEach((node: any) => {
-        if (node.root_department_code) departmentCodes.add(node.root_department_code);
+        if (matchedNodeCodes.has(node.code) && node.root_department_code) {
+          departmentCodes.add(node.root_department_code);
+        }
       });
     }
 
@@ -212,7 +221,7 @@ Deno.serve(async (req: Request) => {
     if (codes.length) {
       const { data: configurations, error: configError } = await adminClient
         .from("department_discord_webhooks")
-        .select("department_code,webhook_url,enabled,message_template")
+        .select("department_code,webhook_url,enabled,message_template,webhook_username,avatar_url,embed_color")
         .in("department_code", codes)
         .eq("enabled", true);
       if (configError) throw configError;
@@ -240,7 +249,15 @@ Deno.serve(async (req: Request) => {
         const response = await fetch(config.webhook_url, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ content, allowed_mentions: { parse: [] } }),
+          body: JSON.stringify({
+            username: safeText(config.webhook_username || "ZONE-431", 80),
+            ...(config.avatar_url ? { avatar_url: config.avatar_url } : {}),
+            embeds: [{
+              description: content,
+              color: Number(config.embed_color) || 10893347,
+            }],
+            allowed_mentions: { parse: [] },
+          }),
         });
 
         if (response.ok) {
@@ -261,6 +278,8 @@ Deno.serve(async (req: Request) => {
     });
   } catch (error) {
     console.error("register-training:", error);
-    return json({ error: error instanceof Error ? error.message : "Erreur interne." }, 500);
+    return json({
+      error: error instanceof Error ? error.message : "Erreur interne.",
+    }, 500);
   }
 });
