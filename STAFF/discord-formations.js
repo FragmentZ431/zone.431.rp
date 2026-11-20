@@ -89,6 +89,7 @@
                     </label>
                     <div class="discord-form-actions">
                         <p class="discord-webhook-status">${config?.has_webhook ? "Webhook configuré" : "Aucun webhook enregistré"}</p>
+                        <button class="button button-secondary" type="button" data-test ${config?.has_webhook ? "" : "disabled"}>Envoyer un test</button>
                         <button class="button button-primary" type="submit">Enregistrer la configuration</button>
                     </div>
                 </form>
@@ -103,9 +104,19 @@
             if (sessionError) throw sessionError;
             if (!sessionData?.session?.user) throw new Error("Aucune session STAFF active.");
 
-            const { data: role, error: roleError } = await client.rpc("current_staff_role");
-            if (roleError) throw roleError;
-            if (role !== "ADMINISTRATEUR") throw new Error("Ce module est réservé aux administrateurs.");
+            const { data: canAccess, error: accessError } = await client.rpc("has_staff_module_permission", {
+                p_module_code: "discord_notifications",
+                p_action: "access"
+            });
+            if (accessError) throw accessError;
+            if (canAccess !== true) throw new Error("Vous ne disposez pas de l'autorisation d'accès au module 14.");
+
+            const { data: canWrite, error: writeError } = await client.rpc("has_staff_module_permission", {
+                p_module_code: "discord_notifications",
+                p_action: "write"
+            });
+            if (writeError) throw writeError;
+            if (canWrite !== true) throw new Error("La modification du module 14 n'est pas autorisée pour votre compte.");
 
             const { data, error } = await client.functions.invoke("manage-department-webhook", {
                 body: { action: "list" }
@@ -122,10 +133,38 @@
 
             $("settingsContent").classList.remove("hidden");
             list.addEventListener("submit", saveConfiguration);
+            list.addEventListener("click", testWebhook);
         } catch (error) {
             console.error("[ZONE-431] Configuration Discord :", error);
             $("accessDenied").classList.remove("hidden");
             $("accessDenied").querySelector("p").textContent = error.message || "Accès refusé.";
+        }
+    }
+
+    async function testWebhook(event) {
+        const button = event.target.closest("[data-test]");
+        if (!button) return;
+        const card = button.closest("[data-department]");
+        if (!card || card.dataset.hasWebhook !== "true") {
+            toast("Enregistrez d'abord un webhook pour ce département.", true);
+            return;
+        }
+        button.disabled = true;
+        const previousText = button.textContent;
+        button.textContent = "ENVOI...";
+        try {
+            const { data, error } = await client.functions.invoke("manage-department-webhook", {
+                body: { action: "test", department_code: card.dataset.department }
+            });
+            if (error) throw error;
+            if (!data?.success) throw new Error(data?.error || "Le message de test n'a pas pu être envoyé.");
+            toast("Message de test envoyé pour " + card.dataset.department + ".");
+        } catch (error) {
+            console.error("[ZONE-431] Test webhook :", error);
+            toast(error.message || "Échec de l'envoi du test.", true);
+        } finally {
+            button.disabled = false;
+            button.textContent = previousText;
         }
     }
 
@@ -177,6 +216,7 @@
             if (!data?.success) throw new Error(data?.error || "Enregistrement impossible.");
 
             card.dataset.hasWebhook = "true";
+            card.querySelector("[data-test]")?.removeAttribute("disabled");
             form.elements.webhook_url.value = "";
             form.elements.webhook_url.placeholder = "Laisser vide pour conserver le webhook actuel";
             const status = card.querySelector(".discord-webhook-status");
