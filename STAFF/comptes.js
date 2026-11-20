@@ -696,7 +696,7 @@ async function saveAccount(event) {
             await dispatchDiscordMemberChange("accreditation_changed", userId, previousAccreditation, accreditation);
         }
         if (previousGrade !== primaryGrade) {
-            await dispatchDiscordMemberChange("grade_changed", userId, previousGrade, primaryGrade);
+            await dispatchDiscordMemberChange("grade_changed", userId, previousGrade, primaryGrade || "Non attribué");
         }
 
         $("accountModal").close();
