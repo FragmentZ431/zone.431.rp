@@ -546,6 +546,29 @@ async function saveRpName(userId, rpName) {
     if (error) throw error;
 }
 
+async function dispatchDiscordMemberChange(eventType, userId, previousValue, newValue) {
+    try {
+        const { data, error } = await db.functions.invoke("manage-department-webhook", {
+            body: {
+                action: "member_change",
+                event_type: eventType,
+                user_id: userId,
+                previous_value: previousValue,
+                new_value: newValue
+            }
+        });
+        if (error) throw error;
+        if (!data?.success) throw new Error(data?.error || "Notification Discord non envoyée.");
+        if (data.notificationsConfigured === 0) {
+            console.info("[ZONE-431] Aucun webhook actif pour les départements du membre.");
+        } else if (data.notificationsSent === 0) {
+            console.warn("[ZONE-431] Aucun webhook n'a accepté la notification Discord.");
+        }
+    } catch (error) {
+        console.warn("[ZONE-431] Notification Discord non envoyée :", error);
+    }
+}
+
 async function dispatchAccountNotification(eventName, userId) {
     try {
         const { data, error } = await db.functions.invoke("publish-site-notification", {
@@ -584,6 +607,7 @@ async function saveAccount(event) {
         const previousStatus = selectedAccount.status;
         const previousDepartment = selectedAccount.department || selectedAccount.department_codes?.[0] || null;
         const previousAccreditation = selectedAccount.accreditation || "ACC 0";
+        const previousGrade = selectedAccount.grade || "";
 
         if (!ACCREDITATION_LEVELS.includes(accreditation)) {
             throw new Error("Le niveau d’accréditation est obligatoire.");
@@ -669,6 +693,10 @@ async function saveAccount(event) {
         }
         if (previousAccreditation !== accreditation) {
             await dispatchAccountNotification("account_accreditation_changed", userId);
+            await dispatchDiscordMemberChange("accreditation_changed", userId, previousAccreditation, accreditation);
+        }
+        if (previousGrade !== primaryGrade) {
+            await dispatchDiscordMemberChange("grade_changed", userId, previousGrade, primaryGrade);
         }
 
         $("accountModal").close();
