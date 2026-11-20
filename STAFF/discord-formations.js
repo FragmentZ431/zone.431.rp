@@ -98,9 +98,10 @@
 
     async function load() {
         try {
-            const access = await window.Zone431Auth.getAccess();
-            if (access.status !== "authorized") throw new Error("Session membre non autorisée.");
             client = window.Zone431Auth.client;
+            const { data: sessionData, error: sessionError } = await client.auth.getSession();
+            if (sessionError) throw sessionError;
+            if (!sessionData?.session?.user) throw new Error("Aucune session STAFF active.");
 
             const { data: role, error: roleError } = await client.rpc("current_staff_role");
             if (roleError) throw roleError;
