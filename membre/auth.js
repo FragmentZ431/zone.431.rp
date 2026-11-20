@@ -25,56 +25,57 @@
             await client.auth.getSession();
 
         if (sessionError) {
-            return {
-                status: "error",
-                error: sessionError
-            };
+            return { status: "error", error: sessionError };
         }
 
         const session = sessionData.session;
-
-        if (!session) {
-            return { status: "signed_out" };
-        }
+        if (!session) return { status: "signed_out" };
 
         const user = session.user;
-
         if (!user || user.is_anonymous === true) {
             return { status: "anonymous" };
         }
 
-        
-const { data: profile, error: profileError } = await client
-    .from("rp_member_profiles")
-    .select(`
-        status,
-        display_name,
-        department,
-        grade,
-        personnel_id,
-        personnel_function,
-        integration_date
-    `)
-    .eq("user_id", user.id)
-    .maybeSingle();
+        // Le contrôle est vérifié avant toute lecture du profil membre.
+        const { data: sessionIsCurrent, error: validationError } =
+            await client.rpc("rp_validate_current_session");
 
+        if (validationError) {
+            return { status: "error", error: validationError };
+        }
+
+        if (sessionIsCurrent !== true) {
+            const { error: signOutError } =
+                await client.auth.signOut({ scope: "local" });
+
+            if (signOutError) {
+                console.warn("[ZONE-431] Nettoyage de la session RP invalide impossible :", signOutError);
+            }
+
+            return { status: "signed_out" };
+        }
+
+        const { data: profile, error: profileError } = await client
+            .from("rp_member_profiles")
+            .select(`
+                status,
+                display_name,
+                department,
+                grade,
+                personnel_id,
+                personnel_function,
+                integration_date
+            `)
+            .eq("user_id", user.id)
+            .maybeSingle();
 
         if (profileError) {
-            return {
-                status: "error",
-                error: profileError
-            };
+            return { status: "error", error: profileError };
         }
 
-        if (!profile) {
-            return { status: "unknown" };
-        }
+        if (!profile) return { status: "unknown" };
 
-        return {
-            status: profile.status,
-            user,
-            profile
-        };
+        return { status: profile.status, user, profile };
     }
 
     async function protectPage() {
@@ -104,7 +105,7 @@ const { data: profile, error: profileError } = await client
     }
 
     async function signOut() {
-        const { error } = await client.auth.signOut();
+        const { error } = await client.auth.signOut({ scope: "local" });
 
         if (error) {
             throw error;
