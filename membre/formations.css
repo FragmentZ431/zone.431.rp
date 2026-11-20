@@ -822,3 +822,43 @@
         gap: 17px;
     }
 }
+
+
+/* INSCRIPTIONS AUX FORMATIONS */
+.training-enrollment-block {
+    display: grid;
+    gap: 8px;
+    margin-top: 16px;
+    max-width: 420px;
+}
+.training-enrollment-button {
+    min-height: 42px;
+    padding: 0 16px;
+    color: #fff;
+    background: #8f2930;
+    border: 1px solid #b83a43;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .5px;
+    cursor: pointer;
+}
+.training-enrollment-button:hover:not(:disabled) {
+    background: #aa3039;
+}
+.training-enrollment-button:disabled {
+    opacity: .7;
+    cursor: not-allowed;
+}
+.training-enrollment-button.is-registered {
+    background: #174d3b;
+    border-color: #26795c;
+}
+.training-enrollment-status {
+    margin: 0;
+    color: #91a0b4;
+    font-size: 11px;
+    line-height: 1.5;
+}
+.training-enrollment-status.success { color: #70d3a9; }
+.training-enrollment-status.error { color: #f0a0a3; }
