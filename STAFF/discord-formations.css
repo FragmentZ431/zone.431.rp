@@ -1,0 +1,20 @@
+
+.discord-settings-shell { max-width: 1120px; }
+.discord-intro h2 { margin-bottom: 12px; }
+.discord-intro p { color: var(--formation-muted); font-size: 13px; line-height: 1.7; }
+.discord-security-note { padding: 12px 14px; background: rgba(57,168,121,.08); border-left: 2px solid #39a879; }
+.discord-template-help code { color: #9ac8f1; background: #091321; padding: 3px 5px; border-radius: 4px; }
+.discord-webhook-list { display: grid; gap: 16px; }
+.discord-webhook-card { padding: 22px; border: 1px solid var(--formation-border); border-radius: 10px; background: linear-gradient(145deg,#111d2c,#0d1724); }
+.discord-webhook-card h2 { font-size: 19px; margin-bottom: 5px; }
+.discord-webhook-card .department-code { color: var(--formation-blue-light); font-size: 11px; font-weight: 800; letter-spacing: 1px; }
+.discord-webhook-form { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 18px; }
+.discord-webhook-form .full { grid-column: 1 / -1; }
+.discord-webhook-form textarea { min-height: 105px; }
+.discord-webhook-form input[type="color"] { width: 72px; min-height: 42px; padding: 4px; }
+.discord-inline-field { display: flex; align-items: center; gap: 12px; }
+.discord-enabled { display: flex; align-items: center; gap: 9px; color: #cbd6e4; font-size: 12px; }
+.discord-enabled input { accent-color: var(--formation-green); }
+.discord-form-actions { display: flex; justify-content: flex-end; gap: 10px; grid-column: 1 / -1; padding-top: 4px; }
+.discord-webhook-status { color: var(--formation-muted); font-size: 11px; margin: 0; }
+@media (max-width: 650px) { .discord-webhook-form { grid-template-columns: 1fr; } .discord-webhook-form .full { grid-column: auto; } .discord-form-actions { flex-direction: column; } }
