@@ -11,7 +11,7 @@ const SUPABASE_URL = "https://pvtrlplsplyigvxiykce.supabase.co";
 
 const SUPABASE_KEY = "sb_publishable_iwAj_zFrWEsMcqUKNINwJw_Po3QAwDG";
 
-const LOGIN_URL = "../accueil.html";
+const LOGIN_URL = "../membre/accueil.html?reason=login";
 
 
 /* VARIABLES */
@@ -86,6 +86,24 @@ async function verifyStaffAccess() {
         }
 
         const user = userData.user;
+
+        // Une session invalidée par le contrôle global ne doit pas
+        // rester sur le tableau de bord avec des autorisations refusées.
+        const { data: sessionIsCurrent, error: validationError } =
+            await supabaseClient.rpc("rp_validate_current_session");
+
+        if (validationError) throw validationError;
+
+        if (sessionIsCurrent !== true) {
+            try {
+                await supabaseClient.auth.signOut({ scope: "local" });
+            } catch (signOutError) {
+                console.warn("[ZONE-431] Nettoyage de la session locale impossible :", signOutError);
+            }
+
+            window.location.replace("../membre/accueil.html?reason=session_expired");
+            return;
+        }
 
         // Le tableau de bord possède sa propre permission.
         // Les autres modules ne dépendent pas de STAFF_ZONE.
@@ -344,7 +362,7 @@ function initializeLogout() {
 
             const {
                 error
-            } = await supabaseClient.auth.signOut();
+            } = await supabaseClient.auth.signOut({ scope: "local" });
 
             if (error) {
                 throw error;
