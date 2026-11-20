@@ -31,9 +31,9 @@
         <div class="panel discord-intro">
             <span class="eyebrow">FONCTIONNEMENT</span>
             <h2>Configuration départementale</h2>
-            <p>Chaque département possède son propre webhook Discord. Les paramètres ci-dessous permettent de définir le salon de réception, l'identité du bot et le modèle du message.</p>
+            <p>Chaque département possède son propre webhook Discord. Les paramètres ci-dessous permettent de définir le salon de réception, l'identité du bot et trois modèles de message : inscription à une formation, changement d’accréditation et changement de grade.</p>
             <p class="discord-security-note">Les URL des webhooks sont stockées dans Supabase et utilisées uniquement par la fonction serveur. Elles ne sont jamais intégrées au code public du site.</p>
-            <p class="discord-template-help">Variables actuellement disponibles pour les inscriptions aux formations : <code>{pseudo}</code>, <code>{formation}</code>, <code>{departement}</code>.</p>
+            <p class="discord-template-help">Les variables disponibles sont indiquées sous chaque modèle. Le bouton de test permet de vérifier chaque type de notification sans modifier le dossier d’un membre.</p>
         </div>
 
         <div id="departmentWebhookList" class="discord-webhook-list">
