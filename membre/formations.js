@@ -602,7 +602,11 @@
             if (status && data.alreadyRegistered) {
                 status.textContent = data.message || "Vous êtes déjà inscrit à cette formation.";
             } else if (status) {
-                status.textContent = "Inscription enregistrée. Notification Discord envoyée aux départements configurés.";
+                const sent = Number(data.notificationsSent || 0);
+                const configured = Number(data.notificationsConfigured || 0);
+                status.textContent = configured
+                    ? `Inscription enregistrée. Notifications Discord envoyées : ${sent}/${configured}.`
+                    : "Inscription enregistrée. Aucun webhook Discord n'est encore configuré pour cette formation.";
                 status.className = "training-enrollment-status success";
             }
         } catch (error) {
