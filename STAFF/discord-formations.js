@@ -53,6 +53,10 @@
         const enabled = config?.enabled !== false;
         const template = config?.message_template ||
             "**INSCRIPTION À UNE FORMATION**\n\n{pseudo} a bien été inscrit à la {formation}.";
+        const accreditationTemplate = config?.accreditation_message_template ||
+            "**CHANGEMENT D’ACCRÉDITATION**\n\n{pseudo} : {ancien} → {nouveau}\nDépartement : {departement}";
+        const gradeTemplate = config?.grade_message_template ||
+            "**CHANGEMENT DE GRADE**\n\n{pseudo} : {ancien} → {nouveau}\nDépartement : {departement}";
         return `
             <article class="discord-webhook-card" data-department="${code}" data-has-webhook="${config?.has_webhook ? "true" : "false"}">
                 <span class="department-code">${code}</span>
@@ -76,6 +80,16 @@
                         <textarea name="message_template" maxlength="1900" required>${escapeHTML(template)}</textarea>
                         <small>Variables : {pseudo}, {formation}, {departement}</small>
                     </label>
+                    <label class="field full">
+                        <span>Message — changement d’accréditation</span>
+                        <textarea name="accreditation_message_template" maxlength="1900" required>${escapeHTML(accreditationTemplate)}</textarea>
+                        <small>Variables : {pseudo}, {ancien}, {nouveau}, {departement}, {accreditation}, {grade}</small>
+                    </label>
+                    <label class="field full">
+                        <span>Message — changement de grade</span>
+                        <textarea name="grade_message_template" maxlength="1900" required>${escapeHTML(gradeTemplate)}</textarea>
+                        <small>Variables : {pseudo}, {ancien}, {nouveau}, {departement}, {grade}, {accreditation}</small>
+                    </label>
                     <div class="field">
                         <span>Couleur de l'encart Discord</span>
                         <div class="discord-inline-field">
@@ -89,6 +103,11 @@
                     </label>
                     <div class="discord-form-actions">
                         <p class="discord-webhook-status">${config?.has_webhook ? "Webhook configuré" : "Aucun webhook enregistré"}</p>
+                        <select name="test_event" aria-label="Type de notification à tester">
+                            <option value="training_registration">Test : inscription</option>
+                            <option value="accreditation_changed">Test : accréditation</option>
+                            <option value="grade_changed">Test : grade</option>
+                        </select>
                         <button class="button button-secondary" type="button" data-test ${config?.has_webhook ? "" : "disabled"}>Envoyer un test</button>
                         <button class="button button-primary" type="submit">Enregistrer la configuration</button>
                     </div>
@@ -154,7 +173,11 @@
         button.textContent = "ENVOI...";
         try {
             const { data, error } = await client.functions.invoke("manage-department-webhook", {
-                body: { action: "test", department_code: card.dataset.department }
+                body: {
+                    action: "test",
+                    department_code: card.dataset.department,
+                    event_type: card.querySelector("[name='test_event']")?.value || "training_registration"
+                }
             });
             if (error) throw error;
             if (!data?.success) throw new Error(data?.error || "Le message de test n'a pas pu être envoyé.");
@@ -179,6 +202,8 @@
         const webhookUrl = String(values.get("webhook_url") || "").trim();
         const avatarUrl = String(values.get("avatar_url") || "").trim();
         const template = String(values.get("message_template") || "").trim();
+        const accreditationTemplate = String(values.get("accreditation_message_template") || "").trim();
+        const gradeTemplate = String(values.get("grade_message_template") || "").trim();
         const username = String(values.get("webhook_username") || "ZONE-431").trim();
         const color = String(values.get("embed_color") || "#a52c33");
 
@@ -190,8 +215,11 @@
             toast("L'avatar doit être une URL HTTPS valide.", true);
             return;
         }
-        if (!template || template.length > 1900 || !username || username.length > 80) {
-            toast("Vérifiez le nom du bot et le modèle du message.", true);
+        if (!template || template.length > 1900 ||
+            !accreditationTemplate || accreditationTemplate.length > 1900 ||
+            !gradeTemplate || gradeTemplate.length > 1900 ||
+            !username || username.length > 80) {
+            toast("Vérifiez le nom du bot et les trois modèles de message.", true);
             return;
         }
 
@@ -207,6 +235,8 @@
                     webhook_url: webhookUrl,
                     enabled: form.elements.enabled.checked,
                     message_template: template,
+                    accreditation_message_template: accreditationTemplate,
+                    grade_message_template: gradeTemplate,
                     webhook_username: username,
                     avatar_url: avatarUrl,
                     embed_color: parseInt(color.slice(1), 16)
