@@ -74,12 +74,6 @@ Deno.serve(async (req: Request) => {
       return json({ error: "Session invalide." }, 401);
     }
 
-    const { data: currentSession, error: sessionError } =
-      await userClient.rpc("rp_validate_current_session");
-    if (sessionError || currentSession !== true) {
-      return json({ error: "Session RP invalide. Reconnectez-vous." }, 401);
-    }
-
     const { data: role, error: roleError } = await userClient.rpc("current_staff_role");
     if (roleError || role !== "ADMINISTRATEUR") {
       return json({ error: "Seuls les administrateurs peuvent gérer les webhooks Discord." }, 403);
