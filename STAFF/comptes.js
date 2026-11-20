@@ -73,11 +73,13 @@ function escapeHTML(value) {
  */
 
 async function validateSession() {
+    const loginUrl = "../membre/accueil.html?reason=login";
+
     const { data: sessionData, error: sessionError } =
         await db.auth.getSession();
 
     if (sessionError || !sessionData.session) {
-        window.location.href = "../connexion.html";
+        window.location.replace(loginUrl);
         return false;
     }
 
@@ -85,12 +87,29 @@ async function validateSession() {
         await db.auth.getUser();
 
     if (userError || !userData.user) {
-        window.location.href = "../connexion.html";
+        window.location.replace(loginUrl);
+        return false;
+    }
+
+    const { data: sessionIsCurrent, error: validationError } =
+        await db.rpc("rp_validate_current_session");
+
+    if (validationError) {
+        throw validationError;
+    }
+
+    if (sessionIsCurrent !== true) {
+        try {
+            await db.auth.signOut({ scope: "local" });
+        } catch (signOutError) {
+            console.warn("[ZONE-431] Nettoyage de la session locale impossible :", signOutError);
+        }
+
+        window.location.replace("../membre/accueil.html?reason=session_expired");
         return false;
     }
 
     currentUser = userData.user;
-
     return true;
 }
 
@@ -673,7 +692,7 @@ async function saveAccount(event) {
 
 async function performGlobalLogout() {
     const confirmed = window.confirm(
-        "Confirmer la déconnexion générale ? Les membres devront se reconnecter."
+        "Confirmer la déconnexion générale ? Toutes les sessions RP actuellement ouvertes seront invalidées, y compris celle de cet administrateur. Tous les membres devront se reconnecter."
     );
 
     if (!confirmed) return;
@@ -684,16 +703,21 @@ async function performGlobalLogout() {
 
     try {
         const sessionValid = await validateSession();
-
         if (!sessionValid) return;
 
         const { error } = await db.rpc("admin_global_logout");
-
         if (error) throw error;
 
-        await db.auth.signOut({ scope: "local" });
+        // Le contrôle global vient d'invalider cette session.
+        // Une déconnexion locale évite de révoquer les autres appareils
+        // du compte administrateur au niveau Supabase Auth.
+        const { error: signOutError } = await db.auth.signOut({ scope: "local" });
+        if (signOutError) {
+            console.warn("[ZONE-431] Déconnexion locale à confirmer :", signOutError);
+        }
 
-        window.location.href = "../connexion.html";
+        // Ne plus appeler de RPC après la mise à jour du seuil global.
+        window.location.replace("../membre/accueil.html?reason=global_logout");
     } catch (error) {
         console.error("[ZONE-431] Déconnexion générale impossible :", error);
         showMessage(error.message || "La déconnexion générale a échoué.", true);
