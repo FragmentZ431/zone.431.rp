@@ -246,24 +246,28 @@ Deno.serve(async (req: Request) => {
         });
         if (!content) continue;
 
-        const response = await fetch(config.webhook_url, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            username: safeText(config.webhook_username || "ZONE-431", 80),
-            ...(config.avatar_url ? { avatar_url: config.avatar_url } : {}),
-            embeds: [{
-              description: content,
-              color: Number(config.embed_color) || 10893347,
-            }],
-            allowed_mentions: { parse: [] },
-          }),
-        });
+        try {
+          const response = await fetch(config.webhook_url, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              username: safeText(config.webhook_username || "ZONE-431", 80),
+              ...(config.avatar_url ? { avatar_url: config.avatar_url } : {}),
+              embeds: [{
+                description: content,
+                color: Number(config.embed_color) || 10893347,
+              }],
+              allowed_mentions: { parse: [] },
+            }),
+          });
 
-        if (response.ok) {
-          notificationsSent++;
-        } else {
-          console.error("Discord webhook error:", config.department_code, response.status, await response.text());
+          if (response.ok) {
+            notificationsSent++;
+          } else {
+            console.error("Discord webhook error:", config.department_code, response.status, await response.text());
+          }
+        } catch (webhookError) {
+          console.error("Discord webhook request failed:", config.department_code, webhookError);
         }
       }
     }
