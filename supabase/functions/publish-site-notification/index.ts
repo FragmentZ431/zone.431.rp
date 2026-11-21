@@ -125,7 +125,7 @@ Deno.serve(async (req: Request) => {
 
     if (isAccount) {
       const { data: staffRole, error: staffRoleError } = await userClient.rpc("current_staff_role");
-      if (staffRoleError || staffRole !== "ADMINISTRATEUR") {
+      if (staffRoleError || !["ADMIN", "ADMINISTRATEUR"].includes(String(staffRole || "").toUpperCase())) {
         return json({ error: "Seuls les administrateurs peuvent publier ces notifications." }, 403);
       }
     } else {
