@@ -1,21 +1,16 @@
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#090D0B">
-
-    <title>Informations départementales | ZONE-431</title>
-
-    <link rel="stylesheet" href="membre.css"
+    <title>Mon département | ZONE-431</title>
+    <link rel="stylesheet" href="membre.css">
     <link rel="stylesheet" href="notifications.css?v=20261113-3">
-    <link rel="stylesheet" href="departement.css">
+    <link rel="stylesheet" href="departement.css?v=20261121-3">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
-
 <body>
-
     <header class="member-header">
         <a href="../accueil.html" class="member-brand">
             <span class="brand-mark">Z431</span>
@@ -24,30 +19,23 @@
                 <small>ESPACE PERSONNEL</small>
             </span>
         </a>
-
         <div class="header-status">
             <span class="status-indicator"></span>
             <span>SYSTÈME OPÉRATIONNEL</span>
         </div>
-
         <a href="accueil.html" class="header-back">
             <i class="fa-solid fa-arrow-left"></i>
-            <span>RETOUR À L'ESPACE MEMBRE</span>
+            <span>ESPACE MEMBRE</span>
         </a>
     </header>
 
     <main class="member-main department-main">
-
         <section class="department-heading">
             <div>
-                <p class="section-eyebrow">ESPACE PERSONNEL / RESSOURCES INTERNES</p>
-                <h1>INFORMATIONS <span>DÉPARTEMENTALES</span></h1>
-                <p>
-                    Consultez les informations et communications internes
-                    des départements auxquels vous êtes autorisé à accéder.
-                </p>
+                <p class="section-eyebrow">ESPACE PERSONNEL / ORGANISATION</p>
+                <h1>MON <span>DÉPARTEMENT</span></h1>
+                <p>Retrouvez vos affectations, votre grade, votre accréditation et la structure publiée de vos départements.</p>
             </div>
-
             <div class="department-access-status">
                 <span class="status-indicator"></span>
                 ACCÈS AUTHENTIFIÉ
@@ -55,130 +43,121 @@
         </section>
 
         <section class="department-identity" id="departmentIdentity" hidden>
-            <div class="department-identity-icon">
-                <i class="fa-solid fa-sitemap"></i>
-            </div>
-
+            <div class="department-identity-icon"><i class="fa-solid fa-sitemap"></i></div>
             <div>
-                <span>DÉPARTEMENT PRINCIPAL</span>
+                <span>AFFECTATION PRINCIPALE</span>
                 <strong id="primaryDepartment">Chargement...</strong>
             </div>
-
-            <div class="department-identity-reference">
-                ZONE-431
-            </div>
+            <div class="department-identity-reference">ZONE-431</div>
         </section>
 
         <section class="department-workspace">
-
-            <div class="department-sidebar">
+            <aside class="department-sidebar">
                 <div class="sidebar-heading">
-                    <p class="section-eyebrow">NAVIGATION</p>
-                    <h2>MES DÉPARTEMENTS</h2>
+                    <p class="section-eyebrow">DOSSIER PERSONNEL</p>
+                    <h2>MES AFFECTATIONS</h2>
                 </div>
-
                 <div id="departmentList" class="department-list">
                     <div class="department-list-loading">
                         <span class="loading-indicator"></span>
-                        <p>Chargement des accès...</p>
+                        <p>Chargement des affectations...</p>
                     </div>
                 </div>
-
                 <div class="sidebar-information">
                     <i class="fa-solid fa-lock"></i>
-                    <p>
-                        Seuls les départements auxquels votre compte
-                        possède un accès sont affichés.
-                    </p>
+                    <p>Seules vos propres affectations et les éléments d'organisation publiés sont affichés.</p>
                 </div>
-            </div>
+            </aside>
 
             <div class="department-content">
-
                 <div id="departmentLoading" class="department-message">
                     <span class="loading-indicator"></span>
                     <p class="section-eyebrow">SYSTÈME CENTRAL</p>
-                    <h2>CHARGEMENT DES INFORMATIONS</h2>
-                    <p>Récupération des ressources départementales autorisées.</p>
+                    <h2>CHARGEMENT DU DOSSIER</h2>
+                    <p>Récupération de vos affectations et de la structure départementale.</p>
                 </div>
 
                 <div id="departmentError" class="department-message error-message" hidden>
-                    <div class="message-icon">
-                        <i class="fa-solid fa-triangle-exclamation"></i>
-                    </div>
+                    <div class="message-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
                     <p class="section-eyebrow">ERREUR SYSTÈME</p>
                     <h2>ACCÈS AUX DONNÉES IMPOSSIBLE</h2>
-                    <p id="departmentErrorText">
-                        Une erreur est survenue lors du chargement des informations.
-                    </p>
+                    <p id="departmentErrorText">Une erreur est survenue lors du chargement.</p>
                     <button type="button" id="retryButton" class="department-button">
-                        <i class="fa-solid fa-rotate-right"></i>
-                        RÉESSAYER
+                        <i class="fa-solid fa-rotate-right"></i> RÉESSAYER
                     </button>
                 </div>
 
                 <div id="departmentEmpty" class="department-message" hidden>
-                    <div class="message-icon">
-                        <i class="fa-solid fa-folder-open"></i>
-                    </div>
-                    <p class="section-eyebrow">RESSOURCES DÉPARTEMENTALES</p>
-                    <h2>AUCUNE INFORMATION DISPONIBLE</h2>
-                    <p>
-                        Aucune information publiée n'est actuellement disponible
-                        pour ce département.
-                    </p>
+                    <div class="message-icon"><i class="fa-solid fa-folder-open"></i></div>
+                    <p class="section-eyebrow">DOSSIER PERSONNEL</p>
+                    <h2>AUCUNE AFFECTATION</h2>
+                    <p>Aucun département n'est actuellement associé à votre compte. Contactez l'administration si cela semble anormal.</p>
                 </div>
 
                 <div id="departmentDisplay" hidden>
-
                     <div class="selected-department-heading">
                         <div>
-                            <p class="section-eyebrow">DÉPARTEMENT SÉLECTIONNÉ</p>
+                            <p class="section-eyebrow" id="selectedDepartmentType">AFFECTATION</p>
                             <h2 id="selectedDepartmentName">DÉPARTEMENT</h2>
+                            <p id="selectedDepartmentCode" class="department-code"></p>
                         </div>
-
-                        <span class="department-document-count" id="documentCount">
-                            0 DOCUMENT
-                        </span>
+                        <span class="department-document-count" id="departmentNodeCount">0 ÉLÉMENT</span>
                     </div>
 
-                    <div id="departmentDescription" class="department-description" hidden></div>
+                    <section class="department-panel">
+                        <div class="department-panel-heading">
+                            <div class="department-panel-icon"><i class="fa-solid fa-id-badge"></i></div>
+                            <div>
+                                <p class="section-eyebrow">VOTRE DOSSIER</p>
+                                <h3>GRADE ET ACCRÉDITATION</h3>
+                            </div>
+                        </div>
+                        <div class="assignment-details">
+                            <div class="assignment-detail">
+                                <span>GRADE</span>
+                                <strong id="memberGrade">Non renseigné</strong>
+                            </div>
+                            <div class="assignment-detail">
+                                <span>ACCRÉDITATION</span>
+                                <strong id="memberAccreditation">ACC 0</strong>
+                            </div>
+                            <div class="assignment-detail" id="memberDivisionWrap" hidden>
+                                <span>UNITÉ / SERVICE</span>
+                                <strong id="memberDivision">Non renseigné</strong>
+                            </div>
+                        </div>
+                    </section>
 
-                    <div id="departmentDocuments" class="department-documents"></div>
-
+                    <section class="department-panel structure-panel">
+                        <div class="department-panel-heading">
+                            <div class="department-panel-icon"><i class="fa-solid fa-diagram-project"></i></div>
+                            <div>
+                                <p class="section-eyebrow">ORGANISATION PUBLIÉE</p>
+                                <h3>STRUCTURE DU DÉPARTEMENT</h3>
+                            </div>
+                        </div>
+                        <div id="departmentStructure" class="department-structure"></div>
+                        <p id="departmentStructureEmpty" class="department-structure-empty" hidden>Aucune subdivision ou unité publiée n'est actuellement renseignée pour ce département.</p>
+                    </section>
                 </div>
-
             </div>
         </section>
 
         <div class="department-footer">
-            <span>
-                <i class="fa-solid fa-shield-halved"></i>
-                CONSULTATION RÉSERVÉE AU PERSONNEL AUTORISÉ
-            </span>
-            <a href="accueil.html">
-                RETOUR AU TABLEAU DE BORD
-                <i class="fa-solid fa-arrow-right"></i>
-            </a>
+            <span><i class="fa-solid fa-shield-halved"></i> CONSULTATION RÉSERVÉE AU PERSONNEL AUTORISÉ</span>
+            <a href="accueil.html">RETOUR AU TABLEAU DE BORD <i class="fa-solid fa-arrow-right"></i></a>
         </div>
-
     </main>
 
     <footer class="member-footer">
-        <div class="footer-brand">
-            <strong>ZONE-431</strong>
-            <span>ESPACE PERSONNEL</span>
-        </div>
-
+        <div class="footer-brand"><strong>ZONE-431</strong><span>ESPACE PERSONNEL</span></div>
         <p>SYSTÈME INFORMATIQUE DE L'INSTALLATION</p>
-
-        <span class="footer-version">INTERFACE MEMBRE</span>
+        <span class="footer-version">MON DÉPARTEMENT</span>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="auth.js"></script>
     <script src="notifications.js?v=20261113-3"></script>
-    <script src="departement.js"></script>
-
+    <script src="departement.js?v=20261121-3"></script>
 </body>
 </html>
