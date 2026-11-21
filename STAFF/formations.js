@@ -608,9 +608,7 @@ function renderCourses() {
                     <span class="course-status ${course.is_published ? "published" : ""}">
                         ${course.is_published ? "PUBLIÉE" : "BROUILLON"}
                     </span>
-                    <span class="course-status">
-                        ${course.registration_required === false ? "PARTICIPATION LIBRE" : course.registrations_closed ? "INSCRIPTIONS CLÔTURÉES" : "INSCRIPTION REQUISE"}
-                    </span>
+                    ${state.space === "rp" ? `<span class="course-status">${course.registration_required === false ? "PARTICIPATION LIBRE" : course.registrations_closed ? "INSCRIPTIONS CLÔTURÉES" : "INSCRIPTION REQUISE"}</span>` : ""}
                 </div>
 
                 <h3>${escapeHTML(course.title)}</h3>
@@ -1003,9 +1001,9 @@ async function openCourse(courseId) {
                 ? departmentLabel(target.target_code)
                 : nodeLabel(target.target_code))
             : [course.target_audience === "LES_DEUX" ? "Animation + Modération" : course.target_audience]),
-        course.registration_required === false
+        ...(state.space === "rp" ? [course.registration_required === false
             ? "Aucune inscription requise"
-            : course.registrations_closed ? "Inscriptions clôturées" : "Inscriptions ouvertes",
+            : course.registrations_closed ? "Inscriptions clôturées" : "Inscriptions ouvertes"] : []),
         course.is_published ? "Publiée" : "Brouillon"
     ].filter(Boolean);
 
