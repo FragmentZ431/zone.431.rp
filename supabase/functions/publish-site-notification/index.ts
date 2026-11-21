@@ -150,6 +150,7 @@ Deno.serve(async (req: Request) => {
     let message: string;
     let href: string;
     let discordText: string | null = null;
+    const departmentDiscordMessages: Array<{ webhook_url: string; username: string; avatar_url: string | null; embed_color: number; content: string }> = [];
     let discordEnabled = true;
     let discordLink = "";
     let sourceCategory = "";
@@ -260,43 +261,104 @@ Deno.serve(async (req: Request) => {
         .filter((t: any) => t.target_type === "node")
         .map((t: any) => t.target_code))];
 
-      const extraByUser = new Map<string, Set<string>>();
-      const nodeByUser = new Map<string, Set<string>>();
+      const [assignmentResult, departmentAccessResult, nodeAccessResult, filterResult] = await Promise.all([
+        profileIds.length
+          ? adminClient.from("rp_member_department_assignments")
+              .select("user_id,department_code,division_code,grade,accreditation")
+              .in("user_id", profileIds)
+          : Promise.resolve({ data: [], error: null }),
+        profileIds.length && departmentTargets.length
+          ? adminClient.from("rp_member_department_access")
+              .select("user_id,department_code")
+              .in("user_id", profileIds)
+              .in("department_code", departmentTargets)
+          : Promise.resolve({ data: [], error: null }),
+        profileIds.length && nodeTargets.length
+          ? adminClient.from("rp_member_organization_access")
+              .select("user_id,node_code")
+              .in("user_id", profileIds)
+              .in("node_code", nodeTargets)
+          : Promise.resolve({ data: [], error: null }),
+        adminClient.from("rp_training_course_filters")
+          .select("department_code,filter_type,filter_value")
+          .eq("course_id", sourceId),
+      ]);
 
-      if (profileIds.length && departmentTargets.length) {
-        const { data: extra, error: extraError } = await adminClient
-          .from("rp_member_department_access")
-          .select("user_id,department_code")
-          .in("user_id", profileIds)
-          .in("department_code", departmentTargets);
-        if (extraError) throw extraError;
-        (extra || []).forEach((row: any) => {
-          if (!extraByUser.has(row.user_id)) extraByUser.set(row.user_id, new Set());
-          extraByUser.get(row.user_id)!.add(row.department_code);
-        });
-      }
+      if (assignmentResult.error) throw assignmentResult.error;
+      if (departmentAccessResult.error) throw departmentAccessResult.error;
+      if (nodeAccessResult.error) throw nodeAccessResult.error;
+      if (filterResult.error) throw filterResult.error;
 
-      if (profileIds.length && nodeTargets.length) {
-        const { data: nodeAccess, error: nodeError } = await adminClient
-          .from("rp_member_organization_access")
-          .select("user_id,node_code")
-          .in("user_id", profileIds)
-          .in("node_code", nodeTargets);
-        if (nodeError) throw nodeError;
-        (nodeAccess || []).forEach((row: any) => {
-          if (!nodeByUser.has(row.user_id)) nodeByUser.set(row.user_id, new Set());
-          nodeByUser.get(row.user_id)!.add(row.node_code);
-        });
-      }
+      const assignmentsByUser = new Map<string, any[]>();
+      (assignmentResult.data || []).forEach((row: any) => {
+        if (!assignmentsByUser.has(row.user_id)) assignmentsByUser.set(row.user_id, []);
+        assignmentsByUser.get(row.user_id)!.push(row);
+      });
+      const departmentsByUser = new Map<string, Set<string>>();
+      (departmentAccessResult.data || []).forEach((row: any) => {
+        if (!departmentsByUser.has(row.user_id)) departmentsByUser.set(row.user_id, new Set());
+        departmentsByUser.get(row.user_id)!.add(row.department_code);
+      });
+      const nodesByUser = new Map<string, Set<string>>();
+      (nodeAccessResult.data || []).forEach((row: any) => {
+        if (!nodesByUser.has(row.user_id)) nodesByUser.set(row.user_id, new Set());
+        nodesByUser.get(row.user_id)!.add(row.node_code);
+      });
+      const courseFilters = filterResult.data || [];
 
       for (const p of profileRows) {
-        // Les cours RP suivent strictement la règle RLS :
-        // accès départemental explicite ou accès à une division/filière.
-        const departmentMatch = departmentTargets.some(
-          (code: string) => extraByUser.get(p.user_id)?.has(code)
+        const assignments = assignmentsByUser.get(p.user_id) || [];
+        const departmentMatch = departmentTargets.some((code: string) => {
+          const matching = assignments.filter((a: any) => a.department_code === code);
+          const filtersForDepartment = courseFilters.filter((f: any) => f.department_code === code);
+          if (!filtersForDepartment.length) {
+            return matching.length > 0 || departmentsByUser.get(p.user_id)?.has(code) === true;
+          }
+          return matching.some((assignment: any) => filtersForDepartment.some((filter: any) =>
+            (filter.filter_type === "grade" && filter.filter_value === assignment.grade) ||
+            (filter.filter_type === "accreditation" && filter.filter_value === assignment.accreditation)
+          ));
+        });
+        const nodeMatch = nodeTargets.some((code: string) =>
+          nodesByUser.get(p.user_id)?.has(code) === true ||
+          assignments.some((assignment: any) => assignment.division_code === code)
         );
-        const nodeMatch = nodeTargets.some((code: string) => nodeByUser.get(p.user_id)?.has(code));
         if (departmentMatch || nodeMatch) recipients.add(p.user_id);
+      }
+
+      if (event === "training_registrations_closed" && departmentTargets.length) {
+        const [{ data: webhookConfigs, error: webhookError }, { data: departmentRows, error: departmentError }] = await Promise.all([
+          adminClient.from("department_discord_webhooks")
+            .select("department_code,webhook_url,enabled,registration_closed_message_template,webhook_username,avatar_url,embed_color")
+            .in("department_code", departmentTargets)
+            .eq("enabled", true),
+          adminClient.from("rp_departments")
+            .select("code,name")
+            .in("code", departmentTargets),
+        ]);
+        if (webhookError) throw webhookError;
+        if (departmentError) throw departmentError;
+
+        const names = new Map((departmentRows || []).map((row: any) => [row.code, row.name]));
+        for (const config of webhookConfigs || []) {
+          const template = safeText(config.registration_closed_message_template, 1900);
+          const rendered = renderDiscordTemplate(template, {
+            formation: safeText(data.title, 180),
+            departement: safeText(names.get(config.department_code) || config.department_code, 120),
+            titre: safeText(data.title, 180),
+            resume: "Les inscriptions sont maintenant clôturées.",
+            lien: discordLink,
+          });
+          if (config.webhook_url && rendered) {
+            departmentDiscordMessages.push({
+              webhook_url: config.webhook_url,
+              username: safeText(config.webhook_username || "ZONE-431", 80),
+              avatar_url: config.avatar_url || null,
+              embed_color: Number(config.embed_color) || 10893347,
+              content: rendered,
+            });
+          }
+        }
       }
     } else if (isResult) {
       const { data, error } = await adminClient
@@ -442,12 +504,34 @@ Deno.serve(async (req: Request) => {
       }
     }
 
+    let departmentDiscordSent = 0;
+    for (const item of departmentDiscordMessages) {
+      try {
+        const response = await fetch(item.webhook_url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            username: item.username,
+            ...(item.avatar_url ? { avatar_url: item.avatar_url } : {}),
+            embeds: [{ description: item.content, color: item.embed_color }],
+            allowed_mentions: { parse: [] },
+          }),
+        });
+        if (response.ok) departmentDiscordSent++;
+        else console.error("Discord department closure webhook error:", response.status, await response.text());
+      } catch (error) {
+        console.error("Discord department closure webhook request failed:", error);
+      }
+    }
+
     return json({
       success: true,
       recipients: recipients.size,
       notificationsInserted: inserted,
       discordConfigured,
       discordSent,
+      departmentDiscordSent,
+      departmentDiscordConfigured: departmentDiscordMessages.length,
     });
   } catch (error) {
     console.error("publish-site-notification:", error);
