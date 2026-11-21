@@ -37,7 +37,7 @@ function renderTemplate(template: string, values: Record<string, string>): strin
 }
 
 function cleanTemplate(value: unknown, fallback = ""): string {
-  return String(value ?? fallback).replace(/[\\u0000-\\u0008\\u000b\\u000c\\u000e-\\u001f\\u007f]/g, "").trim().slice(0, 1900);
+  return String(value ?? fallback).replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, "").trim().slice(0, 1900);
 }
 
 function isWebhook(value: string): boolean {
