@@ -52,11 +52,13 @@
         const name = escapeHTML(department.name);
         const enabled = config?.enabled !== false;
         const template = config?.message_template ||
-            "**INSCRIPTION À UNE FORMATION**\n\n{pseudo} a bien été inscrit à la {formation}.";
+            "**INSCRIPTION À UNE FORMATION**\\n\\n{prenom} {nom} ({pseudo}) a bien été inscrit à la formation **{formation}**.";
         const accreditationTemplate = config?.accreditation_message_template ||
             "**CHANGEMENT D’ACCRÉDITATION**\n\n{pseudo} : {ancien} → {nouveau}\nDépartement : {departement}";
         const gradeTemplate = config?.grade_message_template ||
             "**CHANGEMENT DE GRADE**\n\n{pseudo} : {ancien} → {nouveau}\nDépartement : {departement}";
+        const closureTemplate = config?.registration_closed_message_template ||
+            "**INSCRIPTIONS CLÔTURÉES**\\n\\nLes inscriptions à la formation **{formation}** sont maintenant clôturées.\\nDépartement : {departement}";
         return `
             <article class="discord-webhook-card" data-department="${code}" data-has-webhook="${config?.has_webhook ? "true" : "false"}">
                 <span class="department-code">${code}</span>
