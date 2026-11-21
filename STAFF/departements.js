@@ -150,6 +150,7 @@ async function loadOrganization() {
         : `Consultation générale. Modification autorisée pour : ${editableCount}.`;
 
     $("addNodeButton").hidden = !isAdmin && !canManageAllDepartments && permissions.size === 0;
+    $("addDepartmentButton").hidden = !isAdmin && !canManageAllDepartments;
 }
 
 function renderOrganization() {
@@ -246,13 +247,15 @@ function renderNodes() {
     });
 }
 
-function openEditor(code = null) {
+function openEditor(code = null, requestedKind = "node") {
     editingRecord = code
         ? departments.find(item => item.code === code) ||
           nodes.find(item => item.code === code)
         : null;
 
-    const isDepartment = editingRecord && "name" in editingRecord;
+    const isDepartment = editingRecord
+        ? "name" in editingRecord
+        : requestedKind === "department";
     const isNode = editingRecord && "title" in editingRecord;
 
     $("organizationForm").reset();
@@ -350,8 +353,17 @@ function populateDepartmentOptions(record) {
 }
 
 async function saveDepartment() {
+    const code = $("fieldCode").value.trim().toUpperCase();
+    const name = $("fieldTitle").value.trim();
+
+    if (!code || !/^[A-Z0-9_-]{2,40}$/.test(code)) {
+        throw new Error("Le code du département doit contenir 2 à 40 caractères : lettres, chiffres, tirets ou underscores.");
+    }
+    if (!name) throw new Error("Le nom du département est obligatoire.");
+
     const payload = {
-        name: $("fieldTitle").value.trim(),
+        code,
+        name,
         description: $("fieldDescription").value.trim(),
         responsible: $("fieldResponsible").value.trim(),
         additional_info: $("fieldAdditional").value.trim(),
@@ -359,12 +371,11 @@ async function saveDepartment() {
         updated_by: currentUser.id
     };
 
-    const { error } = await db
-        .from("rp_departments")
-        .update(payload)
-        .eq("code", editingRecord.code);
+    const result = editingRecord
+        ? await db.from("rp_departments").update(payload).eq("code", editingRecord.code)
+        : await db.from("rp_departments").insert(payload);
 
-    if (error) throw error;
+    if (result.error) throw result.error;
 }
 
 async function saveNode() {
@@ -491,6 +502,7 @@ async function initialize() {
         $("refreshButton").addEventListener("click", loadOrganization);
         $("searchOrganization").addEventListener("input", filterOrganization);
         $("addNodeButton").addEventListener("click", () => openEditor());
+        $("addDepartmentButton").addEventListener("click", () => openEditor(null, "department"));
 
         console.info("[ZONE-431] Administration organisationnelle initialisée.");
     } catch (error) {
