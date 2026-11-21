@@ -517,7 +517,7 @@ async function saveDepartment() {
     const code = $("fieldCode").value.trim().toUpperCase();
     const name = $("fieldTitle").value.trim();
 
-    if (!code || !/^[A-Z0-9_-]{2,40}$/.test(code)) {
+    if (!code || !/^[A-Z0-9_.&-]{2,40}$/.test(code)) {
         throw new Error("Le code du département doit contenir 2 à 40 caractères : lettres, chiffres, tirets ou underscores.");
     }
     if (!name) throw new Error("Le nom du département est obligatoire.");
