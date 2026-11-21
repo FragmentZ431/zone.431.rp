@@ -40,6 +40,15 @@ function cleanTemplate(value: unknown, fallback = ""): string {
   return String(value ?? fallback).replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, "").trim().slice(0, 1900);
 }
 
+function normalizeRole(value: unknown): string {
+  let role: any = value;
+  if (Array.isArray(role)) role = role[0];
+  if (role && typeof role === "object") {
+    role = role.role || role.current_staff_role || role.staff_role || "";
+  }
+  return String(role || "").normalize("NFD").replace(/[\\u0300-\\u036f]/g, "").toUpperCase().trim();
+}
+
 function isWebhook(value: string): boolean {
   try {
     const url = new URL(value);
@@ -88,7 +97,7 @@ Deno.serve(async (req: Request) => {
     const requestedAction = text(body.action, 20);
     if (requestedAction === "member_change") {
       const { data: role, error: roleError } = await userClient.rpc("current_staff_role");
-      if (roleError || !["ADMIN", "ADMINISTRATEUR"].includes(String(role || "").toUpperCase())) {
+      if (roleError || !["ADMIN", "ADMINISTRATEUR"].includes(normalizeRole(role))) {
         return json({ error: "Seuls les administrateurs peuvent notifier un changement de dossier membre." }, 403);
       }
     } else {
