@@ -153,7 +153,7 @@ async function loadOrganization() {
         : `Consultation générale. Modification autorisée pour : ${editableCount}.`;
 
     $("addNodeButton").hidden = !isAdmin && !canManageAllDepartments && permissions.size === 0;
-    $("addDepartmentButton").hidden = !isAdmin && !canManageAllDepartments;
+    $("addDepartmentButton").hidden = !isAdmin;
 }
 
 function renderOrganization() {
