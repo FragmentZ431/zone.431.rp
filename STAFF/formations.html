@@ -185,6 +185,14 @@
                         <div id="courseDepartments" class="selection-grid"></div>
                         <small>Les départements peuvent être ajoutés dans le module <a href="departements.html">Départements</a>.</small>
                     </div>
+                    <div class="target-block">
+                        <strong>Filtrer par grade (facultatif)</strong>
+                        <div id="courseGradeFilters" class="selection-grid"></div>
+                    </div>
+                    <div class="target-block">
+                        <strong>Filtrer par accréditation (facultatif)</strong>
+                        <div id="courseAccreditationFilters" class="selection-grid"></div>
+                    </div>
 
                     <div class="target-block">
                         <strong>Divisions, subdivisions et filières</strong>
@@ -211,6 +219,16 @@
                         </label>
                     </div>
                 </div>
+
+                <label class="checkbox-line full-width">
+                    <input id="courseRegistrationRequired" type="checkbox" checked>
+                    <span>Inscription requise pour cette formation</span>
+                </label>
+
+                <label class="checkbox-line full-width">
+                    <input id="courseRegistrationsClosed" type="checkbox">
+                    <span>Clôturer les inscriptions</span>
+                </label>
 
                 <label class="checkbox-line full-width">
                     <input id="coursePublished" type="checkbox">
