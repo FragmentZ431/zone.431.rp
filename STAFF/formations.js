@@ -357,7 +357,7 @@ async function switchSpace(space) {
     });
 
     configureInterface();
-    $("categoryFilter").value = "";
+    $("departmentFilter").value = "";
 
     await loadCourses();
 }
@@ -392,7 +392,7 @@ async function loadCourses() {
         state.targets = [];
     }
 
-    populateCategoryFilter();
+    populateDepartmentFilter();
     renderCourses();
     await updateStatistics();
 }
@@ -419,16 +419,26 @@ async function loadCourseTargets() {
     state.targets = data || [];
 }
 
-function populateCategoryFilter() {
-    const categories = [...new Set(
-        state.courses.map((course) => course.category).filter(Boolean)
-    )].sort((a, b) => a.localeCompare(b, "fr"));
+function populateDepartmentFilter() {
+    const select = $("departmentFilter");
+    const currentValue = select.value;
+    const options = state.space === "rp"
+        ? state.departments.map((department) => ({
+            value: department.code,
+            label: `${department.code} — ${department.name}`
+        }))
+        : [...new Set(state.courses.map((course) => course.target_audience).filter(Boolean))]
+            .map((audience) => ({ value: audience, label: audience === "LES_DEUX" ? "Animation + Modération" : audience }));
 
-    $("categoryFilter").innerHTML =
-        '<option value="">Toutes les catégories</option>' +
-        categories.map((category) =>
-            `<option value="${escapeHTML(category)}">${escapeHTML(category)}</option>`
+    select.innerHTML =
+        `<option value="">${state.space === "rp" ? "Tous les départements" : "Toutes les équipes"}</option>` +
+        options.map((option) =>
+            `<option value="${escapeHTML(option.value)}">${escapeHTML(option.label)}</option>`
         ).join("");
+
+    if (options.some((option) => option.value === currentValue)) {
+        select.value = currentValue;
+    }
 }
 
 function getCourseTargets(courseId) {
@@ -437,19 +447,34 @@ function getCourseTargets(courseId) {
 
 function renderCourses() {
     const search = $("searchInput").value.trim().toLocaleLowerCase("fr");
-    const category = $("categoryFilter").value;
+    const selectedFilter = $("departmentFilter").value;
     const canManage = canManageCurrentSpace();
 
     const filteredCourses = state.courses.filter((course) => {
+        const targets = state.space === "rp" ? getCourseTargets(course.id) : [];
+        const departmentTargets = targets
+            .filter((target) => target.target_type === "department")
+            .map((target) => target.target_code);
+        const departmentNames = departmentTargets.map(departmentLabel);
+        const nodeNames = targets
+            .filter((target) => target.target_type === "node")
+            .map((target) => nodeLabel(target.target_code));
         const searchable = [
             course.title,
             course.summary,
             course.description,
-            course.category
-        ].join(" ").toLocaleLowerCase("fr");
+            ...departmentNames,
+            ...nodeNames,
+            course.target_audience
+        ].filter(Boolean).join(" ").toLocaleLowerCase("fr");
 
-        return searchable.includes(search) &&
-            (!category || course.category === category);
+        const matchesFilter = !selectedFilter || (
+            state.space === "rp"
+                ? departmentTargets.includes(selectedFilter)
+                : course.target_audience === selectedFilter
+        );
+
+        return searchable.includes(search) && matchesFilter;
     });
 
     if (!filteredCourses.length) {
@@ -463,7 +488,6 @@ function renderCourses() {
 
     $("courseGrid").innerHTML = filteredCourses.map((course) => {
         const targets = state.space === "rp" ? getCourseTargets(course.id) : [];
-
         const targetLabels = state.space === "rp"
             ? targets.map((target) => target.target_type === "department"
                 ? departmentLabel(target.target_code)
@@ -472,10 +496,14 @@ function renderCourses() {
                 ? "Animation + Modération"
                 : course.target_audience];
 
+        const primaryLabel = state.space === "rp"
+            ? (targetLabels[0] || "Public non défini")
+            : (course.target_audience === "LES_DEUX" ? "Animation + Modération" : course.target_audience || "STAFF");
+
         return `
             <article class="course-card">
                 <div class="course-card-top">
-                    <span class="course-category">${escapeHTML(course.category || "Général")}</span>
+                    <span class="course-category">${escapeHTML(primaryLabel)}</span>
                     <span class="course-status ${course.is_published ? "published" : ""}">
                         ${course.is_published ? "PUBLIÉE" : "BROUILLON"}
                     </span>
@@ -647,16 +675,23 @@ async function saveCourse(event) {
     const previousCourse = state.courses.find((course) => course.id === courseId) || null;
 
     const title = $("courseTitle").value.trim();
-    const category = $("courseCategory").value.trim();
+    const departments = state.space === "rp" ? getSelectedValues("courseDepartments") : [];
+    const nodes = state.space === "rp" ? getSelectedValues("courseNodes") : [];
+    const staffAudience = document.querySelector('input[name="staffAudience"]:checked')?.value || "ANIMATION";
 
-    if (!title || !category) {
-        showToast("Le titre et la catégorie sont obligatoires.", true);
+    if (!title) {
+        showToast("L'intitulé de la formation est obligatoire.", true);
+        return;
+    }
+
+    if (state.space === "rp" && !departments.length && !nodes.length) {
+        showToast("Sélectionnez au moins un département, une division ou une filière.", true);
         return;
     }
 
     const payload = {
         title,
-        category,
+        category: state.space === "rp" ? (departments[0] || "Général") : staffAudience,
         summary: $("courseSummary").value.trim() || null,
         description: $("courseDescription").value.trim() || null,
         sort_order: Number($("courseOrder").value) || 0,
@@ -666,8 +701,7 @@ async function saveCourse(event) {
     };
 
     if (state.space === "staff") {
-        payload.target_audience =
-            document.querySelector('input[name="staffAudience"]:checked')?.value || "ANIMATION";
+        payload.target_audience = staffAudience;
     }
 
     if (!courseId) {
@@ -705,14 +739,6 @@ async function saveCourse(event) {
     }
 
     if (state.space === "rp") {
-        const departments = getSelectedValues("courseDepartments");
-        const nodes = getSelectedValues("courseNodes");
-
-        if (!departments.length && !nodes.length) {
-            showToast("Sélectionnez au moins un département, une division ou une filière.", true);
-            return;
-        }
-
         const { error: deleteError } = await supabaseClient
             .from("rp_training_course_targets")
             .delete()
@@ -810,12 +836,14 @@ async function openCourse(courseId) {
         ? "FORMATION RP"
         : "FORMATION STAFF";
 
+    const courseTargets = state.space === "rp" ? getCourseTargets(course.id) : [];
     const meta = [
-        course.category || "Général",
-        course.is_published ? "Publiée" : "Brouillon",
-        state.space === "staff"
-            ? (course.target_audience === "LES_DEUX" ? "Animation + Modération" : course.target_audience)
-            : null
+        ...(state.space === "rp"
+            ? courseTargets.map((target) => target.target_type === "department"
+                ? departmentLabel(target.target_code)
+                : nodeLabel(target.target_code))
+            : [course.target_audience === "LES_DEUX" ? "Animation + Modération" : course.target_audience]),
+        course.is_published ? "Publiée" : "Brouillon"
     ].filter(Boolean);
 
     $("viewMeta").innerHTML = meta.map((item) =>
@@ -1199,7 +1227,7 @@ function bindEvents() {
 
     $("refreshButton").addEventListener("click", loadCourses);
     $("searchInput").addEventListener("input", renderCourses);
-    $("categoryFilter").addEventListener("change", renderCourses);
+    $("departmentFilter").addEventListener("change", renderCourses);
 
     $("createCourseButton").addEventListener("click", openCreateCourse);
     $("courseForm").addEventListener("submit", saveCourse);
