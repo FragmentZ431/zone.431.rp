@@ -341,7 +341,7 @@ Deno.serve(async (req: Request) => {
 
         const names = new Map((departmentRows || []).map((row: any) => [row.code, row.name]));
         for (const config of webhookConfigs || []) {
-          const template = safeText(config.registration_closed_message_template, 1900);
+          const template = String(config.registration_closed_message_template || "").replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/g, "").trim().slice(0, 1900);
           const rendered = renderDiscordTemplate(template, {
             formation: safeText(data.title, 180),
             departement: safeText(names.get(config.department_code) || config.department_code, 120),
