@@ -36,6 +36,9 @@ const state = {
     departments: [],
     nodes: [],
     targets: [],
+    courseFilters: [],
+    departmentGrades: [],
+    departmentAccreditations: [],
     currentCourse: null,
     currentLessons: [],
     canManageRP: false,
@@ -257,6 +260,25 @@ async function loadCatalog() {
     state.departments = departmentsResult.data || [];
     state.nodes = nodesResult.data || [];
 
+    const [gradesResult, accreditationResult] = await Promise.all([
+        supabaseClient
+            .from("rp_department_grades")
+            .select("department_code,grade_name")
+            .eq("is_active", true)
+            .order("sort_order", { ascending: true })
+            .order("grade_name", { ascending: true }),
+        supabaseClient
+            .from("rp_member_department_assignments")
+            .select("department_code,accreditation")
+    ]);
+
+    state.departmentGrades = gradesResult.error ? [] : (gradesResult.data || []);
+    state.departmentAccreditations = accreditationResult.error
+        ? ["ACC 0", "ACC 1", "ACC 2", "ACC 3", "ACC 4", "ACC 5", "O5"]
+        : [...new Set((accreditationResult.data || [])
+            .map((row) => row.accreditation)
+            .filter(Boolean))].sort((a, b) => a.localeCompare(b, "fr"));
+
     renderCatalogSelectors();
 }
 
@@ -310,6 +332,7 @@ function renderCatalogSelectors() {
     });
 
     $("courseNodes").innerHTML = nodeHTML || "<p>Aucune division ou filière publiée.</p>";
+    renderCourseFilterSelectors();
     $("assignmentNodes").innerHTML = nodeHTML || "<p>Aucune division ou filière publiée.</p>";
 }
 
@@ -417,6 +440,18 @@ async function loadCourseTargets() {
     }
 
     state.targets = data || [];
+
+    const { data: filters, error: filtersError } = await supabaseClient
+        .from("rp_training_course_filters")
+        .select("course_id,department_code,filter_type,filter_value")
+        .in("course_id", ids);
+
+    if (filtersError) {
+        console.error("Lecture des filtres de formation :", filtersError);
+        state.courseFilters = [];
+    } else {
+        state.courseFilters = filters || [];
+    }
 }
 
 function populateDepartmentFilter() {
@@ -439,6 +474,68 @@ function populateDepartmentFilter() {
     if (options.some((option) => option.value === currentValue)) {
         select.value = currentValue;
     }
+}
+
+function renderCourseFilterSelectors() {
+    const selectedDepartments = getSelectedValues("courseDepartments");
+    const previousGrades = new Set(getSelectedValues("courseGradeFilters"));
+    const previousAccreditations = new Set(getSelectedValues("courseAccreditationFilters"));
+
+    if (!selectedDepartments.length) {
+        $("courseGradeFilters").innerHTML = '<p class="form-note">Sélectionnez d’abord un département.</p>';
+        $("courseAccreditationFilters").innerHTML = '<p class="form-note">Sélectionnez d’abord un département.</p>';
+        return;
+    }
+
+    $("courseGradeFilters").innerHTML = selectedDepartments.map((code) => {
+        const grades = state.departmentGrades.filter((row) => row.department_code === code);
+        return `
+            <div class="node-group full-width">
+                <strong>${escapeHTML(departmentLabel(code))}</strong>
+                <div class="selection-grid">
+                    ${grades.length
+                        ? grades.map((row) => {
+                            const value = `grade::${code}::${row.grade_name}`;
+                            return selectionOption(value, row.grade_name, previousGrades.has(value), "courseGradeFilter");
+                        }).join("")
+                        : '<p class="form-note">Aucun grade configuré pour ce département.</p>'}
+                </div>
+            </div>
+        `;
+    }).join("");
+
+    $("courseAccreditationFilters").innerHTML = selectedDepartments.map((code) => {
+        const accreditations = state.departmentAccreditations;
+        return `
+            <div class="node-group full-width">
+                <strong>${escapeHTML(departmentLabel(code))}</strong>
+                <div class="selection-grid">
+                    ${accreditations.length
+                        ? accreditations.map((accreditation) => {
+                            const value = `accreditation::${code}::${accreditation}`;
+                            return selectionOption(value, accreditation, previousAccreditations.has(value), "courseAccreditationFilter");
+                        }).join("")
+                        : '<p class="form-note">Aucune accréditation disponible.</p>'}
+                </div>
+            </div>
+        `;
+    }).join("");
+}
+
+function getSelectedCourseFilters() {
+    const selected = [
+        ...getSelectedValues("courseGradeFilters"),
+        ...getSelectedValues("courseAccreditationFilters")
+    ];
+
+    return selected.map((value) => {
+        const [filterType, departmentCode, ...rest] = value.split("::");
+        return {
+            filter_type: filterType,
+            department_code: departmentCode,
+            filter_value: rest.join("::")
+        };
+    }).filter((filter) => filter.filter_type && filter.department_code && filter.filter_value);
 }
 
 function getCourseTargets(courseId) {
@@ -587,6 +684,9 @@ function resetCourseForm() {
 
     setSelectedValues("courseDepartments", []);
     setSelectedValues("courseNodes", []);
+    $("courseRegistrationRequired").checked = true;
+    $("courseRegistrationsClosed").checked = false;
+    renderCourseFilterSelectors();
 
     const defaultAudience = document.querySelector(
         'input[name="staffAudience"][value="ANIMATION"]'
@@ -617,6 +717,8 @@ async function openEditCourse(courseId) {
     $("courseSummary").value = course.summary || "";
     $("courseDescription").value = course.description || "";
     $("coursePublished").checked = Boolean(course.is_published);
+    $("courseRegistrationRequired").checked = course.registration_required !== false;
+    $("courseRegistrationsClosed").checked = Boolean(course.registrations_closed);
 
     if (state.space === "rp") {
         const targets = getCourseTargets(course.id);
@@ -631,6 +733,19 @@ async function openEditCourse(courseId) {
             "courseNodes",
             targets.filter((item) => item.target_type === "node")
                 .map((item) => item.target_code)
+        );
+
+        renderCourseFilterSelectors();
+        const selectedFilters = state.courseFilters
+            .filter((filter) => filter.course_id === course.id)
+            .map((filter) => `${filter.filter_type}::${filter.department_code}::${filter.filter_value}`);
+        setSelectedValues(
+            "courseGradeFilters",
+            selectedFilters.filter((value) => value.startsWith("grade::"))
+        );
+        setSelectedValues(
+            "courseAccreditationFilters",
+            selectedFilters.filter((value) => value.startsWith("accreditation::"))
         );
     } else {
         const audience = document.querySelector(
@@ -695,6 +810,8 @@ async function saveCourse(event) {
         description: $("courseDescription").value.trim() || null,
         sort_order: Number($("courseOrder").value) || 0,
         is_published: $("coursePublished").checked,
+        registration_required: $("courseRegistrationRequired").checked,
+        registrations_closed: $("courseRegistrationRequired").checked && $("courseRegistrationsClosed").checked,
         updated_by: state.user.id,
         updated_at: new Date().toISOString()
     };
@@ -771,6 +888,34 @@ async function saveCourse(event) {
             showToast("Formation enregistrée, mais les publics n'ont pas pu être enregistrés.", true);
             return;
         }
+        const selectedFilters = getSelectedCourseFilters();
+        const { error: deleteFiltersError } = await supabaseClient
+            .from("rp_training_course_filters")
+            .delete()
+            .eq("course_id", savedCourse.id);
+
+        if (deleteFiltersError) {
+            showToast("Formation enregistrée, mais les filtres n'ont pas pu être mis à jour.", true);
+            console.error(deleteFiltersError);
+            return;
+        }
+
+        if (selectedFilters.length) {
+            const filterRows = selectedFilters.map((filter) => ({
+                course_id: savedCourse.id,
+                ...filter
+            }));
+            const { error: filterError } = await supabaseClient
+                .from("rp_training_course_filters")
+                .insert(filterRows);
+
+            if (filterError) {
+                showToast("Formation enregistrée, mais les filtres de grade/accréditation ont échoué.", true);
+                console.error(filterError);
+                return;
+            }
+        }
+
     }
 
     if (state.space === "rp" && savedCourse.is_published) {
@@ -1227,6 +1372,7 @@ function bindEvents() {
     $("refreshButton").addEventListener("click", loadCourses);
     $("searchInput").addEventListener("input", renderCourses);
     $("departmentFilter").addEventListener("change", renderCourses);
+    $("courseDepartments").addEventListener("change", renderCourseFilterSelectors);
 
     $("createCourseButton").addEventListener("click", openCreateCourse);
     $("courseForm").addEventListener("submit", saveCourse);
