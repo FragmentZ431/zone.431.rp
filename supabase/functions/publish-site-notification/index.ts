@@ -335,15 +335,27 @@ Deno.serve(async (req: Request) => {
         if (departmentMatch || nodeMatch) recipients.add(p.user_id);
       }
 
-      if (event === "training_registrations_closed" && departmentTargets.length) {
+      if (event === "training_registrations_closed" && (departmentTargets.length || nodeTargets.length)) {
+        const closureDepartmentCodes = new Set<string>(departmentTargets);
+        if (nodeTargets.length) {
+          const { data: nodeDepartments, error: nodeDepartmentError } = await adminClient
+            .from("rp_organization_nodes")
+            .select("root_department_code")
+            .in("code", nodeTargets);
+          if (nodeDepartmentError) throw nodeDepartmentError;
+          (nodeDepartments || []).forEach((row: any) => {
+            if (row.root_department_code) closureDepartmentCodes.add(row.root_department_code);
+          });
+        }
+        const closureCodes = [...closureDepartmentCodes];
         const [{ data: webhookConfigs, error: webhookError }, { data: departmentRows, error: departmentError }] = await Promise.all([
           adminClient.from("department_discord_webhooks")
             .select("department_code,webhook_url,enabled,registration_closed_message_template,webhook_username,avatar_url,embed_color")
-            .in("department_code", departmentTargets)
+            .in("department_code", closureCodes)
             .eq("enabled", true),
           adminClient.from("rp_departments")
             .select("code,name")
-            .in("code", departmentTargets),
+            .in("code", closureCodes),
         ]);
         if (webhookError) throw webhookError;
         if (departmentError) throw departmentError;
