@@ -15,6 +15,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const passwordInput = document.getElementById("password");
     const robloxInput = document.getElementById("roblox");
     const discordInput = document.getElementById("discord");
+    const firstNameInput = document.getElementById("firstName");
+    const lastNameInput = document.getElementById("lastName");
 
     if (
         !form ||
@@ -23,7 +25,9 @@ document.addEventListener("DOMContentLoaded", () => {
         !emailInput ||
         !passwordInput ||
         !robloxInput ||
-        !discordInput
+        !discordInput ||
+        !firstNameInput ||
+        !lastNameInput
     ) {
         console.error("[ZONE-431] Formulaire incomplet.");
         return;
@@ -76,12 +80,14 @@ document.addEventListener("DOMContentLoaded", () => {
         const password = passwordInput.value;
         const roblox = robloxInput.value.trim();
         const discord = discordInput.value.trim();
+        const firstName = firstNameInput.value.trim();
+        const lastName = lastNameInput.value.trim();
 
         message.textContent = "";
         message.className = "form-message hidden";
 
         // VALIDATION
-        if (!email || !password || !roblox || !discord) {
+        if (!email || !password || !roblox || !discord || !firstName || !lastName) {
             showMessage(
                 "Veuillez compléter tous les champs du formulaire.",
                 "error"
@@ -100,6 +106,14 @@ document.addEventListener("DOMContentLoaded", () => {
         if (roblox.length < 3) {
             showMessage(
                 "Veuillez vérifier votre pseudo Roblox.",
+                "error"
+            );
+            return;
+        }
+
+        if (firstName.length < 2 || lastName.length < 2) {
+            showMessage(
+                "Veuillez renseigner un prénom et un nom valides.",
                 "error"
             );
             return;
@@ -126,6 +140,8 @@ document.addEventListener("DOMContentLoaded", () => {
                     emailRedirectTo: "https://fragmentz431.github.io/zone.431.rp/accueil.html",
                     data: {
                         display_name: roblox,
+                        first_name: firstName,
+                        last_name: lastName,
                         roblox_username: roblox,
                         discord_username: discord
                     }
