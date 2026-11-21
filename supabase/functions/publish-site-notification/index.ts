@@ -39,6 +39,15 @@ function accreditationRank(value: string | null | undefined): number {
   return ranks[value || "ACC 0"] ?? -1;
 }
 
+function normalizeRole(value: unknown): string {
+  let role: any = value;
+  if (Array.isArray(role)) role = role[0];
+  if (role && typeof role === "object") {
+    role = role.role || role.current_staff_role || role.staff_role || "";
+  }
+  return String(role || "").normalize("NFD").replace(/[\\u0300-\\u036f]/g, "").toUpperCase().trim();
+}
+
 function safeText(value: unknown, max = 500): string {
   return String(value ?? "").trim().slice(0, max);
 }
@@ -125,7 +134,7 @@ Deno.serve(async (req: Request) => {
 
     if (isAccount) {
       const { data: staffRole, error: staffRoleError } = await userClient.rpc("current_staff_role");
-      if (staffRoleError || !["ADMIN", "ADMINISTRATEUR"].includes(String(staffRole || "").toUpperCase())) {
+      if (staffRoleError || !["ADMIN", "ADMINISTRATEUR"].includes(normalizeRole(staffRole))) {
         return json({ error: "Seuls les administrateurs peuvent publier ces notifications." }, 403);
       }
     } else {
