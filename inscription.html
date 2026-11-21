@@ -7,7 +7,7 @@
     <title>ZONE-431 | Création de compte</title>
     <link rel="stylesheet" href="inscription.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="inscription.js?v=20261113-2" defer></script>
+    <script src="inscription.js?v=20261121-1" defer></script>
     <link rel="stylesheet" href="membre/notifications.css?v=20261113-3">
 </head>
 <body>
@@ -74,6 +74,20 @@
                         minlength="8"
                         required
                     >
+                </div>
+
+                <div class="form-section-title second-section">
+                    IDENTITÉ PERSONNELLE
+                </div>
+
+                <div class="form-group">
+                    <label for="firstName">PRÉNOM</label>
+                    <input type="text" id="firstName" name="first_name" autocomplete="given-name" maxlength="80" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="lastName">NOM</label>
+                    <input type="text" id="lastName" name="last_name" autocomplete="family-name" maxlength="80" required>
                 </div>
 
                 <div class="form-section-title second-section">
