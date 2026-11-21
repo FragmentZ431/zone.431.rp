@@ -13,6 +13,7 @@ let currentUser = null;
 let accounts = [];
 let departments = [];
 let nodes = [];
+const gradeCatalogCache = new Map();
 let selectedAccount = null;
 
 const ACCREDITATION_LEVELS = ["ACC 0", "ACC 1", "ACC 2", "ACC 3", "ACC 4", "ACC 5", "O5"];
@@ -367,13 +368,60 @@ function fillSelect(select, options, placeholder, selectedValue = "") {
     });
     select.value = selectedValue || "";
 }
-function renderPrimaryDepartmentOptions(selectedDepartment = "", selectedDivision = "") {
+async function fillGradeSelect(select, departmentCode, selectedValue = "") {
+    if (!select) return;
+
+    select.replaceChildren();
+    const placeholder = document.createElement("option");
+    placeholder.value = "";
+    placeholder.textContent = departmentCode ? "Sélectionner un grade" : "Choisir d'abord un département";
+    select.appendChild(placeholder);
+
+    if (!departmentCode) return;
+
+    let grades = gradeCatalogCache.get(departmentCode);
+    if (!grades) {
+        const { data, error } = await db
+            .from("rp_department_grades")
+            .select("grade_name")
+            .eq("department_code", departmentCode)
+            .eq("is_active", true)
+            .order("sort_order", { ascending: true })
+            .order("grade_name", { ascending: true });
+        if (error) {
+            console.error("[ZONE-431] Chargement des grades impossible :", error);
+            return;
+        }
+        grades = (data || []).map(row => row.grade_name);
+        gradeCatalogCache.set(departmentCode, grades);
+    }
+
+    grades.forEach(gradeName => {
+        const option = document.createElement("option");
+        option.value = gradeName;
+        option.textContent = gradeName;
+        select.appendChild(option);
+    });
+
+    if (selectedValue && !grades.includes(selectedValue)) {
+        const legacy = document.createElement("option");
+        legacy.value = selectedValue;
+        legacy.textContent = selectedValue + " (grade historique)";
+        select.appendChild(legacy);
+    }
+
+    select.value = selectedValue || "";
+}
+
+function renderPrimaryDepartmentOptions(selectedDepartment = "", selectedDivision = "", selectedGrade = "") {
     const departmentSelect = $("primaryDepartment");
     const divisionSelect = $("primaryDivision");
     fillSelect(departmentSelect, getDepartmentChoices(false), "Sélectionner le département", selectedDepartment);
     fillSelect(divisionSelect, getDivisionsForDepartment(departmentSelect.value), "Aucune division", selectedDivision);
+    fillGradeSelect($("primaryGrade"), departmentSelect.value, selectedGrade);
     departmentSelect.onchange = () => {
         fillSelect(divisionSelect, getDivisionsForDepartment(departmentSelect.value), "Aucune division");
+        fillGradeSelect($("primaryGrade"), departmentSelect.value);
         updateSelectionSummary();
     };
 }
@@ -419,13 +467,10 @@ function createSecondaryAssignment(data = {}) {
 
     const gradeLabel = document.createElement("label");
     gradeLabel.textContent = "Grade (obligatoire)";
-    const gradeInput = document.createElement("input");
+    const gradeInput = document.createElement("select");
     gradeInput.className = "secondary-grade";
-    gradeInput.type = "text";
-    gradeInput.maxLength = 120;
     gradeInput.required = true;
-    gradeInput.placeholder = "Grade dans ce département";
-    gradeInput.value = data.grade || "";
+    fillGradeSelect(gradeInput, departmentSelect.value, data.grade || "");
     gradeLabel.appendChild(gradeInput);
 
     const removeButton = document.createElement("button");
@@ -435,6 +480,7 @@ function createSecondaryAssignment(data = {}) {
     removeButton.addEventListener("click", () => { row.remove(); updateSelectionSummary(); });
     departmentSelect.addEventListener("change", () => {
         fillSelect(divisionSelect, getDivisionsForDepartment(departmentSelect.value), "Aucune division");
+        fillGradeSelect(gradeInput, departmentSelect.value);
     });
     row.append(departmentLabel, divisionLabel, accreditationLabel, rpNameLabel, gradeLabel, removeButton);
 
@@ -480,8 +526,7 @@ async function openAccountEditor(account) {
     $("accountAccreditation").value = account.accreditation || "ACC 0";
     $("accountStatus").value = account.status;
 
-    renderPrimaryDepartmentOptions(account.department || account.department_codes?.[0] || "");
-    $("primaryGrade").value = account.grade || "";
+    renderPrimaryDepartmentOptions(account.department || account.department_codes?.[0] || "", "", account.grade || "");
     $("secondaryAssignments").replaceChildren();
 
     const addSecondaryButton = $("addSecondaryButton");
@@ -505,8 +550,7 @@ async function openAccountEditor(account) {
     const assignments = Array.isArray(assignmentData) ? assignmentData : [];
     const primary = assignments.find(item => item.assignment_type === "primary");
     if (primary) {
-        renderPrimaryDepartmentOptions(primary.department_code, primary.division_code || "");
-        $("primaryGrade").value = primary.grade || "";
+        renderPrimaryDepartmentOptions(primary.department_code, primary.division_code || "", primary.grade || "");
     }
     assignments.filter(item => item.assignment_type === "secondary")
         .sort((a, b) => (a.position || 0) - (b.position || 0))
