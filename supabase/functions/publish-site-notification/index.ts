@@ -45,7 +45,7 @@ function normalizeRole(value: unknown): string {
   if (role && typeof role === "object") {
     role = role.role || role.current_staff_role || role.staff_role || "";
   }
-  return String(role || "").normalize("NFD").replace(/[\\u0300-\\u036f]/g, "").toUpperCase().trim();
+  return String(role || "").toUpperCase().trim();
 }
 
 function safeText(value: unknown, max = 500): string {
