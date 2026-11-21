@@ -101,7 +101,7 @@ Deno.serve(async (req: Request) => {
     const userId = userData.user.id;
     const { data: profile, error: profileError } = await adminClient
       .from("rp_member_profiles")
-      .select("user_id,rp_name,display_name,status")
+      .select("user_id,rp_name,display_name,first_name,last_name,status")
       .eq("user_id", userId)
       .maybeSingle();
     if (profileError) throw profileError;
@@ -111,12 +111,18 @@ Deno.serve(async (req: Request) => {
 
     const { data: course, error: courseError } = await adminClient
       .from("training_courses")
-      .select("id,title,is_published")
+      .select("id,title,is_published,registration_required,registrations_closed")
       .eq("id", courseId)
       .maybeSingle();
     if (courseError) throw courseError;
     if (!course || course.is_published !== true) {
       return json({ error: "Cette formation n'est pas disponible." }, 404);
+    }
+    if (course.registration_required === false) {
+      return json({ error: "Cette formation ne nécessite aucune inscription." }, 400);
+    }
+    if (course.registrations_closed === true) {
+      return json({ error: "Les inscriptions à cette formation sont clôturées." }, 403);
     }
 
     const { data: targets, error: targetsError } = await adminClient
@@ -135,7 +141,7 @@ Deno.serve(async (req: Request) => {
       targets.filter((item: any) => item.target_type === "node").map((item: any) => item.target_code)
     )];
 
-    const [departmentAccess, nodeAccess] = await Promise.all([
+    const [departmentAccess, nodeAccess, assignmentResult, filterResult] = await Promise.all([
       departmentTargets.length
         ? adminClient.from("rp_member_department_access")
             .select("department_code")
@@ -148,15 +154,42 @@ Deno.serve(async (req: Request) => {
             .eq("user_id", userId)
             .in("node_code", nodeTargets)
         : Promise.resolve({ data: [], error: null }),
+      adminClient.from("rp_member_department_assignments")
+        .select("department_code,grade,accreditation")
+        .eq("user_id", userId),
+      adminClient.from("rp_training_course_filters")
+        .select("department_code,filter_type,filter_value")
+        .eq("course_id", courseId),
     ]);
 
     if (departmentAccess.error) throw departmentAccess.error;
     if (nodeAccess.error) throw nodeAccess.error;
+    if (assignmentResult.error) throw assignmentResult.error;
+    if (filterResult.error) throw filterResult.error;
 
-    const hasDepartmentAccess = (departmentAccess.data || []).length > 0;
+    const assignments = assignmentResult.data || [];
+    const filters = filterResult.data || [];
+    const accessDepartments = new Set((departmentAccess.data || []).map((row: any) => row.department_code));
+
+    const matchedDepartments = departmentTargets.filter((departmentCode: string) => {
+      const departmentFilters = filters.filter((filter: any) => filter.department_code === departmentCode);
+      const departmentAssignments = assignments.filter((assignment: any) => assignment.department_code === departmentCode);
+
+      if (!departmentFilters.length) {
+        return departmentAssignments.length > 0 || accessDepartments.has(departmentCode);
+      }
+
+      return departmentAssignments.some((assignment: any) =>
+        departmentFilters.some((filter: any) =>
+          (filter.filter_type === "grade" && filter.filter_value === assignment.grade) ||
+          (filter.filter_type === "accreditation" && filter.filter_value === assignment.accreditation)
+        )
+      );
+    });
+
     const hasNodeAccess = (nodeAccess.data || []).length > 0;
-    if (!hasDepartmentAccess && !hasNodeAccess) {
-      return json({ error: "Cette formation n'est pas destinée à votre affectation." }, 403);
+    if (!matchedDepartments.length && !hasNodeAccess) {
+      return json({ error: "Cette formation n'est pas destinée à votre affectation ou à vos critères de grade/accréditation." }, 403);
     }
 
     const { data: existing, error: existingError } = await adminClient
@@ -196,9 +229,7 @@ Deno.serve(async (req: Request) => {
       enrollment = data;
     }
 
-    const departmentCodes = new Set<string>(
-      (departmentAccess.data || []).map((row: any) => row.department_code)
-    );
+    const departmentCodes = new Set<string>(matchedDepartments);
     if (nodeTargets.length) {
       const { data: nodes, error: nodesError } = await adminClient
         .from("rp_organization_nodes")
@@ -227,6 +258,8 @@ Deno.serve(async (req: Request) => {
       if (configError) throw configError;
 
       const pseudo = safeText(profile.rp_name || profile.display_name || "Membre", 100);
+      const prenom = safeText(profile.first_name, 80);
+      const nom = safeText(profile.last_name, 80);
       for (const config of configurations || []) {
         if (!config.webhook_url || !isDiscordWebhook(config.webhook_url)) {
           console.warn("Webhook Discord absent ou invalide pour", config.department_code);
@@ -241,6 +274,8 @@ Deno.serve(async (req: Request) => {
 
         const content = renderTemplate(config.message_template, {
           pseudo,
+          prenom,
+          nom,
           formation: safeText(course.title, 180),
           departement: safeText(department?.name || config.department_code, 120),
         });
