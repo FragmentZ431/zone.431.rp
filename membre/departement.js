@@ -1,382 +1,288 @@
-
 /* =========================================================
-   ZONE-431 — INFORMATIONS DÉPARTEMENTALES
-   Fichier : membre/departement.js
+   ZONE-431 — MON DÉPARTEMENT
+   Données personnelles et organisation publiée
    ========================================================= */
 
 (() => {
     "use strict";
 
+    const auth = window.Zone431Auth;
+
     const elements = {
         identity: document.getElementById("departmentIdentity"),
         primaryDepartment: document.getElementById("primaryDepartment"),
         departmentList: document.getElementById("departmentList"),
-
         loading: document.getElementById("departmentLoading"),
         error: document.getElementById("departmentError"),
         errorText: document.getElementById("departmentErrorText"),
         empty: document.getElementById("departmentEmpty"),
         display: document.getElementById("departmentDisplay"),
-
         selectedName: document.getElementById("selectedDepartmentName"),
-        documentCount: document.getElementById("documentCount"),
-        description: document.getElementById("departmentDescription"),
-        documents: document.getElementById("departmentDocuments"),
-
-        retryButton: document.getElementById("retryButton")
+        selectedType: document.getElementById("selectedDepartmentType"),
+        selectedCode: document.getElementById("selectedDepartmentCode"),
+        nodeCount: document.getElementById("departmentNodeCount"),
+        grade: document.getElementById("memberGrade"),
+        accreditation: document.getElementById("memberAccreditation"),
+        divisionWrap: document.getElementById("memberDivisionWrap"),
+        division: document.getElementById("memberDivision"),
+        structure: document.getElementById("departmentStructure"),
+        structureEmpty: document.getElementById("departmentStructureEmpty"),
+        retry: document.getElementById("retryButton")
     };
 
     const state = {
-        access: null,
+        assignments: [],
         departments: [],
-        documents: [],
-        selectedDepartment: null
+        nodes: [],
+        selectedCode: null,
+        primaryCode: null
     };
 
-    const departmentIcons = {
+    const icons = {
         "D.SE": "fa-shield-halved",
         "D.SCI": "fa-flask",
         "D.M": "fa-kit-medical",
         "DI&ST": "fa-microchip",
         "D.A": "fa-scale-balanced",
-        "ZC": "fa-building"
+        "FIM": "fa-person-military-rifle",
+        "GDI": "fa-network-wired"
     };
 
-    function normalizeCode(code) {
-        return String(code || "").trim();
-    }
+    const normalize = value => String(value || "").trim();
 
-    function getDepartmentIcon(code) {
-        return departmentIcons[normalizeCode(code)] || "fa-building";
-    }
-
-    function setVisible(element, visible) {
-        element.hidden = !visible;
-    }
-
-    function showLoading() {
-        setVisible(elements.loading, true);
-        setVisible(elements.error, false);
-        setVisible(elements.empty, false);
-        setVisible(elements.display, false);
+    function show(view) {
+        [elements.loading, elements.error, elements.empty, elements.display]
+            .forEach(item => { item.hidden = item !== view; });
     }
 
     function showError(message) {
-        setVisible(elements.loading, false);
-        setVisible(elements.error, true);
-        setVisible(elements.empty, false);
-        setVisible(elements.display, false);
-
-        elements.errorText.textContent =
-            message || "Une erreur inconnue est survenue.";
+        elements.errorText.textContent = message;
+        show(elements.error);
     }
 
-    function showEmpty() {
-        setVisible(elements.loading, false);
-        setVisible(elements.error, false);
-        setVisible(elements.empty, true);
-        setVisible(elements.display, false);
+    function getAssignment(code) {
+        return state.assignments.find(item => item.department_code === code) || null;
     }
 
-    function formatDate(value) {
-        if (!value) return "";
-
-        const date = new Date(value);
-
-        if (Number.isNaN(date.getTime())) {
-            return "";
-        }
-
-        return new Intl.DateTimeFormat("fr-FR", {
-            day: "2-digit",
-            month: "long",
-            year: "numeric"
-        }).format(date);
+    function getDepartment(code) {
+        return state.departments.find(item => item.code === code) || null;
     }
 
-    function createDepartmentButton(code) {
+    function getNode(code) {
+        return state.nodes.find(item => item.code === code) || null;
+    }
+
+    function getDepartmentTitle(code) {
+        const department = getDepartment(code);
+        if (department?.name) return department.name;
+        const rootNode = getNode(code);
+        return rootNode?.title || code;
+    }
+
+    function getDepartmentIcon(code) {
+        return icons[code] || "fa-building";
+    }
+
+    function createAssignmentButton(assignment) {
+        const code = assignment.department_code;
         const button = document.createElement("button");
         button.type = "button";
         button.className = "department-nav-button";
-
-        if (code === state.selectedDepartment) {
-            button.classList.add("active");
-        }
+        button.classList.toggle("active", code === state.selectedCode);
 
         const icon = document.createElement("i");
-        icon.className = `fa-solid ${getDepartmentIcon(code)}`;
+        icon.className = "fa-solid " + getDepartmentIcon(code);
 
-        const label = document.createElement("span");
-        label.textContent = code;
+        const text = document.createElement("span");
+        text.className = "department-nav-label";
 
-        button.append(icon, label);
+        const title = document.createElement("strong");
+        title.textContent = code;
 
-        button.addEventListener("click", () => {
-            selectDepartment(code);
-        });
+        const type = document.createElement("small");
+        type.textContent = assignment.assignment_type === "primary"
+            ? "AFFECTATION PRINCIPALE"
+            : "AFFECTATION SECONDAIRE";
 
+        text.append(title, type);
+        button.append(icon, text);
+        button.addEventListener("click", () => selectDepartment(code));
         return button;
     }
 
-    function renderDepartmentList() {
+    function renderAssignmentList() {
         elements.departmentList.replaceChildren();
-
-        state.departments.forEach((code) => {
-            elements.departmentList.appendChild(
-                createDepartmentButton(code)
-            );
+        state.assignments.forEach(assignment => {
+            elements.departmentList.appendChild(createAssignmentButton(assignment));
         });
     }
 
-    function renderDocuments(documents) {
-        elements.documents.replaceChildren();
+    function renderStructure(code) {
+        elements.structure.replaceChildren();
 
-        if (!documents.length) {
-            const message = document.createElement("div");
-            message.className = "department-message";
-
-            const iconContainer = document.createElement("div");
-            iconContainer.className = "message-icon";
-
-            const icon = document.createElement("i");
-            icon.className = "fa-solid fa-folder-open";
-
-            iconContainer.appendChild(icon);
-
-            const eyebrow = document.createElement("p");
-            eyebrow.className = "section-eyebrow";
-            eyebrow.textContent = "RESSOURCES DÉPARTEMENTALES";
-
-            const title = document.createElement("h2");
-            title.textContent = "AUCUNE INFORMATION DISPONIBLE";
-
-            const description = document.createElement("p");
-            description.textContent =
-                "Aucune information publiée n'est actuellement disponible pour ce département.";
-
-            message.append(
-                iconContainer,
-                eyebrow,
-                title,
-                description
+        const entries = state.nodes
+            .filter(node =>
+                node.code !== code &&
+                (node.root_department_code === code || node.parent_code === code)
+            )
+            .sort((a, b) =>
+                (a.sort_order || 0) - (b.sort_order || 0) ||
+                String(a.title || a.code).localeCompare(String(b.title || b.code), "fr")
             );
 
-            elements.documents.appendChild(message);
-            return;
-        }
+        elements.nodeCount.textContent =
+            entries.length + (entries.length > 1 ? " ÉLÉMENTS" : " ÉLÉMENT");
+        elements.structureEmpty.hidden = entries.length > 0;
 
-        documents.forEach((documentData) => {
-            const article = document.createElement("article");
-            article.className = "department-document";
+        entries.forEach(node => {
+            const item = document.createElement("article");
+            item.className = "structure-item";
 
-            const header = document.createElement("div");
-            header.className = "document-header";
+            const icon = document.createElement("div");
+            icon.className = "structure-item-icon";
+            const iconElement = document.createElement("i");
+            iconElement.className = "fa-solid " +
+                (node.node_type === "bureau" ? "fa-briefcase" :
+                node.node_type === "unite" ? "fa-users" : "fa-sitemap");
+            icon.appendChild(iconElement);
 
-            const iconContainer = document.createElement("div");
-            iconContainer.className = "document-icon";
+            const content = document.createElement("div");
+            content.className = "structure-item-content";
 
-            const icon = document.createElement("i");
-            icon.className = "fa-solid fa-file-lines";
+            const title = document.createElement("strong");
+            title.textContent = node.title || node.code;
 
-            iconContainer.appendChild(icon);
+            const codeLabel = document.createElement("span");
+            codeLabel.textContent = node.code;
 
-            const heading = document.createElement("div");
-            heading.className = "document-heading";
-
-            const title = document.createElement("h3");
-            title.textContent = documentData.title || "Information sans titre";
-
-            const category = document.createElement("span");
-            category.textContent = state.selectedDepartment;
-
-            heading.append(title, category);
-            header.append(iconContainer, heading);
-            article.appendChild(header);
-
-            if (documentData.summary) {
-                const summary = document.createElement("p");
-                summary.className = "document-summary";
-                summary.textContent = documentData.summary;
-                article.appendChild(summary);
-            }
-
-            if (documentData.content) {
-                const content = document.createElement("div");
-                content.className = "document-content";
-                content.textContent = documentData.content;
-                article.appendChild(content);
-            }
-
-            const dateValue = documentData.updated_at || documentData.created_at;
-            const dateText = formatDate(dateValue);
-
-            if (dateText) {
-                const date = document.createElement("span");
-                date.className = "document-date";
-                date.textContent = `DERNIÈRE MISE À JOUR : ${dateText}`;
-                article.appendChild(date);
-            }
-
-            elements.documents.appendChild(article);
+            content.append(title, codeLabel);
+            item.append(icon, content);
+            elements.structure.appendChild(item);
         });
     }
 
     function selectDepartment(code) {
-        if (!state.departments.includes(code)) {
-            return;
+        const assignment = getAssignment(code);
+        if (!assignment) return;
+
+        state.selectedCode = code;
+        const department = getDepartment(code);
+
+        elements.selectedName.textContent = getDepartmentTitle(code);
+        elements.selectedCode.textContent = code;
+        elements.selectedType.textContent =
+            assignment.assignment_type === "primary"
+                ? "AFFECTATION PRINCIPALE"
+                : "AFFECTATION SECONDAIRE";
+
+        elements.grade.textContent = normalize(assignment.grade) || "Non renseigné";
+        elements.accreditation.textContent =
+            normalize(assignment.accreditation) || "ACC 0";
+
+        const division = normalize(assignment.division_code);
+        const divisionNode = division ? getNode(division) : null;
+        elements.divisionWrap.hidden = !division;
+        elements.division.textContent = divisionNode?.title || division || "Non renseigné";
+
+        renderStructure(code);
+        renderAssignmentList();
+        show(elements.display);
+
+        if (department?.description && !/^test$/i.test(department.description.trim())) {
+            // Description disponible dans le catalogue, mais non affichée dans cette vue compacte.
         }
+    }
 
-        state.selectedDepartment = code;
+    async function loadDepartment() {
+        show(elements.loading);
 
-        const documents = state.documents.filter(
-            (item) => normalizeCode(item.department_code) === code
-        );
+        try {
+            if (!auth) {
+                throw new Error("Le système d'authentification est indisponible.");
+            }
 
-        elements.selectedName.textContent = code;
+            const access = await auth.protectPage();
+            if (!access || access.status !== "authorized") return;
 
-        elements.documentCount.textContent =
-            `${documents.length} ${documents.length > 1 ? "DOCUMENTS" : "DOCUMENT"}`;
+            const userId = access.user.id;
+            const client = auth.client;
 
-        renderDepartmentList();
-        renderDocuments(documents);
+            const { data: assignments, error: assignmentsError } = await client
+                .from("rp_member_department_assignments")
+                .select("assignment_type, department_code, division_code, grade, accreditation, position")
+                .eq("user_id", userId)
+                .order("position", { ascending: true });
 
-        setVisible(elements.loading, false);
-        setVisible(elements.error, false);
-        setVisible(elements.empty, false);
-        setVisible(elements.display, true);
+            if (assignmentsError) throw assignmentsError;
 
-        elements.description.textContent = "";
-        setVisible(elements.description, false);
+            state.assignments = (assignments || [])
+                .filter(item => normalize(item.department_code))
+                .sort((a, b) => {
+                    if (a.assignment_type === "primary" && b.assignment_type !== "primary") return -1;
+                    if (b.assignment_type === "primary" && a.assignment_type !== "primary") return 1;
+                    return (a.position || 0) - (b.position || 0);
+                });
 
-        window.scrollTo({
-            top: 0,
-            behavior: "smooth"
+            state.primaryCode =
+                state.assignments.find(item => item.assignment_type === "primary")?.department_code ||
+                normalize(access.profile?.department) || null;
+
+            if (!state.assignments.length && state.primaryCode) {
+                state.assignments.push({
+                    assignment_type: "primary",
+                    department_code: state.primaryCode,
+                    grade: access.profile?.grade || "",
+                    accreditation: access.profile?.accreditation || "ACC 0",
+                    division_code: null
+                });
+            }
+
+            if (!state.assignments.length) {
+                elements.departmentList.replaceChildren();
+                show(elements.empty);
+                return;
+            }
+
+            const codes = [...new Set(state.assignments.map(item => item.department_code))];
+
+            const [departmentResult, nodeResult] = await Promise.all([
+                client.from("rp_departments")
+                    .select("code, name, description")
+                    .in("code", codes),
+                client.from("rp_organization_nodes")
+                    .select("code, parent_code, root_department_code, node_type, title, sort_order")
+                    .eq("is_published", true)
+            ]);
+
+            if (departmentResult.error) throw departmentResult.error;
+            if (nodeResult.error) throw nodeResult.error;
+
+            state.departments = departmentResult.data || [];
+            state.nodes = nodeResult.data || [];
+
+            elements.primaryDepartment.textContent = state.primaryCode
+                ? getDepartmentTitle(state.primaryCode)
+                : "Département non renseigné";
+            elements.identity.hidden = !state.primaryCode;
+
+            renderAssignmentList();
+            selectDepartment(codes.includes(state.primaryCode) ? state.primaryCode : codes[0]);
+
+        } catch (error) {
+            console.error("[ZONE-431] Erreur Mon département :", error);
+            showError("Impossible de récupérer votre dossier départemental. Vérifiez votre connexion puis réessayez.");
+        }
+    }
+
+    elements.retry.addEventListener("click", loadDepartment);
+
+    if (auth?.subscribe) {
+        auth.subscribe((event, session) => {
+            if (event === "SIGNED_OUT" || !session) {
+                window.location.replace("accueil.html");
+            }
         });
     }
 
-    async function loadDepartmentInformation() {
-        showLoading();
-
-        try {
-            if (!window.Zone431Auth) {
-                throw new Error(
-                    "Le système d'authentification Zone-431 est indisponible."
-                );
-            }
-
-            const access = await window.Zone431Auth.protectPage();
-
-            if (!access) {
-                return;
-            }
-
-            state.access = access;
-
-            const userId = access.user.id;
-            const client = window.Zone431Auth.client;
-
-            /*
-             * Les départements sont désormais enregistrés dans
-             * rp_member_department_assignments par la gestion des comptes.
-             * Cette page doit lire cette même table pour récupérer
-             * le département principal et tous les départements additionnels.
-             */
-            const { data: assignments, error: assignmentsError } =
-                await client
-                    .from("rp_member_department_assignments")
-                    .select("assignment_type, department_code, position")
-                    .eq("user_id", userId)
-                    .order("position", { ascending: true });
-
-            if (assignmentsError) {
-                throw assignmentsError;
-            }
-
-            const primaryAssignment = (assignments || []).find(
-                (assignment) => assignment.assignment_type === "primary"
-            );
-
-            const primaryCode = normalizeCode(
-                primaryAssignment?.department_code || access.profile.department
-            );
-
-            const accessibleCodes = new Set();
-
-            if (primaryCode) {
-                accessibleCodes.add(primaryCode);
-            }
-
-            (assignments || []).forEach((assignment) => {
-                const code = normalizeCode(assignment.department_code);
-
-                if (code) {
-                    accessibleCodes.add(code);
-                }
-            });
-
-            // Le département principal reste en premier dans la navigation.
-            state.departments = Array.from(accessibleCodes);
-
-            elements.primaryDepartment.textContent =
-                primaryCode || "Département non renseigné";
-
-            setVisible(elements.identity, Boolean(primaryCode));
-
-            if (!state.departments.length) {
-                elements.departmentList.replaceChildren();
-                showEmpty();
-                return;
-            }
-
-            /*
-             * Récupération des informations publiées.
-             */
-            const { data: documents, error: documentsError } =
-                await client
-                    .from("member_department_info")
-                    .select(`
-                        id,
-                        department_code,
-                        title,
-                        summary,
-                        content,
-                        sort_order,
-                        created_at,
-                        updated_at
-                    `)
-                    .in("department_code", state.departments)
-                    .eq("is_published", true)
-                    .order("sort_order", { ascending: true })
-                    .order("created_at", { ascending: false });
-
-            if (documentsError) {
-                throw documentsError;
-            }
-
-            state.documents = documents || [];
-
-            renderDepartmentList();
-
-            selectDepartment(state.departments[0]);
-
-        } catch (error) {
-            console.error(
-                "[ZONE-431] Erreur de chargement départemental :",
-                error
-            );
-
-            showError(
-                "Impossible de récupérer les informations départementales. " +
-                "Vérifiez votre connexion ou contactez l'administration."
-            );
-        }
-    }
-
-    elements.retryButton.addEventListener(
-        "click",
-        loadDepartmentInformation
-    );
-
-    loadDepartmentInformation();
-
+    loadDepartment();
 })();
