@@ -111,7 +111,7 @@ Deno.serve(async (req: Request) => {
     if (!uuidPattern.test(sourceId)) return json({ error: "Identifiant de ressource invalide." }, 400);
 
     const isDocument = ["document_published", "document_updated"].includes(event);
-    const isTraining = ["training_published", "training_updated"].includes(event);
+    const isTraining = ["training_published", "training_updated", "training_registrations_closed"].includes(event);
     const isResult = ["result_published", "result_updated"].includes(event);
     const isAccount = [
       "account_authorized",
@@ -221,21 +221,28 @@ Deno.serve(async (req: Request) => {
     } else if (isTraining) {
       const { data, error } = await adminClient
         .from("training_courses")
-        .select("id,title,summary,is_published,updated_at")
+        .select("id,title,summary,is_published,registrations_closed,registration_required,created_by,updated_at")
         .eq("id", sourceId)
         .maybeSingle();
       if (error) throw error;
       if (!data || data.is_published !== true) {
         return json({ success: true, skipped: true, reason: "Formation non publiée." });
       }
+      if (event === "training_registrations_closed" && data.registrations_closed !== true) {
+        return json({ success: true, skipped: true, reason: "Les inscriptions ne sont pas clôturées." });
+      }
       source = data;
       notificationType = "training";
       title = event === "training_published"
         ? "Nouvelle formation disponible"
-        : "Formation mise à jour";
+        : event === "training_registrations_closed"
+          ? "Inscriptions clôturées"
+          : "Formation mise à jour";
       message = event === "training_published"
         ? "La formation « " + safeText(data.title, 180) + " » est maintenant disponible."
-        : "La formation « " + safeText(data.title, 180) + " » a été mise à jour.";
+        : event === "training_registrations_closed"
+          ? "Les inscriptions à la formation « " + safeText(data.title, 180) + " » sont maintenant clôturées."
+          : "La formation « " + safeText(data.title, 180) + " » a été mise à jour.";
       href = "formations.html";
       discordLink = "https://fragmentz431.github.io/zone.431.rp/membre/" + href;
 
