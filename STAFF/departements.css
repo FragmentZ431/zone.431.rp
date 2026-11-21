@@ -407,3 +407,21 @@ select option {
         display: none;
     }
 }
+
+
+.heading-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+}
+
+@media (max-width: 680px) {
+    .heading-actions {
+        width: 100%;
+    }
+
+    .heading-actions button {
+        flex: 1 1 180px;
+    }
+}
