@@ -84,9 +84,12 @@ Deno.serve(async (req: Request) => {
       return json({ error: "Session invalide." }, 401);
     }
 
-    const { data: role, error: roleError } = await userClient.rpc("current_staff_role");
-    if (roleError || role !== "ADMINISTRATEUR") {
-      return json({ error: "Seuls les administrateurs peuvent gérer les webhooks Discord." }, 403);
+    const { data: canWrite, error: permissionError } = await userClient.rpc(
+      "has_staff_module_permission",
+      { p_module_code: "discord_notifications", p_action: "write" },
+    );
+    if (permissionError || canWrite !== true) {
+      return json({ error: "Vous ne disposez pas de la permission de modifier les notifications Discord." }, 403);
     }
 
     const body = await req.json().catch(() => ({}));
