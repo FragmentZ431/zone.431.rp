@@ -273,11 +273,7 @@ async function loadCatalog() {
     ]);
 
     state.departmentGrades = gradesResult.error ? [] : (gradesResult.data || []);
-    state.departmentAccreditations = accreditationResult.error
-        ? ["ACC 0", "ACC 1", "ACC 2", "ACC 3", "ACC 4", "ACC 5", "O5"]
-        : [...new Set((accreditationResult.data || [])
-            .map((row) => row.accreditation)
-            .filter(Boolean))].sort((a, b) => a.localeCompare(b, "fr"));
+    state.departmentAccreditations = accreditationResult.error ? [] : (accreditationResult.data || []);
 
     renderCatalogSelectors();
 }
@@ -506,7 +502,14 @@ function renderCourseFilterSelectors() {
     }).join("");
 
     $("courseAccreditationFilters").innerHTML = selectedDepartments.map((code) => {
-        const accreditations = state.departmentAccreditations;
+        const existingAccreditations = state.departmentAccreditations
+            .filter((row) => row.department_code === code)
+            .map((row) => row.accreditation)
+            .filter(Boolean);
+        const accreditations = [...new Set([
+            "ACC 0", "ACC 1", "ACC 2", "ACC 3", "ACC 4", "ACC 5", "O5",
+            ...existingAccreditations
+        ])].sort((a, b) => a.localeCompare(b, "fr"));
         return `
             <div class="node-group full-width">
                 <strong>${escapeHTML(departmentLabel(code))}</strong>
