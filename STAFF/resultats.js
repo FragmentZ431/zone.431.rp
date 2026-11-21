@@ -53,6 +53,11 @@
         user: null,
         courses: [],
         members: [],
+        allMembers: [],
+        assignments: [],
+        courseTargets: [],
+        courseFilters: [],
+        enrollments: [],
         results: [],
         selectedCourseId: null,
         selectedMemberId: null,
@@ -240,7 +245,9 @@
                 summary,
                 description,
                 is_published,
-                sort_order
+                sort_order,
+                registration_required,
+                registrations_closed
             `)
             .order("sort_order", { ascending: true });
 
@@ -298,11 +305,84 @@
 
         if (error) throw error;
 
-        state.members = data || [];
+        state.allMembers = data || [];
+        state.members = [...state.allMembers];
 
         elements.memberTotal.textContent = state.members.length;
 
         renderMemberList();
+    }
+
+
+    async function loadCourseEligibility(courseId) {
+        const course = state.courses.find(item => item.id === courseId);
+        if (!course) {
+            state.members = [];
+            renderMemberList();
+            return;
+        }
+
+        const results = await Promise.all([
+            state.client.from("rp_training_course_targets")
+                .select("target_type,target_code").eq("course_id", courseId),
+            state.client.from("rp_training_course_filters")
+                .select("department_code,filter_type,filter_value").eq("course_id", courseId),
+            state.client.from("rp_member_department_assignments")
+                .select("user_id,department_code,division_code,grade,accreditation"),
+            state.client.from("training_enrollments")
+                .select("user_id,status").eq("course_id", courseId)
+        ]);
+
+        const [targetsResult, filtersResult, assignmentsResult, enrollmentsResult] = results;
+        if (targetsResult.error) throw targetsResult.error;
+        if (filtersResult.error) throw filtersResult.error;
+        if (assignmentsResult.error) throw assignmentsResult.error;
+        if (enrollmentsResult.error) throw enrollmentsResult.error;
+
+        state.courseTargets = targetsResult.data || [];
+        state.courseFilters = filtersResult.data || [];
+        state.assignments = assignmentsResult.data || [];
+        state.enrollments = enrollmentsResult.data || [];
+
+        const departmentTargets = state.courseTargets
+            .filter(target => target.target_type === "department")
+            .map(target => target.target_code);
+        const nodeTargets = state.courseTargets
+            .filter(target => target.target_type === "node")
+            .map(target => target.target_code);
+
+        const assignmentsByUser = new Map();
+        state.assignments.forEach(assignment => {
+            if (!assignmentsByUser.has(assignment.user_id)) {
+                assignmentsByUser.set(assignment.user_id, []);
+            }
+            assignmentsByUser.get(assignment.user_id).push(assignment);
+        });
+
+        const enrolledUsers = new Set(state.enrollments
+            .filter(enrollment => ["registered", "completed"].includes(enrollment.status))
+            .map(enrollment => enrollment.user_id));
+
+        state.members = state.allMembers.filter(member => {
+            const memberAssignments = assignmentsByUser.get(member.user_id) || [];
+            const departmentMatch = departmentTargets.some(departmentCode => {
+                const matchingAssignments = memberAssignments.filter(item => item.department_code === departmentCode);
+                const departmentFilters = state.courseFilters.filter(filter => filter.department_code === departmentCode);
+                if (!departmentFilters.length) return matchingAssignments.length > 0;
+                return matchingAssignments.some(assignment => departmentFilters.some(filter =>
+                    (filter.filter_type === "grade" && filter.filter_value === assignment.grade) ||
+                    (filter.filter_type === "accreditation" && filter.filter_value === assignment.accreditation)
+                ));
+            });
+            const nodeMatch = nodeTargets.some(nodeCode =>
+                memberAssignments.some(assignment => assignment.division_code === nodeCode)
+            );
+            if (!departmentMatch && !nodeMatch) return false;
+            return course.registration_required === false || enrolledUsers.has(member.user_id);
+        });
+
+        renderMemberList();
+        updateStatistics();
     }
 
     async function loadCourseResults(courseId) {
@@ -788,6 +868,7 @@
         showFormFeedback("");
 
         if (!courseId) {
+            state.members = [...state.allMembers];
             elements.courseInformation.textContent =
                 "Sélectionnez une formation pour afficher les membres concernés.";
 
@@ -815,9 +896,15 @@
                 " Les membres ne peuvent pas la consulter tant qu'elle n'est pas publiée.";
         }
 
-        renderMemberList();
+        const registrationDescription = course.registration_required === false
+            ? " Aucune inscription n'est requise : les résultats peuvent être saisis pour les membres concernés."
+            : course.registrations_closed
+                ? " Les inscriptions sont clôturées : seuls les membres inscrits peuvent recevoir un résultat."
+                : " Inscription obligatoire : seuls les membres inscrits peuvent recevoir un résultat.";
+        elements.courseInformation.textContent += registrationDescription;
 
         try {
+            await loadCourseEligibility(courseId);
             await loadCourseResults(courseId);
         } catch (error) {
             console.error(
