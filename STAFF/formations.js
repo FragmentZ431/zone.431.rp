@@ -26,7 +26,7 @@ const TABLES = {
     }
 };
 
-const MANAGER_ROLES = ["ADMINISTRATEUR", "MANAGER MOD", "MANAGER ANIM"];
+const MANAGER_ROLES = ["ADMINISTRATEUR", "ADMIN", "MANAGER MOD", "MANAGER ANIM"];
 
 const state = {
     user: null,
@@ -171,7 +171,7 @@ async function initializeModule() {
 
         // RP : la permission individuelle training/write autorise la gestion.
         // STAFF : seul un administrateur STAFF peut consulter et gérer cet espace.
-        state.canManageAssignments = state.role === "ADMINISTRATEUR";
+        state.canManageAssignments = ["ADMINISTRATEUR", "ADMIN"].includes(state.role);
 
         const { data: staffAccess, error: staffAccessError } =
             await supabaseClient.rpc("has_staff_module_permission", {
@@ -368,7 +368,7 @@ async function switchSpace(space) {
         showToast("La permission training/write n'est pas active pour ce compte.", true);
     }
 
-    if (space === "staff" && state.role !== "ADMINISTRATEUR") {
+    if (space === "staff" && !["ADMINISTRATEUR", "ADMIN"].includes(state.role)) {
         showToast("L'espace Formations STAFF est réservé aux administrateurs.", true);
         return;
     }
