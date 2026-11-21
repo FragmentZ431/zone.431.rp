@@ -329,19 +329,27 @@
                 .select("department_code,filter_type,filter_value").eq("course_id", courseId),
             state.client.from("rp_member_department_assignments")
                 .select("user_id,department_code,division_code,grade,accreditation"),
+            state.client.from("rp_member_department_access")
+                .select("user_id,department_code"),
+            state.client.from("rp_member_organization_access")
+                .select("user_id,node_code"),
             state.client.from("training_enrollments")
                 .select("user_id,status").eq("course_id", courseId)
         ]);
 
-        const [targetsResult, filtersResult, assignmentsResult, enrollmentsResult] = results;
+        const [targetsResult, filtersResult, assignmentsResult, departmentAccessResult, nodeAccessResult, enrollmentsResult] = results;
         if (targetsResult.error) throw targetsResult.error;
         if (filtersResult.error) throw filtersResult.error;
         if (assignmentsResult.error) throw assignmentsResult.error;
+        if (departmentAccessResult.error) throw departmentAccessResult.error;
+        if (nodeAccessResult.error) throw nodeAccessResult.error;
         if (enrollmentsResult.error) throw enrollmentsResult.error;
 
         state.courseTargets = targetsResult.data || [];
         state.courseFilters = filtersResult.data || [];
         state.assignments = assignmentsResult.data || [];
+        const departmentAccess = departmentAccessResult.data || [];
+        const nodeAccess = nodeAccessResult.data || [];
         state.enrollments = enrollmentsResult.data || [];
 
         const departmentTargets = state.courseTargets
@@ -352,11 +360,22 @@
             .map(target => target.target_code);
 
         const assignmentsByUser = new Map();
+        const departmentsByUser = new Map();
+        const nodesByUser = new Map();
         state.assignments.forEach(assignment => {
             if (!assignmentsByUser.has(assignment.user_id)) {
                 assignmentsByUser.set(assignment.user_id, []);
             }
             assignmentsByUser.get(assignment.user_id).push(assignment);
+        });
+
+        departmentAccess.forEach(access => {
+            if (!departmentsByUser.has(access.user_id)) departmentsByUser.set(access.user_id, new Set());
+            departmentsByUser.get(access.user_id).add(access.department_code);
+        });
+        nodeAccess.forEach(access => {
+            if (!nodesByUser.has(access.user_id)) nodesByUser.set(access.user_id, new Set());
+            nodesByUser.get(access.user_id).add(access.node_code);
         });
 
         const enrolledUsers = new Set(state.enrollments
@@ -368,14 +387,17 @@
             const departmentMatch = departmentTargets.some(departmentCode => {
                 const matchingAssignments = memberAssignments.filter(item => item.department_code === departmentCode);
                 const departmentFilters = state.courseFilters.filter(filter => filter.department_code === departmentCode);
-                if (!departmentFilters.length) return matchingAssignments.length > 0;
+                if (!departmentFilters.length) {
+                    return matchingAssignments.length > 0 || departmentsByUser.get(member.user_id)?.has(departmentCode) === true;
+                }
                 return matchingAssignments.some(assignment => departmentFilters.some(filter =>
                     (filter.filter_type === "grade" && filter.filter_value === assignment.grade) ||
                     (filter.filter_type === "accreditation" && filter.filter_value === assignment.accreditation)
                 ));
             });
             const nodeMatch = nodeTargets.some(nodeCode =>
-                memberAssignments.some(assignment => assignment.division_code === nodeCode)
+                memberAssignments.some(assignment => assignment.division_code === nodeCode) ||
+                nodesByUser.get(member.user_id)?.has(nodeCode) === true
             );
             if (!departmentMatch && !nodeMatch) return false;
             return course.registration_required === false || enrolledUsers.has(member.user_id);
