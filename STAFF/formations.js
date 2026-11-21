@@ -613,7 +613,6 @@ async function openEditCourse(courseId) {
 
     $("courseId").value = course.id;
     $("courseTitle").value = course.title || "";
-    $("courseCategory").value = course.category || "";
     $("courseOrder").value = course.sort_order ?? 0;
     $("courseSummary").value = course.summary || "";
     $("courseDescription").value = course.description || "";
