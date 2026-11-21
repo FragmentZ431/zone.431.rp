@@ -76,6 +76,32 @@
             </div>
         </section>
 
+        <section class="organization-section grade-management">
+            <div class="section-title">
+                <div>
+                    <span class="eyebrow">RÉFÉRENTIEL RH</span>
+                    <h2>Grades par département</h2>
+                    <p>Gérer les grades proposés lors de l'affectation des membres et des filtres de formation.</p>
+                </div>
+            </div>
+            <div class="grade-toolbar">
+                <label>
+                    Département
+                    <select id="gradeDepartmentSelect"></select>
+                </label>
+                <div class="grade-add">
+                    <label>
+                        Nouveau grade
+                        <input id="newGradeName" type="text" maxlength="120" placeholder="Ex. Agent de Première Classe">
+                    </label>
+                    <button id="addGradeButton" class="primary-button" type="button">AJOUTER LE GRADE</button>
+                </div>
+            </div>
+            <div id="departmentGradesContainer" class="grade-list">
+                <p class="loading">Chargement des grades...</p>
+            </div>
+        </section>
+
         <section class="organization-section">
             <div class="section-title">
                 <div>
