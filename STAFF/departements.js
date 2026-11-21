@@ -15,6 +15,7 @@ let isAdmin = false;
 let canManageAllDepartments = false;
 let departments = [];
 let nodes = [];
+let departmentGradeRows = [];
 let permissions = new Set();
 let editingRecord = null;
 
@@ -142,6 +143,8 @@ async function loadOrganization() {
 
     await loadPermissions();
     renderOrganization();
+    populateGradeDepartmentSelect();
+    await loadDepartmentGrades();
 
     const editableCount = (isAdmin || canManageAllDepartments) ? "tous les éléments" : `${permissions.size} département(s)`;
 
@@ -156,6 +159,164 @@ async function loadOrganization() {
 function renderOrganization() {
     renderDepartments();
     renderNodes();
+}
+
+function populateGradeDepartmentSelect() {
+    const select = $("gradeDepartmentSelect");
+    const previous = select.value;
+    select.replaceChildren();
+
+    departments.forEach(department => {
+        const option = document.createElement("option");
+        option.value = department.code;
+        option.textContent = `${department.code} — ${department.name}`;
+        select.appendChild(option);
+    });
+
+    if (departments.some(department => department.code === previous)) {
+        select.value = previous;
+    }
+
+    const canEdit = select.value && canEditDepartment(select.value);
+    $("addGradeButton").hidden = !canEdit;
+    $("newGradeName").disabled = !canEdit;
+}
+
+async function loadDepartmentGrades() {
+    const container = $("departmentGradesContainer");
+    const departmentCode = $("gradeDepartmentSelect").value;
+
+    container.replaceChildren();
+    if (!departmentCode) {
+        const message = document.createElement("p");
+        message.className = "loading";
+        message.textContent = "Ajoutez d'abord un département.";
+        container.appendChild(message);
+        return;
+    }
+
+    const { data, error } = await db
+        .from("rp_department_grades")
+        .select("id,department_code,grade_name,sort_order,is_active")
+        .eq("department_code", departmentCode)
+        .order("sort_order", { ascending: true })
+        .order("grade_name", { ascending: true });
+
+    if (error) {
+        showMessage("Impossible de charger les grades : " + error.message, true);
+        return;
+    }
+
+    departmentGradeRows = data || [];
+    renderDepartmentGrades();
+}
+
+function renderDepartmentGrades() {
+    const container = $("departmentGradesContainer");
+    container.replaceChildren();
+
+    const departmentCode = $("gradeDepartmentSelect").value;
+    const canEdit = departmentCode && canEditDepartment(departmentCode);
+    $("addGradeButton").hidden = !canEdit;
+    $("newGradeName").disabled = !canEdit;
+
+    if (!departmentGradeRows.length) {
+        const message = document.createElement("p");
+        message.className = "loading";
+        message.textContent = "Aucun grade n'est encore défini pour ce département.";
+        container.appendChild(message);
+        return;
+    }
+
+    departmentGradeRows.forEach(grade => {
+        const row = document.createElement("div");
+        row.className = "grade-row";
+
+        const name = document.createElement("strong");
+        name.textContent = grade.grade_name;
+
+        const actions = document.createElement("div");
+        actions.className = "grade-actions";
+
+        if (canEdit) {
+            const edit = document.createElement("button");
+            edit.type = "button";
+            edit.className = "edit-button";
+            edit.textContent = "MODIFIER";
+            edit.addEventListener("click", async () => {
+                const nextName = window.prompt("Nouveau nom du grade :", grade.grade_name);
+                if (nextName === null) return;
+                const normalized = nextName.trim();
+                if (!normalized) {
+                    showMessage("Le nom du grade ne peut pas être vide.", true);
+                    return;
+                }
+                const { error } = await db
+                    .from("rp_department_grades")
+                    .update({ grade_name: normalized, updated_at: new Date().toISOString() })
+                    .eq("id", grade.id);
+                if (error) {
+                    showMessage("Modification impossible : " + error.message, true);
+                    return;
+                }
+                showMessage("Grade modifié.");
+                await loadDepartmentGrades();
+            });
+
+            const remove = document.createElement("button");
+            remove.type = "button";
+            remove.className = "danger-button";
+            remove.textContent = "SUPPRIMER";
+            remove.addEventListener("click", async () => {
+                if (!window.confirm(`Supprimer le grade « ${grade.grade_name} » du catalogue ? Les affectations déjà attribuées ne seront pas effacées.`)) return;
+                const { error } = await db
+                    .from("rp_department_grades")
+                    .delete()
+                    .eq("id", grade.id);
+                if (error) {
+                    showMessage("Suppression impossible : " + error.message, true);
+                    return;
+                }
+                showMessage("Grade supprimé du catalogue.");
+                await loadDepartmentGrades();
+            });
+
+            actions.append(edit, remove);
+        }
+
+        row.append(name, actions);
+        container.appendChild(row);
+    });
+}
+
+async function addDepartmentGrade() {
+    const departmentCode = $("gradeDepartmentSelect").value;
+    const gradeName = $("newGradeName").value.trim();
+
+    if (!departmentCode || !canEditDepartment(departmentCode)) {
+        showMessage("Vous ne disposez pas des droits pour modifier ce catalogue.", true);
+        return;
+    }
+    if (!gradeName) {
+        showMessage("Saisissez le nom du grade.", true);
+        return;
+    }
+
+    const { error } = await db
+        .from("rp_department_grades")
+        .insert({
+            department_code: departmentCode,
+            grade_name: gradeName
+        });
+
+    if (error) {
+        showMessage(error.code === "23505" ? "Ce grade existe déjà dans ce département." : "Ajout impossible : " + error.message, true);
+        return;
+    }
+
+    $("newGradeName").value = "";
+    showMessage("Grade ajouté au département.");
+    await loadDepartmentGrades();
 }
 
 function createCard(code, title, description, canEdit, statusText = "") {
@@ -502,6 +663,8 @@ async function initialize() {
         $("refreshButton").addEventListener("click", loadOrganization);
         $("searchOrganization").addEventListener("input", filterOrganization);
         $("addNodeButton").addEventListener("click", () => openEditor());
+        $("gradeDepartmentSelect").addEventListener("change", loadDepartmentGrades);
+        $("addGradeButton").addEventListener("click", addDepartmentGrade);
         $("addDepartmentButton").addEventListener("click", () => openEditor(null, "department"));
 
         console.info("[ZONE-431] Administration organisationnelle initialisée.");
