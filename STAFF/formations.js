@@ -686,6 +686,7 @@ function resetCourseForm() {
     setSelectedValues("courseNodes", []);
     $("courseRegistrationRequired").checked = true;
     $("courseRegistrationsClosed").checked = false;
+    $("courseRegistrationsClosed").disabled = false;
     renderCourseFilterSelectors();
 
     const defaultAudience = document.querySelector(
@@ -719,6 +720,7 @@ async function openEditCourse(courseId) {
     $("coursePublished").checked = Boolean(course.is_published);
     $("courseRegistrationRequired").checked = course.registration_required !== false;
     $("courseRegistrationsClosed").checked = Boolean(course.registrations_closed);
+    $("courseRegistrationsClosed").disabled = course.created_by !== state.user.id && !isManager();
 
     if (state.space === "rp") {
         const targets = getCourseTargets(course.id);
@@ -919,6 +921,10 @@ async function saveCourse(event) {
     }
 
     if (state.space === "rp" && savedCourse.is_published) {
+        if (savedCourse.registrations_closed === true && previousCourse?.registrations_closed !== true) {
+            await dispatchTrainingNotification("training_registrations_closed", savedCourse.id);
+        }
+
         const notificationEvent = !courseId || previousCourse?.is_published !== true
             ? "training_published"
             : "training_updated";
