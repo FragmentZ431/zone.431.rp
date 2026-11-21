@@ -541,11 +541,13 @@
     function renderEnrollmentState(courseId) {
         const button = document.getElementById("registerTrainingButton");
         const status = document.getElementById("trainingEnrollmentStatus");
-        if (!button || !status) return;
+        const course = state.courses.find(item => item.id === courseId);
+        if (!button || !status || !course) return;
 
         const enrollment = getEnrollment(courseId);
         button.disabled = false;
         button.hidden = false;
+        button.classList.remove("is-registered");
 
         if (enrollment && enrollment.status === "registered") {
             button.textContent = "INSCRIPTION ENREGISTRÉE";
@@ -553,27 +555,45 @@
             button.classList.add("is-registered");
             status.textContent = "Vous êtes inscrit à cette formation.";
             status.className = "training-enrollment-status success";
-        } else if (enrollment && enrollment.status === "completed") {
+            return;
+        }
+
+        if (enrollment && enrollment.status === "completed") {
             button.textContent = "FORMATION TERMINÉE";
             button.disabled = true;
             button.classList.add("is-registered");
             status.textContent = "Votre inscription est clôturée : formation terminée.";
             status.className = "training-enrollment-status success";
-        } else {
-            button.textContent = "S'INSCRIRE À CETTE FORMATION";
-            button.classList.remove("is-registered");
-            status.textContent = enrollment && enrollment.status === "cancelled"
-                ? "Votre ancienne inscription est annulée. Vous pouvez vous réinscrire."
-                : "Inscription réservée aux membres autorisés correspondant aux affectations de cette formation.";
-            status.className = "training-enrollment-status";
+            return;
         }
+
+        if (course.registration_required === false) {
+            button.hidden = true;
+            status.textContent = "Aucune inscription requise : la participation est libre pour les membres concernés.";
+            status.className = "training-enrollment-status";
+            return;
+        }
+
+        if (course.registrations_closed === true) {
+            button.hidden = true;
+            status.textContent = "Les inscriptions à cette formation sont clôturées.";
+            status.className = "training-enrollment-status error";
+            return;
+        }
+
+        button.textContent = "S'INSCRIRE À CETTE FORMATION";
+        status.textContent = enrollment && enrollment.status === "cancelled"
+            ? "Votre ancienne inscription est annulée. Vous pouvez vous réinscrire."
+            : "Inscription réservée aux membres autorisés correspondant aux affectations de cette formation.";
+        status.className = "training-enrollment-status";
     }
 
     async function registerForSelectedCourse() {
         const courseId = state.selectedCourseId;
         const button = document.getElementById("registerTrainingButton");
         const status = document.getElementById("trainingEnrollmentStatus");
-        if (!courseId || !state.user || !button) return;
+        const course = state.courses.find(item => item.id === courseId);
+        if (!courseId || !state.user || !button || !course || course.registration_required === false || course.registrations_closed === true) return;
 
         button.disabled = true;
         button.textContent = "INSCRIPTION EN COURS...";
@@ -722,7 +742,9 @@
                     title,
                     summary,
                     description,
-                    sort_order
+                    sort_order,
+                    registration_required,
+                    registrations_closed
                 `)
                 .eq("is_published", true)
                 .order("sort_order", { ascending: true });
