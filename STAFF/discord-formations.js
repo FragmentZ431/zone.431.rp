@@ -78,12 +78,17 @@
                     <label class="field full">
                         <span>Modèle du message</span>
                         <textarea name="message_template" maxlength="1900" required>${escapeHTML(template)}</textarea>
-                        <small>Variables : {pseudo}, {formation}, {departement}</small>
+                        <small>Variables : {pseudo}, {prenom}, {nom}, {formation}, {departement}</small>
                     </label>
                     <label class="field full">
                         <span>Message — changement d’accréditation</span>
                         <textarea name="accreditation_message_template" maxlength="1900" required>${escapeHTML(accreditationTemplate)}</textarea>
                         <small>Variables : {pseudo}, {ancien}, {nouveau}, {departement}, {accreditation}, {grade}</small>
+                    </label>
+                    <label class="field full">
+                        <span>Message — clôture des inscriptions</span>
+                        <textarea name="registration_closed_message_template" maxlength="1900" required>${escapeHTML(closureTemplate)}</textarea>
+                        <small>Variables : {formation}, {departement}</small>
                     </label>
                     <label class="field full">
                         <span>Message — changement de grade</span>
@@ -105,6 +110,7 @@
                         <p class="discord-webhook-status">${config?.has_webhook ? "Webhook configuré" : "Aucun webhook enregistré"}</p>
                         <select name="test_event" aria-label="Type de notification à tester">
                             <option value="training_registration">Test : inscription</option>
+                            <option value="training_registration_closed">Test : clôture des inscriptions</option>
                             <option value="accreditation_changed">Test : accréditation</option>
                             <option value="grade_changed">Test : grade</option>
                         </select>
@@ -204,6 +210,7 @@
         const template = String(values.get("message_template") || "").trim();
         const accreditationTemplate = String(values.get("accreditation_message_template") || "").trim();
         const gradeTemplate = String(values.get("grade_message_template") || "").trim();
+        const closureTemplate = String(values.get("registration_closed_message_template") || "").trim();
         const username = String(values.get("webhook_username") || "ZONE-431").trim();
         const color = String(values.get("embed_color") || "#a52c33");
 
@@ -218,8 +225,9 @@
         if (!template || template.length > 1900 ||
             !accreditationTemplate || accreditationTemplate.length > 1900 ||
             !gradeTemplate || gradeTemplate.length > 1900 ||
+            !closureTemplate || closureTemplate.length > 1900 ||
             !username || username.length > 80) {
-            toast("Vérifiez le nom du bot et les trois modèles de message.", true);
+            toast("Vérifiez le nom du bot et les quatre modèles de message.", true);
             return;
         }
 
@@ -237,6 +245,7 @@
                     message_template: template,
                     accreditation_message_template: accreditationTemplate,
                     grade_message_template: gradeTemplate,
+                    registration_closed_message_template: closureTemplate,
                     webhook_username: username,
                     avatar_url: avatarUrl,
                     embed_color: parseInt(color.slice(1), 16)
