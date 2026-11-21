@@ -354,6 +354,7 @@ function configureInterface() {
         : "Les formations sont destinées aux équipes Animation, Modération ou aux deux équipes.";
 
     $("rpTargetFields").classList.toggle("hidden", state.space !== "rp");
+    $("rpRegistrationFields").classList.toggle("hidden", state.space !== "rp");
     $("staffTargetFields").classList.toggle("hidden", state.space !== "staff");
 
     $("spaceDescription").textContent += state.space === "rp"
@@ -812,11 +813,14 @@ async function saveCourse(event) {
         description: $("courseDescription").value.trim() || null,
         sort_order: Number($("courseOrder").value) || 0,
         is_published: $("coursePublished").checked,
-        registration_required: $("courseRegistrationRequired").checked,
-        registrations_closed: $("courseRegistrationRequired").checked && $("courseRegistrationsClosed").checked,
         updated_by: state.user.id,
         updated_at: new Date().toISOString()
     };
+
+    if (state.space === "rp") {
+        payload.registration_required = $("courseRegistrationRequired").checked;
+        payload.registrations_closed = $("courseRegistrationRequired").checked && $("courseRegistrationsClosed").checked;
+    }
 
     if (state.space === "staff") {
         payload.target_audience = staffAudience;
