@@ -84,15 +84,22 @@ Deno.serve(async (req: Request) => {
       return json({ error: "Session invalide." }, 401);
     }
 
-    const { data: canWrite, error: permissionError } = await userClient.rpc(
-      "has_staff_module_permission",
-      { p_module_code: "discord_notifications", p_action: "write" },
-    );
-    if (permissionError || canWrite !== true) {
-      return json({ error: "Vous ne disposez pas de la permission de modifier les notifications Discord." }, 403);
-    }
-
     const body = await req.json().catch(() => ({}));
+    const requestedAction = text(body.action, 20);
+    if (requestedAction === "member_change") {
+      const { data: role, error: roleError } = await userClient.rpc("current_staff_role");
+      if (roleError || !["ADMIN", "ADMINISTRATEUR"].includes(String(role || "").toUpperCase())) {
+        return json({ error: "Seuls les administrateurs peuvent notifier un changement de dossier membre." }, 403);
+      }
+    } else {
+      const { data: canWrite, error: permissionError } = await userClient.rpc(
+        "has_staff_module_permission",
+        { p_module_code: "discord_notifications", p_action: "write" },
+      );
+      if (permissionError || canWrite !== true) {
+        return json({ error: "Vous ne disposez pas de la permission de modifier les notifications Discord." }, 403);
+      }
+    }
     const action = text(body.action, 20);
     const adminClient = createClient(supabaseUrl, secretKey, {
       auth: { autoRefreshToken: false, persistSession: false },
@@ -120,6 +127,86 @@ Deno.serve(async (req: Request) => {
         has_webhook: Boolean(row.webhook_url),
       }));
       return json({ success: true, departments: departmentsResult.data || [], configs });
+    }
+
+    if (action === "member_change") {
+      const eventType = text(body.event_type, 40);
+      const userId = text(body.user_id, 80);
+      const previousValue = text(body.previous_value, 120);
+      const newValue = text(body.new_value, 120);
+      const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+      if (!uuidPattern.test(userId) || !["grade_changed", "accreditation_changed"].includes(eventType)) {
+        return json({ error: "Données de notification membre invalides." }, 400);
+      }
+
+      const { data: profile, error: profileError } = await adminClient
+        .from("rp_member_profiles")
+        .select("user_id,rp_name,display_name,first_name,last_name,status")
+        .eq("user_id", userId)
+        .maybeSingle();
+      if (profileError) throw profileError;
+      if (!profile || profile.status !== "authorized") {
+        return json({ error: "Le membre n'est pas autorisé." }, 404);
+      }
+
+      const { data: assignments, error: assignmentsError } = await adminClient
+        .from("rp_member_department_assignments")
+        .select("department_code")
+        .eq("user_id", userId);
+      if (assignmentsError) throw assignmentsError;
+
+      const departmentCodes = [...new Set((assignments || []).map((row: any) => row.department_code).filter(Boolean))];
+      if (!departmentCodes.length) {
+        return json({ success: true, notificationsConfigured: 0, notificationsSent: 0 });
+      }
+
+      const [{ data: configs, error: configError }, { data: departments, error: departmentError }] = await Promise.all([
+        adminClient.from("department_discord_webhooks")
+          .select("department_code,webhook_url,enabled,accreditation_message_template,grade_message_template,webhook_username,avatar_url,embed_color")
+          .in("department_code", departmentCodes)
+          .eq("enabled", true),
+        adminClient.from("rp_departments")
+          .select("code,name")
+          .in("code", departmentCodes),
+      ]);
+      if (configError) throw configError;
+      if (departmentError) throw departmentError;
+
+      const departmentNames = new Map((departments || []).map((row: any) => [row.code, row.name]));
+      const configured = (configs || []).filter((config: any) => config.webhook_url && isWebhook(config.webhook_url));
+      let sent = 0;
+
+      for (const config of configured) {
+        const template = eventType === "grade_changed"
+          ? config.grade_message_template
+          : config.accreditation_message_template;
+        const rendered = renderTemplate(String(template || ""), {
+          pseudo: text(profile.rp_name || profile.display_name || "Membre", 100),
+          prenom: text(profile.first_name, 80),
+          nom: text(profile.last_name, 80),
+          ancien: previousValue || "Non renseigné",
+          nouveau: newValue || "Non renseigné",
+          departement: text(departmentNames.get(config.department_code) || config.department_code, 120),
+          grade: eventType === "grade_changed" ? newValue : "",
+          accreditation: eventType === "accreditation_changed" ? newValue : "",
+        });
+        if (!rendered) continue;
+
+        const response = await fetch(config.webhook_url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            username: text(config.webhook_username || "ZONE-431", 80),
+            ...(config.avatar_url ? { avatar_url: config.avatar_url } : {}),
+            embeds: [{ description: rendered, color: Number(config.embed_color) || 10893347 }],
+            allowed_mentions: { parse: [] },
+          }),
+        });
+        if (response.ok) sent++;
+        else console.error("Discord member change webhook error:", config.department_code, response.status, await response.text());
+      }
+
+      return json({ success: true, notificationsConfigured: configured.length, notificationsSent: sent });
     }
 
     if (action === "test") {
