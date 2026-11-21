@@ -59,6 +59,7 @@ const DEFAULT_DISCORD_TEMPLATES: Record<string, string> = {
   document_updated: "**DOCUMENT MIS À JOUR**\n\n**{titre}**\n{resume}\n\n[Consulter le document]({lien})",
   training_published: "**NOUVELLE FORMATION DISPONIBLE**\n\n**{titre}**\n{resume}\n\n[Accéder à la formation]({lien})",
   training_updated: "**FORMATION MISE À JOUR**\n\n**{titre}**\n{resume}\n\n[Accéder à la formation]({lien})",
+  training_registrations_closed: "**INSCRIPTIONS CLÔTURÉES**\n\nLes inscriptions à la formation **{titre}** sont maintenant clôturées.\n{resume}\n\n[Consulter la formation]({lien})",
   result_published: "**NOUVEAU RÉSULTAT PUBLIÉ**\n\n**{titre}**\n{resume}\n\n[Consulter mes formations]({lien})",
   result_updated: "**RÉSULTAT MODIFIÉ**\n\n**{titre}**\n{resume}\n\n[Consulter mes formations]({lien})",
   account_authorized: "**NOUVEAU COMPTE AUTORISÉ**\n\n**{titre}**\n{resume}\n\n[Profil du membre]({lien})",
