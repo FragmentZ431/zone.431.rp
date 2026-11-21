@@ -216,7 +216,7 @@
         const username = String(values.get("webhook_username") || "ZONE-431").trim();
         const color = String(values.get("embed_color") || "#a52c33");
 
-        if ((!webhookUrl && card.dataset.hasWebhook !== "true") || !validWebhook(webhookUrl)) {
+        if ((!webhookUrl && card.dataset.hasWebhook !== "true") || (webhookUrl && !validWebhook(webhookUrl))) {
             toast("Renseignez une URL de webhook Discord valide.", true);
             return;
         }
