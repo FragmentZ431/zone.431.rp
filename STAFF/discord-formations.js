@@ -204,6 +204,7 @@
             list.innerHTML = (data.departments || [])
                 .map(department => renderDepartment(department, configByDepartment.get(department.code)))
                 .join("") || '<div class="empty-state">Aucun département configuré.</div>';
+            list.querySelectorAll("[data-department]").forEach(updatePreview);
 
             $("settingsContent").classList.remove("hidden");
             list.addEventListener("submit", saveConfiguration);
