@@ -496,3 +496,98 @@
         min-height: 43px;
     }
 }
+
+
+/* MODULE 14 — boutons sobres */
+.discord-webhook-card .discord-upload-button,
+.discord-webhook-card .discord-media-actions [data-delete-media],
+.discord-webhook-card .discord-form-actions [data-test],
+.discord-webhook-card .discord-form-actions button[type="submit"] {
+    min-height: 34px;
+    padding: 0 12px;
+    border: 1px solid rgba(130, 150, 170, .38);
+    border-radius: 5px;
+    box-shadow: none;
+    font: 600 11px/1 Arial, Helvetica, sans-serif;
+    letter-spacing: .15px;
+    text-transform: none;
+    transform: none;
+}
+
+.discord-webhook-card .discord-upload-button {
+    color: #cbd8e5;
+    border-color: rgba(112, 145, 174, .42);
+    background: rgba(55, 82, 108, .22);
+}
+
+.discord-webhook-card .discord-upload-button::before,
+.discord-webhook-card .discord-upload-button::after,
+.discord-webhook-card .discord-media-actions [data-delete-media]::before,
+.discord-webhook-card .discord-form-actions [data-test]::before,
+.discord-webhook-card .discord-form-actions button[type="submit"]::before {
+    content: none;
+    display: none;
+}
+
+.discord-webhook-card .discord-upload-button:hover:not(:disabled) {
+    color: #edf4fa;
+    border-color: rgba(139, 171, 199, .7);
+    background: rgba(67, 100, 130, .34);
+    box-shadow: none;
+    transform: none;
+}
+
+.discord-webhook-card .discord-media-actions [data-delete-media] {
+    color: #d5bfc1;
+    border-color: rgba(155, 91, 96, .38);
+    background: rgba(112, 48, 54, .18);
+}
+
+.discord-webhook-card .discord-media-actions [data-delete-media]:hover:not(:disabled) {
+    color: #f0dfe0;
+    border-color: rgba(181, 111, 116, .65);
+    background: rgba(125, 55, 62, .3);
+    box-shadow: none;
+}
+
+.discord-webhook-card .discord-form-actions [data-test] {
+    color: #cbd8e5;
+    border-color: rgba(112, 145, 174, .4);
+    background: rgba(55, 82, 108, .2);
+}
+
+.discord-webhook-card .discord-form-actions [data-test]:hover:not(:disabled) {
+    color: #edf4fa;
+    border-color: rgba(139, 171, 199, .7);
+    background: rgba(67, 100, 130, .32);
+    box-shadow: none;
+}
+
+.discord-webhook-card .discord-form-actions button[type="submit"] {
+    color: #ead6d7;
+    border-color: rgba(165, 75, 82, .52);
+    background: rgba(132, 43, 50, .38);
+}
+
+.discord-webhook-card .discord-form-actions button[type="submit"]:hover:not(:disabled) {
+    color: #fff;
+    border-color: rgba(190, 103, 109, .72);
+    background: rgba(150, 49, 57, .52);
+    box-shadow: none;
+    transform: none;
+}
+
+.discord-webhook-card .discord-form-actions button:active:not(:disabled),
+.discord-webhook-card .discord-media-actions button:active:not(:disabled) {
+    transform: none;
+    box-shadow: none;
+}
+
+@media (max-width: 650px) {
+    .discord-webhook-card .discord-upload-button,
+    .discord-webhook-card .discord-media-actions [data-delete-media],
+    .discord-webhook-card .discord-form-actions [data-test],
+    .discord-webhook-card .discord-form-actions button[type="submit"] {
+        min-height: 40px;
+    }
+}
