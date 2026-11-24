@@ -63,6 +63,33 @@ function renderDiscordTemplate(
   return output.trim().slice(0, 1900);
 }
 
+
+function buildDepartmentEmbed(config: any, description: string, values: Record<string, string>) {
+  const safeUrl = (value: unknown) => {
+    try { const url = new URL(String(value || "")); return url.protocol === "https:" ? url.toString() : ""; }
+    catch { return ""; }
+  };
+  const title = renderDiscordTemplate(
+    String(config.embed_title_template || "{departement} // NOTIFICATION"),
+    values,
+  ).slice(0, 256);
+  const footer = safeText(config.embed_footer || "ZONE-431", 2048);
+  const authorName = safeText(config.embed_author_name, 256);
+  const authorUrl = safeUrl(config.embed_author_url);
+  const thumbnail = safeUrl(config.embed_thumbnail_url);
+  const image = safeUrl(config.embed_image_url);
+  return {
+    description,
+    color: Number(config.embed_color) || 10893347,
+    ...(title ? { title } : {}),
+    ...(footer ? { footer: { text: footer } } : {}),
+    ...(authorName ? { author: { name: authorName, ...(authorUrl ? { url: authorUrl } : {}) } } : {}),
+    ...(thumbnail ? { thumbnail: { url: thumbnail } } : {}),
+    ...(image ? { image: { url: image } } : {}),
+    ...(config.embed_timestamp !== false ? { timestamp: new Date().toISOString() } : {}),
+  };
+}
+
 const DEFAULT_DISCORD_TEMPLATES: Record<string, string> = {
   document_published: "**NOUVEAU DOCUMENT PUBLIÉ**\n\n**{titre}**\n{resume}\n\n[Consulter le document]({lien})",
   document_updated: "**DOCUMENT MIS À JOUR**\n\n**{titre}**\n{resume}\n\n[Consulter le document]({lien})",
@@ -159,7 +186,7 @@ Deno.serve(async (req: Request) => {
     let message: string;
     let href: string;
     let discordText: string | null = null;
-    const departmentDiscordMessages: Array<{ webhook_url: string; username: string; avatar_url: string | null; embed_color: number; content: string }> = [];
+    const departmentDiscordMessages: Array<{ webhook_url: string; username: string; avatar_url: string | null; embed: Record<string, unknown>; content: string }> = [];
     let discordEnabled = true;
     let discordLink = "";
     let sourceCategory = "";
@@ -350,7 +377,7 @@ Deno.serve(async (req: Request) => {
         const closureCodes = [...closureDepartmentCodes];
         const [{ data: webhookConfigs, error: webhookError }, { data: departmentRows, error: departmentError }] = await Promise.all([
           adminClient.from("department_discord_webhooks")
-            .select("department_code,webhook_url,enabled,registration_closed_message_template,webhook_username,avatar_url,embed_color")
+            .select("department_code,webhook_url,enabled,registration_closed_message_template,webhook_username,avatar_url,embed_color,embed_title_template,embed_footer,embed_author_name,embed_author_url,embed_thumbnail_url,embed_image_url,embed_timestamp")
             .in("department_code", closureCodes)
             .eq("enabled", true),
           adminClient.from("rp_departments")
@@ -375,7 +402,13 @@ Deno.serve(async (req: Request) => {
               webhook_url: config.webhook_url,
               username: safeText(config.webhook_username || "ZONE-431", 80),
               avatar_url: config.avatar_url || null,
-              embed_color: Number(config.embed_color) || 10893347,
+              embed: buildDepartmentEmbed(config, rendered, {
+                formation: safeText(data.title, 180),
+                departement: safeText(names.get(config.department_code) || config.department_code, 120),
+                titre: safeText(data.title, 180),
+                resume: "Les inscriptions sont maintenant clôturées.",
+                lien: discordLink,
+              }),
               content: rendered,
             });
           }
@@ -534,7 +567,7 @@ Deno.serve(async (req: Request) => {
           body: JSON.stringify({
             username: item.username,
             ...(item.avatar_url ? { avatar_url: item.avatar_url } : {}),
-            embeds: [{ description: item.content, color: item.embed_color }],
+            embeds: [item.embed],
             allowed_mentions: { parse: [] },
           }),
         });
