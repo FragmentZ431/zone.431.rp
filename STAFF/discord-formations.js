@@ -79,7 +79,8 @@
                         <span>Avatar du bot</span>
                         <input name="avatar_url" type="url" placeholder="URL HTTPS ou importez une image" value="${escapeHTML(config?.avatar_url || "")}">
                         <div class="discord-media-actions">
-                            <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" data-upload-for="avatar_url">
+                            <button class="discord-upload-button" type="button" data-open-upload="avatar_url">Importer un fichier</button>
+                            <input class="discord-file-input" type="file" accept="image/png,image/jpeg,image/webp,image/gif" data-upload-for="avatar_url">
                             <button class="button button-secondary" type="button" data-delete-media="avatar_url">Supprimer l'image</button>
                         </div>
                     </label>
@@ -124,7 +125,8 @@
                         <span>Icône de l'auteur (facultatif)</span>
                         <input name="embed_author_icon_url" type="url" placeholder="URL HTTPS ou importez une image" value="${escapeHTML(config?.embed_author_icon_url || "")}">
                         <div class="discord-media-actions">
-                            <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" data-upload-for="embed_author_icon_url">
+                            <button class="discord-upload-button" type="button" data-open-upload="embed_author_icon_url">Importer un fichier</button>
+                            <input class="discord-file-input" type="file" accept="image/png,image/jpeg,image/webp,image/gif" data-upload-for="embed_author_icon_url">
                             <button class="button button-secondary" type="button" data-delete-media="embed_author_icon_url">Supprimer l'image</button>
                         </div>
                     </label>
@@ -133,7 +135,8 @@
                         <span>Miniature de l'Embed</span>
                         <input name="embed_thumbnail_url" type="url" placeholder="URL HTTPS ou importez une image" value="${escapeHTML(config?.embed_thumbnail_url || "")}">
                         <div class="discord-media-actions">
-                            <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" data-upload-for="embed_thumbnail_url">
+                            <button class="discord-upload-button" type="button" data-open-upload="embed_thumbnail_url">Importer un fichier</button>
+                            <input class="discord-file-input" type="file" accept="image/png,image/jpeg,image/webp,image/gif" data-upload-for="embed_thumbnail_url">
                             <button class="button button-secondary" type="button" data-delete-media="embed_thumbnail_url">Supprimer l'image</button>
                         </div>
                     </label>
@@ -141,7 +144,8 @@
                         <span>Image principale de l'Embed</span>
                         <input name="embed_image_url" type="url" placeholder="URL HTTPS ou importez une image" value="${escapeHTML(config?.embed_image_url || "")}">
                         <div class="discord-media-actions">
-                            <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" data-upload-for="embed_image_url">
+                            <button class="discord-upload-button" type="button" data-open-upload="embed_image_url">Importer un fichier</button>
+                            <input class="discord-file-input" type="file" accept="image/png,image/jpeg,image/webp,image/gif" data-upload-for="embed_image_url">
                             <button class="button button-secondary" type="button" data-delete-media="embed_image_url">Supprimer l'image</button>
                         </div>
                     </label>
@@ -234,6 +238,12 @@
             $("settingsContent").classList.remove("hidden");
             list.addEventListener("submit", saveConfiguration);
             list.addEventListener("click", event => {
+                const uploadButton = event.target.closest("[data-open-upload]");
+                if (uploadButton) {
+                    const fieldName = uploadButton.dataset.openUpload;
+                    const picker = uploadButton.parentElement.querySelector("[data-upload-for='" + fieldName + "']");
+                    if (picker && !picker.disabled) picker.click();
+                }
                 testWebhook(event);
                 deleteMedia(event);
             });
