@@ -195,6 +195,12 @@
             const configByDepartment = new Map(
                 (data.configs || []).map(config => [config.department_code, config])
             );
+            list.querySelectorAll("[data-department]").forEach(updatePreview);
+            list.addEventListener("input", event => {
+                const card = event.target.closest("[data-department]");
+                if (card) updatePreview(card);
+            });
+
             list.innerHTML = (data.departments || [])
                 .map(department => renderDepartment(department, configByDepartment.get(department.code)))
                 .join("") || '<div class="empty-state">Aucun département configuré.</div>';
@@ -207,6 +213,30 @@
             $("accessDenied").classList.remove("hidden");
             $("accessDenied").querySelector("p").textContent = error.message || "Accès refusé.";
         }
+    }
+
+    function updatePreview(card) {
+        const form = card.querySelector("form");
+        if (!form) return;
+        const get = name => form.elements[name]?.value || "";
+        const department = card.querySelector("h2")?.textContent || "DÉPARTEMENT";
+        const replace = value => String(value || "")
+            .replaceAll("{departement}", department)
+            .replaceAll("{pseudo}", "Agent Exemple")
+            .replaceAll("{prenom}", "Prénom")
+            .replaceAll("{nom}", "Nom")
+            .replaceAll("{formation}", "Formation de démonstration")
+            .replaceAll("{ancien}", "Ancien niveau")
+            .replaceAll("{nouveau}", "Nouveau niveau")
+            .replaceAll("{grade}", "Agent de Première Classe")
+            .replaceAll("{accreditation}", "ACC 2");
+        const preview = card.querySelector("[data-preview]");
+        if (!preview) return;
+        preview.style.setProperty("--preview-color", get("embed_color") || "#a52c33");
+        card.querySelector("[data-preview-title]").textContent = replace(get("embed_title_template") || "{departement} // NOTIFICATION");
+        card.querySelector("[data-preview-description]").textContent = replace(get("message_template")) || "Votre contenu apparaîtra ici.";
+        card.querySelector("[data-preview-footer]").textContent = get("embed_footer") || "ZONE-431";
+        card.querySelector("[data-preview-author]").textContent = get("embed_author_name");
     }
 
     async function testWebhook(event) {
@@ -250,6 +280,12 @@
         const values = new FormData(form);
         const webhookUrl = String(values.get("webhook_url") || "").trim();
         const avatarUrl = String(values.get("avatar_url") || "").trim();
+        const embedTitle = String(values.get("embed_title_template") || "").trim();
+        const embedFooter = String(values.get("embed_footer") || "").trim();
+        const embedAuthorName = String(values.get("embed_author_name") || "").trim();
+        const embedAuthorUrl = String(values.get("embed_author_url") || "").trim();
+        const embedThumbnailUrl = String(values.get("embed_thumbnail_url") || "").trim();
+        const embedImageUrl = String(values.get("embed_image_url") || "").trim();
         const template = String(values.get("message_template") || "").trim();
         const accreditationTemplate = String(values.get("accreditation_message_template") || "").trim();
         const gradeTemplate = String(values.get("grade_message_template") || "").trim();
@@ -259,6 +295,14 @@
 
         if ((!webhookUrl && card.dataset.hasWebhook !== "true") || (webhookUrl && !validWebhook(webhookUrl))) {
             toast("Renseignez une URL de webhook Discord valide.", true);
+            return;
+        }
+        const validHttps = value => {
+            if (!value) return true;
+            try { return new URL(value).protocol === "https:"; } catch { return false; }
+        };
+        if (![avatarUrl, embedAuthorUrl, embedThumbnailUrl, embedImageUrl].every(validHttps)) {
+            toast("Les URL d'images et de liens doivent être valides et utiliser HTTPS.", true);
             return;
         }
         if (!validAvatar(avatarUrl)) {
@@ -291,7 +335,14 @@
                     registration_closed_message_template: closureTemplate,
                     webhook_username: username,
                     avatar_url: avatarUrl,
-                    embed_color: parseInt(color.slice(1), 16)
+                    embed_color: parseInt(color.slice(1), 16),
+                    embed_title_template: embedTitle,
+                    embed_footer: embedFooter,
+                    embed_author_name: embedAuthorName,
+                    embed_author_url: embedAuthorUrl,
+                    embed_thumbnail_url: embedThumbnailUrl,
+                    embed_image_url: embedImageUrl,
+                    embed_timestamp: form.elements.embed_timestamp.checked
                 }
             });
             if (error) throw error;
