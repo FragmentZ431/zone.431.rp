@@ -53,7 +53,7 @@ function safeHttps(value: unknown): string {
 }
 
 function buildEmbed(config: any, description: string, values: Record<string, string>) {
-  const titleTemplate = cleanTemplate(config.embed_title_template, "{departement} // NOTIFICATION").slice(0, 256);
+  const titleTemplate = cleanTemplate(config.embed_title_template || "{departement} // NOTIFICATION").slice(0, 256);
   const title = renderTemplate(titleTemplate, values).slice(0, 256);
   const footer = text(config.embed_footer || "ZONE-431", 2048);
   const authorName = text(config.embed_author_name, 256);
