@@ -74,8 +74,12 @@
                         <input name="webhook_username" type="text" maxlength="80" value="${escapeHTML(config?.webhook_username || "ZONE-431")}">
                     </label>
                     <label class="field">
-                        <span>Avatar du bot (URL HTTPS, facultatif)</span>
-                        <input name="avatar_url" type="url" placeholder="https://..." value="${escapeHTML(config?.avatar_url || "")}">
+                        <span>Avatar du bot</span>
+                        <input name="avatar_url" type="url" placeholder="URL HTTPS ou importez une image" value="${escapeHTML(config?.avatar_url || "")}">
+                        <div class="discord-media-actions">
+                            <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" data-upload-for="avatar_url">
+                            <button class="button button-secondary" type="button" data-delete-media="avatar_url">Supprimer l'image</button>
+                        </div>
                     </label>
                     <label class="field full">
                         <span>Modèle du message</span>
@@ -115,12 +119,29 @@
                         <input name="embed_author_url" type="url" value="${escapeHTML(config?.embed_author_url || "")}">
                     </label>
                     <label class="field">
-                        <span>Miniature (URL HTTPS, facultatif)</span>
-                        <input name="embed_thumbnail_url" type="url" value="${escapeHTML(config?.embed_thumbnail_url || "")}">
+                        <span>Icône de l'auteur (facultatif)</span>
+                        <input name="embed_author_icon_url" type="url" placeholder="URL HTTPS ou importez une image" value="${escapeHTML(config?.embed_author_icon_url || "")}">
+                        <div class="discord-media-actions">
+                            <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" data-upload-for="embed_author_icon_url">
+                            <button class="button button-secondary" type="button" data-delete-media="embed_author_icon_url">Supprimer l'image</button>
+                        </div>
+                    </label>
+
+                    <label class="field">
+                        <span>Miniature de l'Embed</span>
+                        <input name="embed_thumbnail_url" type="url" placeholder="URL HTTPS ou importez une image" value="${escapeHTML(config?.embed_thumbnail_url || "")}">
+                        <div class="discord-media-actions">
+                            <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" data-upload-for="embed_thumbnail_url">
+                            <button class="button button-secondary" type="button" data-delete-media="embed_thumbnail_url">Supprimer l'image</button>
+                        </div>
                     </label>
                     <label class="field">
-                        <span>Image principale (URL HTTPS, facultatif)</span>
-                        <input name="embed_image_url" type="url" value="${escapeHTML(config?.embed_image_url || "")}">
+                        <span>Image principale de l'Embed</span>
+                        <input name="embed_image_url" type="url" placeholder="URL HTTPS ou importez une image" value="${escapeHTML(config?.embed_image_url || "")}">
+                        <div class="discord-media-actions">
+                            <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" data-upload-for="embed_image_url">
+                            <button class="button button-secondary" type="button" data-delete-media="embed_image_url">Supprimer l'image</button>
+                        </div>
                     </label>
                     <label class="discord-enabled">
                         <input name="embed_timestamp" type="checkbox" ${config?.embed_timestamp !== false ? "checked" : ""}>
@@ -134,6 +155,7 @@
                                 <div class="discord-preview-author" data-preview-author></div>
                                 <div class="discord-preview-title" data-preview-title>NOTIFICATION DÉPARTEMENTALE</div>
                                 <div class="discord-preview-description" data-preview-description>Un aperçu de votre message apparaîtra ici.</div>
+                                <img class="discord-preview-thumbnail" data-preview-thumbnail alt="" hidden>
                                 <div class="discord-preview-footer" data-preview-footer>ZONE-431</div>
                             </div>
                         </div>
@@ -142,7 +164,8 @@
                         <span>Couleur de l'encart Discord</span>
                         <div class="discord-inline-field">
                             <input name="embed_color" type="color" value="${toHex(config?.embed_color)}">
-                            <small>Appliquée à l'encart du message.</small>
+                            <input name="embed_color_hex" type="text" inputmode="text" maxlength="7" pattern="#[0-9a-fA-F]{6}" aria-label="Code hexadécimal de la couleur" value="${toHex(config?.embed_color)}">
+                            <small>Choisissez une couleur ou saisissez son code HEX. Elle sera conservée après actualisation.</small>
                         </div>
                     </div>
                     <label class="discord-enabled">
@@ -208,7 +231,23 @@
 
             $("settingsContent").classList.remove("hidden");
             list.addEventListener("submit", saveConfiguration);
-            list.addEventListener("click", testWebhook);
+            list.addEventListener("click", event => {
+                testWebhook(event);
+                deleteMedia(event);
+            });
+            list.addEventListener("change", uploadMedia);
+            list.addEventListener("input", event => {
+                const card = event.target.closest("[data-department]");
+                if (!card) return;
+                if (event.target.name === "embed_color_hex") {
+                    const hex = event.target.value.trim();
+                    if (/^#[0-9a-fA-F]{6}$/.test(hex)) formColor(card, hex);
+                } else if (event.target.name === "embed_color") {
+                    const hex = event.target.value;
+                    const field = card.querySelector("[name='embed_color_hex']");
+                    if (field) field.value = hex;
+                }
+            });
         } catch (error) {
             console.error("[ZONE-431] Configuration Discord :", error);
             $("accessDenied").classList.remove("hidden");
@@ -234,10 +273,110 @@
         const preview = card.querySelector("[data-preview]");
         if (!preview) return;
         preview.style.setProperty("--preview-color", get("embed_color") || "#a52c33");
+        const thumbnail = card.querySelector("[data-preview-thumbnail]");
+        if (thumbnail) {
+            const source = get("embed_thumbnail_url") || get("embed_image_url");
+            thumbnail.hidden = !source;
+            thumbnail.src = source || "";
+        }
         card.querySelector("[data-preview-title]").textContent = replace(get("embed_title_template") || "{departement} // NOTIFICATION");
         card.querySelector("[data-preview-description]").textContent = replace(get("message_template")) || "Votre contenu apparaîtra ici.";
         card.querySelector("[data-preview-footer]").textContent = get("embed_footer") || "ZONE-431";
         card.querySelector("[data-preview-author]").textContent = get("embed_author_name");
+    }
+
+    const DISCORD_ASSET_BUCKET = "zone431-discord-assets";
+    const IMAGE_LIMIT = 5 * 1024 * 1024;
+
+    function formColor(card, hex) {
+        const picker = card.querySelector("[name='embed_color']");
+        if (picker) picker.value = hex;
+        updatePreview(card);
+    }
+
+    function extensionFor(file) {
+        return ({ "image/png": "png", "image/jpeg": "jpg", "image/webp": "webp", "image/gif": "gif" })[file.type] || "";
+    }
+
+    async function uploadMedia(event) {
+        const picker = event.target.closest("[data-upload-for]");
+        if (!picker?.files?.length) return;
+        const card = picker.closest("[data-department]");
+        const form = card?.querySelector("form");
+        const fieldName = picker.dataset.uploadFor;
+        const file = picker.files[0];
+        const extension = extensionFor(file);
+        if (!extension) {
+            toast("Format refusé. Utilisez PNG, JPG, WEBP ou GIF.", true);
+            picker.value = "";
+            return;
+        }
+        if (file.size > IMAGE_LIMIT) {
+            toast("L'image dépasse la limite de 5 Mo.", true);
+            picker.value = "";
+            return;
+        }
+        picker.disabled = true;
+        try {
+            const path = card.dataset.department + "/" + fieldName + "-" + crypto.randomUUID() + "." + extension;
+            const { error: uploadError } = await client.storage.from(DISCORD_ASSET_BUCKET).upload(path, file, {
+                cacheControl: "3600", upsert: false, contentType: file.type
+            });
+            if (uploadError) throw uploadError;
+            const { data } = client.storage.from(DISCORD_ASSET_BUCKET).getPublicUrl(path);
+            form.elements[fieldName].value = data.publicUrl;
+            updatePreview(card);
+            await saveConfiguration({ target: form, preventDefault() {} });
+            toast("Image importée et configuration enregistrée.");
+        } catch (error) {
+            console.error("[ZONE-431] Import image Discord :", error);
+            toast(error.message || "Impossible d'importer cette image.", true);
+        } finally {
+            picker.disabled = false;
+            picker.value = "";
+        }
+    }
+
+    function storagePathFromPublicUrl(value) {
+        try {
+            const url = new URL(value);
+            const marker = "/storage/v1/object/public/" + DISCORD_ASSET_BUCKET + "/";
+            const index = url.pathname.indexOf(marker);
+            return index < 0 ? "" : decodeURIComponent(url.pathname.slice(index + marker.length));
+        } catch {
+            return "";
+        }
+    }
+
+    async function deleteMedia(event) {
+        const button = event.target.closest("[data-delete-media]");
+        if (!button) return;
+        const card = button.closest("[data-department]");
+        const form = card?.querySelector("form");
+        const fieldName = button.dataset.deleteMedia;
+        const input = form?.elements[fieldName];
+        if (!input?.value) {
+            toast("Aucune image n'est définie dans ce champ.", true);
+            return;
+        }
+        if (!confirm("Supprimer cette image du stockage Zone-431 et retirer son lien de la configuration ?")) return;
+        button.disabled = true;
+        try {
+            const path = storagePathFromPublicUrl(input.value);
+            if (path) {
+                const { error } = await client.storage.from(DISCORD_ASSET_BUCKET).remove([path]);
+                if (error) throw error;
+            }
+            input.value = "";
+            updatePreview(card);
+            await saveConfiguration({ target: form, preventDefault() {} });
+            toast(path ? "Image supprimée et configuration mise à jour." : "Lien externe retiré de la configuration.");
+        } catch (error) {
+            console.error("[ZONE-431] Suppression image Discord :", error);
+            toast(error.message || "Impossible de supprimer cette image.", true);
+        } finally {
+            button.disabled = false;
+        }
     }
 
     async function testWebhook(event) {
@@ -292,7 +431,7 @@
         const gradeTemplate = String(values.get("grade_message_template") || "").trim();
         const closureTemplate = String(values.get("registration_closed_message_template") || "").trim();
         const username = String(values.get("webhook_username") || "ZONE-431").trim();
-        const color = String(values.get("embed_color") || "#a52c33");
+        const color = String(values.get("embed_color_hex") || values.get("embed_color") || "#a52c33").trim();
 
         if ((!webhookUrl && card.dataset.hasWebhook !== "true") || (webhookUrl && !validWebhook(webhookUrl))) {
             toast("Renseignez une URL de webhook Discord valide.", true);
@@ -302,7 +441,8 @@
             if (!value) return true;
             try { return new URL(value).protocol === "https:"; } catch { return false; }
         };
-        if (![avatarUrl, embedAuthorUrl, embedThumbnailUrl, embedImageUrl].every(validHttps)) {
+        const authorIconUrl = String(values.get("embed_author_icon_url") || "").trim();
+        if (![avatarUrl, embedAuthorUrl, authorIconUrl, embedThumbnailUrl, embedImageUrl].every(validHttps)) {
             toast("Les URL d'images et de liens doivent être valides et utiliser HTTPS.", true);
             return;
         }
@@ -341,6 +481,7 @@
                     embed_footer: embedFooter,
                     embed_author_name: embedAuthorName,
                     embed_author_url: embedAuthorUrl,
+                    embed_author_icon_url: String(values.get("embed_author_icon_url") || "").trim(),
                     embed_thumbnail_url: embedThumbnailUrl,
                     embed_image_url: embedImageUrl,
                     embed_timestamp: form.elements.embed_timestamp.checked
