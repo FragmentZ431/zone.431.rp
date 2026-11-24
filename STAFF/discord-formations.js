@@ -97,6 +97,47 @@
                         <textarea name="grade_message_template" maxlength="1900" required>${escapeHTML(gradeTemplate)}</textarea>
                         <small>Variables : {pseudo}, {ancien}, {nouveau}, {departement}, {grade}, {accreditation}</small>
                     </label>
+                    <label class="field">
+                        <span>Titre de l'Embed (facultatif)</span>
+                        <input name="embed_title_template" maxlength="256" value="${escapeHTML(config?.embed_title_template || "{departement} // NOTIFICATION")}">
+                        <small>Variables : {pseudo}, {formation}, {departement}, {ancien}, {nouveau}, {grade}, {accreditation}</small>
+                    </label>
+                    <label class="field">
+                        <span>Signature / pied de page</span>
+                        <input name="embed_footer" maxlength="2048" value="${escapeHTML(config?.embed_footer || "ZONE-431")}">
+                    </label>
+                    <label class="field">
+                        <span>Auteur affiché (facultatif)</span>
+                        <input name="embed_author_name" maxlength="256" value="${escapeHTML(config?.embed_author_name || "")}">
+                    </label>
+                    <label class="field">
+                        <span>Lien de l'auteur (HTTPS, facultatif)</span>
+                        <input name="embed_author_url" type="url" value="${escapeHTML(config?.embed_author_url || "")}">
+                    </label>
+                    <label class="field">
+                        <span>Miniature (URL HTTPS, facultatif)</span>
+                        <input name="embed_thumbnail_url" type="url" value="${escapeHTML(config?.embed_thumbnail_url || "")}">
+                    </label>
+                    <label class="field">
+                        <span>Image principale (URL HTTPS, facultatif)</span>
+                        <input name="embed_image_url" type="url" value="${escapeHTML(config?.embed_image_url || "")}">
+                    </label>
+                    <label class="discord-enabled">
+                        <input name="embed_timestamp" type="checkbox" ${config?.embed_timestamp !== false ? "checked" : ""}>
+                        Afficher la date et l'heure d'envoi
+                    </label>
+                    <div class="discord-preview-wrap full">
+                        <span class="field-label">Aperçu du rendu Discord</span>
+                        <div class="discord-preview" data-preview>
+                            <div class="discord-preview-accent"></div>
+                            <div class="discord-preview-content">
+                                <div class="discord-preview-author" data-preview-author></div>
+                                <div class="discord-preview-title" data-preview-title>NOTIFICATION DÉPARTEMENTALE</div>
+                                <div class="discord-preview-description" data-preview-description>Un aperçu de votre message apparaîtra ici.</div>
+                                <div class="discord-preview-footer" data-preview-footer>ZONE-431</div>
+                            </div>
+                        </div>
+                    </div>
                     <div class="field">
                         <span>Couleur de l'encart Discord</span>
                         <div class="discord-inline-field">
