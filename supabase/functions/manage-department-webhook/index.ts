@@ -58,14 +58,16 @@ function buildEmbed(config: any, description: string, values: Record<string, str
   const footer = text(config.embed_footer || "ZONE-431", 2048);
   const authorName = text(config.embed_author_name, 256);
   const authorUrl = safeHttps(config.embed_author_url);
+  const authorIconUrl = safeHttps(config.embed_author_icon_url);
   const thumbnailUrl = safeHttps(config.embed_thumbnail_url);
   const imageUrl = safeHttps(config.embed_image_url);
   return {
     description,
-    color: Number(config.embed_color) || 10893347,
+    color: Number.isInteger(Number(config.embed_color)) && Number(config.embed_color) >= 0 && Number(config.embed_color) <= 16777215
+      ? Number(config.embed_color) : 10893347,
     ...(title ? { title } : {}),
     ...(footer ? { footer: { text: footer } } : {}),
-    ...(authorName ? { author: { name: authorName, ...(authorUrl ? { url: authorUrl } : {}) } } : {}),
+    ...(authorName ? { author: { name: authorName, ...(authorUrl ? { url: authorUrl } : {}), ...(authorIconUrl ? { icon_url: authorIconUrl } : {}) } } : {}),
     ...(thumbnailUrl ? { thumbnail: { url: thumbnailUrl } } : {}),
     ...(imageUrl ? { image: { url: imageUrl } } : {}),
     ...(config.embed_timestamp !== false ? { timestamp: new Date().toISOString() } : {}),
@@ -150,7 +152,7 @@ Deno.serve(async (req: Request) => {
       const [departmentsResult, configsResult] = await Promise.all([
         adminClient.from("rp_departments").select("code,name").order("code"),
         adminClient.from("department_discord_webhooks")
-          .select("department_code,enabled,message_template,accreditation_message_template,grade_message_template,registration_closed_message_template,webhook_username,avatar_url,embed_color,embed_title_template,embed_footer,embed_author_name,embed_author_url,embed_thumbnail_url,embed_image_url,embed_timestamp,webhook_url"),
+          .select("department_code,enabled,message_template,accreditation_message_template,grade_message_template,registration_closed_message_template,webhook_username,avatar_url,embed_color,embed_title_template,embed_footer,embed_author_name,embed_author_url,embed_author_icon_url,embed_thumbnail_url,embed_image_url,embed_timestamp,webhook_url"),
       ]);
       if (departmentsResult.error) throw departmentsResult.error;
       if (configsResult.error) throw configsResult.error;
@@ -169,6 +171,7 @@ Deno.serve(async (req: Request) => {
         embed_footer: row.embed_footer,
         embed_author_name: row.embed_author_name,
         embed_author_url: row.embed_author_url,
+        embed_author_icon_url: row.embed_author_icon_url,
         embed_thumbnail_url: row.embed_thumbnail_url,
         embed_image_url: row.embed_image_url,
         embed_timestamp: row.embed_timestamp,
@@ -210,7 +213,7 @@ Deno.serve(async (req: Request) => {
 
       const [{ data: configs, error: configError }, { data: departments, error: departmentError }] = await Promise.all([
         adminClient.from("department_discord_webhooks")
-          .select("department_code,webhook_url,enabled,accreditation_message_template,grade_message_template,webhook_username,avatar_url,embed_color,embed_title_template,embed_footer,embed_author_name,embed_author_url,embed_thumbnail_url,embed_image_url,embed_timestamp")
+          .select("department_code,webhook_url,enabled,accreditation_message_template,grade_message_template,webhook_username,avatar_url,embed_color,embed_title_template,embed_footer,embed_author_name,embed_author_url,embed_author_icon_url,embed_thumbnail_url,embed_image_url,embed_timestamp")
           .in("department_code", departmentCodes)
           .eq("enabled", true),
         adminClient.from("rp_departments")
@@ -274,7 +277,7 @@ Deno.serve(async (req: Request) => {
 
       const { data: config, error: configError } = await adminClient
         .from("department_discord_webhooks")
-        .select("webhook_url,enabled,message_template,accreditation_message_template,grade_message_template,registration_closed_message_template,webhook_username,avatar_url,embed_color,embed_title_template,embed_footer,embed_author_name,embed_author_url,embed_thumbnail_url,embed_image_url,embed_timestamp")
+        .select("webhook_url,enabled,message_template,accreditation_message_template,grade_message_template,registration_closed_message_template,webhook_username,avatar_url,embed_color,embed_title_template,embed_footer,embed_author_name,embed_author_url,embed_author_icon_url,embed_thumbnail_url,embed_image_url,embed_timestamp")
         .eq("department_code", departmentCode)
         .maybeSingle();
       if (configError) throw configError;
@@ -347,6 +350,7 @@ Deno.serve(async (req: Request) => {
       const embedFooter = text(body.embed_footer || "ZONE-431", 2048);
       const embedAuthorName = text(body.embed_author_name, 256);
       const embedAuthorUrl = safeHttps(body.embed_author_url);
+      const embedAuthorIconUrl = safeHttps(body.embed_author_icon_url);
       const embedThumbnailUrl = safeHttps(body.embed_thumbnail_url);
       const embedImageUrl = safeHttps(body.embed_image_url);
       const embedTimestamp = body.embed_timestamp !== false;
@@ -403,6 +407,7 @@ Deno.serve(async (req: Request) => {
           embed_footer: embedFooter,
           embed_author_name: embedAuthorName,
           embed_author_url: embedAuthorUrl,
+          embed_author_icon_url: embedAuthorIconUrl,
           embed_thumbnail_url: embedThumbnailUrl,
           embed_image_url: embedImageUrl,
           embed_timestamp: embedTimestamp,
