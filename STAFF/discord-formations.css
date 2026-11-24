@@ -30,3 +30,11 @@
 .discord-preview-description { color: #dbdee1; font-size: 13px; line-height: 1.55; white-space: pre-wrap; overflow-wrap: anywhere; }
 .discord-preview-footer { color: #b5bac1; font-size: 11px; margin-top: 13px; border-top: 1px solid rgba(255,255,255,.08); padding-top: 8px; }
 @media (max-width: 650px) { .discord-preview { max-width: 100%; } }
+
+
+.discord-media-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 8px; }
+.discord-media-actions input[type="file"] { min-width: 0; max-width: 100%; color: var(--formation-muted); font-size: 12px; }
+.discord-media-actions button { white-space: nowrap; }
+.discord-inline-field input[name="embed_color_hex"] { width: 100px; min-width: 100px; padding: 8px 10px; border: 1px solid var(--formation-border, #41434a); border-radius: 6px; background: #17191d; color: #f2f3f5; font: inherit; }
+.discord-preview-thumbnail { display: block; max-width: 100%; width: 320px; max-height: 180px; object-fit: contain; object-position: left center; border-radius: 4px; margin-top: 12px; }
+.discord-preview-thumbnail[hidden] { display: none; }
