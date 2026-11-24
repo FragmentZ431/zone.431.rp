@@ -23,7 +23,9 @@
     }
 
     function toHex(value) {
-        return "#" + Number(value || 10893347).toString(16).padStart(6, "0").slice(-6);
+        const numeric = Number(value ?? 10893347);
+        const safe = Number.isInteger(numeric) && numeric >= 0 && numeric <= 16777215 ? numeric : 10893347;
+        return "#" + safe.toString(16).padStart(6, "0").slice(-6);
     }
 
     function validWebhook(value) {
@@ -326,7 +328,11 @@
             const { data } = client.storage.from(DISCORD_ASSET_BUCKET).getPublicUrl(path);
             form.elements[fieldName].value = data.publicUrl;
             updatePreview(card);
-            await saveConfiguration({ target: form, preventDefault() {} });
+            const saved = await saveConfiguration({ target: form, preventDefault() {} });
+            if (!saved) {
+                await client.storage.from(DISCORD_ASSET_BUCKET).remove([path]);
+                throw new Error("L'image a été importée, mais la configuration n'a pas pu être enregistrée.");
+            }
             toast("Image importée et configuration enregistrée.");
         } catch (error) {
             console.error("[ZONE-431] Import image Discord :", error);
@@ -367,9 +373,19 @@
                 const { error } = await client.storage.from(DISCORD_ASSET_BUCKET).remove([path]);
                 if (error) throw error;
             }
+            const previousUrl = input.value;
             input.value = "";
             updatePreview(card);
-            await saveConfiguration({ target: form, preventDefault() {} });
+            const saved = await saveConfiguration({ target: form, preventDefault() {} });
+            if (!saved) {
+                input.value = previousUrl;
+                updatePreview(card);
+                throw new Error("La configuration n'a pas pu être mise à jour. L'image n'a pas été supprimée.");
+            }
+            if (path) {
+                const { error } = await client.storage.from(DISCORD_ASSET_BUCKET).remove([path]);
+                if (error) throw error;
+            }
             toast(path ? "Image supprimée et configuration mise à jour." : "Lien externe retiré de la configuration.");
         } catch (error) {
             console.error("[ZONE-431] Suppression image Discord :", error);
@@ -501,9 +517,11 @@
             const status = card.querySelector(".discord-webhook-status");
             status.textContent = "Configuration enregistrée — webhook sécurisé";
             toast("Configuration Discord enregistrée pour " + departmentCode + ".");
+            return true;
         } catch (error) {
             console.error("[ZONE-431] Enregistrement webhook :", error);
             toast(error.message || "Impossible d'enregistrer cette configuration.", true);
+            return false;
         } finally {
             button.disabled = false;
             button.textContent = "Enregistrer la configuration";
