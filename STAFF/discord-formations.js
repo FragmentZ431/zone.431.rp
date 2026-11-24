@@ -369,10 +369,6 @@
         button.disabled = true;
         try {
             const path = storagePathFromPublicUrl(input.value);
-            if (path) {
-                const { error } = await client.storage.from(DISCORD_ASSET_BUCKET).remove([path]);
-                if (error) throw error;
-            }
             const previousUrl = input.value;
             input.value = "";
             updatePreview(card);
