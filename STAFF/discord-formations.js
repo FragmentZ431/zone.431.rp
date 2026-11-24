@@ -442,6 +442,10 @@
             try { return new URL(value).protocol === "https:"; } catch { return false; }
         };
         const authorIconUrl = String(values.get("embed_author_icon_url") || "").trim();
+        if (!/^#[0-9a-fA-F]{6}$/.test(color)) {
+            toast("Code couleur invalide. Utilisez le format #RRGGBB.", true);
+            return;
+        }
         if (![avatarUrl, embedAuthorUrl, authorIconUrl, embedThumbnailUrl, embedImageUrl].every(validHttps)) {
             toast("Les URL d'images et de liens doivent être valides et utiliser HTTPS.", true);
             return;
