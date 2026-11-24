@@ -76,14 +76,16 @@ function buildDepartmentEmbed(config: any, description: string, values: Record<s
   const footer = safeText(config.embed_footer || "ZONE-431", 2048);
   const authorName = safeText(config.embed_author_name, 256);
   const authorUrl = safeUrl(config.embed_author_url);
+  const authorIconUrl = safeUrl(config.embed_author_icon_url);
   const thumbnail = safeUrl(config.embed_thumbnail_url);
   const image = safeUrl(config.embed_image_url);
   return {
     description,
-    color: Number(config.embed_color) || 10893347,
+    color: Number.isInteger(Number(config.embed_color)) && Number(config.embed_color) >= 0 && Number(config.embed_color) <= 16777215
+      ? Number(config.embed_color) : 10893347,
     ...(title ? { title } : {}),
     ...(footer ? { footer: { text: footer } } : {}),
-    ...(authorName ? { author: { name: authorName, ...(authorUrl ? { url: authorUrl } : {}) } } : {}),
+    ...(authorName ? { author: { name: authorName, ...(authorUrl ? { url: authorUrl } : {}), ...(authorIconUrl ? { icon_url: authorIconUrl } : {}) } } : {}),
     ...(thumbnail ? { thumbnail: { url: thumbnail } } : {}),
     ...(image ? { image: { url: image } } : {}),
     ...(config.embed_timestamp !== false ? { timestamp: new Date().toISOString() } : {}),
@@ -377,7 +379,7 @@ Deno.serve(async (req: Request) => {
         const closureCodes = [...closureDepartmentCodes];
         const [{ data: webhookConfigs, error: webhookError }, { data: departmentRows, error: departmentError }] = await Promise.all([
           adminClient.from("department_discord_webhooks")
-            .select("department_code,webhook_url,enabled,registration_closed_message_template,webhook_username,avatar_url,embed_color,embed_title_template,embed_footer,embed_author_name,embed_author_url,embed_thumbnail_url,embed_image_url,embed_timestamp")
+            .select("department_code,webhook_url,enabled,registration_closed_message_template,webhook_username,avatar_url,embed_color,embed_title_template,embed_footer,embed_author_name,embed_author_url,embed_author_icon_url,embed_thumbnail_url,embed_image_url,embed_timestamp")
             .in("department_code", closureCodes)
             .eq("enabled", true),
           adminClient.from("rp_departments")
