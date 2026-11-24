@@ -212,3 +212,121 @@
         padding: 0 0 0 10px;
     }
 }
+
+
+/* Contrôles de sélection — interface d'importation et listes de test */
+.discord-media-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 9px;
+    border: 1px solid rgba(105, 130, 154, .24);
+    border-radius: 6px;
+    background: rgba(5, 13, 22, .72);
+}
+
+.discord-file-input {
+    display: none !important;
+}
+
+.discord-upload-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 35px;
+    padding: 0 13px;
+    color: #dce7f1;
+    border: 1px solid #526d87;
+    border-radius: 4px;
+    background: linear-gradient(180deg, #2a435b 0%, #1a2d40 100%);
+    font: 700 10px Arial, Helvetica, sans-serif;
+    letter-spacing: .65px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background .18s ease, border-color .18s ease, box-shadow .18s ease, transform .18s ease;
+}
+
+.discord-upload-button::before {
+    content: "↑";
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 17px;
+    height: 17px;
+    color: #c4d7e9;
+    border: 1px solid rgba(196, 215, 233, .4);
+    border-radius: 3px;
+    font-size: 13px;
+    line-height: 1;
+}
+
+.discord-upload-button:hover {
+    color: #fff;
+    border-color: #829db8;
+    background: linear-gradient(180deg, #365773 0%, #223d56 100%);
+    box-shadow: 0 0 0 2px rgba(91, 130, 166, .12);
+}
+
+.discord-upload-button:active {
+    transform: translateY(1px);
+}
+
+.discord-upload-button:focus-visible {
+    outline: 2px solid #91b5d5;
+    outline-offset: 3px;
+}
+
+.discord-media-actions button[data-delete-media] {
+    min-height: 35px;
+}
+
+.discord-form-actions select[name="test_event"] {
+    flex: 0 1 230px;
+    min-width: 190px;
+    min-height: 40px;
+    padding: 0 38px 0 13px;
+    appearance: none;
+    color: #dce6f0;
+    border: 1px solid #455d75;
+    border-radius: 4px;
+    background-color: #0b1724;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='m2 4 4 4 4-4' fill='none' stroke='%239db2c7' stroke-width='1.5'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 13px center;
+    font: 600 11px Arial, Helvetica, sans-serif;
+    letter-spacing: .2px;
+    cursor: pointer;
+    transition: border-color .18s ease, background-color .18s ease, box-shadow .18s ease;
+}
+
+.discord-form-actions select[name="test_event"]:hover {
+    border-color: #7894af;
+    background-color: #112235;
+}
+
+.discord-form-actions select[name="test_event"]:focus-visible {
+    outline: none;
+    border-color: #8ba9c5;
+    box-shadow: 0 0 0 3px rgba(91, 130, 166, .18);
+}
+
+.discord-form-actions select[name="test_event"] option {
+    padding: 10px;
+    color: #dce6f0;
+    background: #101d2b;
+}
+
+@media (max-width: 650px) {
+    .discord-upload-button,
+    .discord-media-actions button[data-delete-media],
+    .discord-form-actions select[name="test_event"] {
+        width: 100%;
+        min-height: 42px;
+    }
+
+    .discord-form-actions select[name="test_event"] {
+        flex-basis: 100%;
+    }
+}
